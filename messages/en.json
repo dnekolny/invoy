@@ -1,0 +1,27 @@
+{
+  "app": { "name": "Invoy" },
+  "login": {
+    "title": "Sign in",
+    "subtitle": "Issue invoices in seconds.",
+    "google": "Continue with Google",
+    "or": "or",
+    "email": "Email",
+    "sendCode": "Send sign-in code",
+    "codeSent": "We sent a code to {email}.",
+    "code": "Code from email",
+    "verify": "Sign in",
+    "back": "Use a different email",
+    "errorSend": "Could not send the code.",
+    "errorVerify": "The code is invalid or expired."
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "signOut": "Sign out",
+    "language": "Language"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome, {name}.",
+    "empty": "Nothing here yet. Company settings and the first invoice come in the next phase."
+  }
+}

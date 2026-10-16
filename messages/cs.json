@@ -1,0 +1,27 @@
+{
+  "app": { "name": "Invoy" },
+  "login": {
+    "title": "Přihlášení",
+    "subtitle": "Vystavujte faktury za pár vteřin.",
+    "google": "Pokračovat přes Google",
+    "or": "nebo",
+    "email": "E-mail",
+    "sendCode": "Poslat přihlašovací kód",
+    "codeSent": "Kód jsme poslali na {email}.",
+    "code": "Kód z e-mailu",
+    "verify": "Přihlásit se",
+    "back": "Zadat jiný e-mail",
+    "errorSend": "Kód se nepodařilo odeslat.",
+    "errorVerify": "Kód je neplatný nebo vypršel."
+  },
+  "nav": {
+    "dashboard": "Přehled",
+    "signOut": "Odhlásit se",
+    "language": "Jazyk"
+  },
+  "dashboard": {
+    "title": "Přehled",
+    "welcome": "Vítejte, {name}.",
+    "empty": "Zatím tu nic není. V další fázi přibude nastavení firmy a první faktura."
+  }
+}
