@@ -1,5 +1,7 @@
 {
-  "app": { "name": "Invoy" },
+  "app": {
+    "name": "Invoy"
+  },
   "login": {
     "title": "Přihlášení",
     "subtitle": "Vystavujte faktury za pár vteřin.",
@@ -17,11 +19,128 @@
   "nav": {
     "dashboard": "Přehled",
     "signOut": "Odhlásit se",
-    "language": "Jazyk"
+    "language": "Jazyk",
+    "customers": "Zákazníci",
+    "settings": "Nastavení"
   },
   "dashboard": {
     "title": "Přehled",
     "welcome": "Vítejte, {name}.",
-    "empty": "Zatím tu nic není. V další fázi přibude nastavení firmy a první faktura."
+    "customers": "Zákazníci",
+    "bankAccounts": "Bankovní účty",
+    "items": "Položky v ceníku",
+    "next": "Faktury přibudou v další fázi."
+  },
+  "common": {
+    "save": "Uložit",
+    "saved": "Uloženo.",
+    "cancel": "Zrušit",
+    "delete": "Smazat",
+    "edit": "Upravit",
+    "error": "Něco se nepovedlo, zkuste to znovu."
+  },
+  "onboarding": {
+    "title": "Založte svou firmu",
+    "subtitle": "Údaje se objeví na fakturách. Zadejte IČO a zbytek doplníme z ARES.",
+    "submit": "Založit firmu"
+  },
+  "settings": {
+    "title": "Nastavení",
+    "company": "Firma",
+    "bankAccounts": "Bankovní účty",
+    "items": "Ceník",
+    "numbering": "Číslování"
+  },
+  "ares": {
+    "ico": "IČO",
+    "lookup": "Načíst z ARES",
+    "notFound": "Subjekt s tímto IČO jsme v ARES nenašli.",
+    "loaded": "Údaje načteny z ARES.",
+    "hint": "Zkontrolujte načtené údaje, ARES nemusí mít aktuální data."
+  },
+  "company": {
+    "identity": "Identifikace",
+    "name": "Název firmy / jméno",
+    "dic": "DIČ",
+    "vatPayer": "Plátce DPH",
+    "address": "Sídlo",
+    "street": "Ulice a číslo",
+    "city": "Město",
+    "zip": "PSČ",
+    "country": "Země",
+    "contact": "Kontakt",
+    "email": "E-mail",
+    "phone": "Telefon",
+    "web": "Web",
+    "invoicing": "Fakturace",
+    "defaultDueDays": "Výchozí splatnost (dny)",
+    "defaultCurrency": "Výchozí měna",
+    "registrationNote": "Zápis v rejstříku",
+    "registrationNotePlaceholder": "Např. Zapsána v OR u Městského soudu v Praze, oddíl C, vložka 12345",
+    "footerText": "Text v zápatí faktury"
+  },
+  "bank": {
+    "intro": "Účty, na které vám zákazníci platí. Výchozí účet se předvyplní na faktuře podle měny.",
+    "empty": "Zatím žádný účet.",
+    "add": "Přidat účet",
+    "addTitle": "Nový bankovní účet",
+    "editTitle": "Upravit účet",
+    "label": "Název",
+    "labelPlaceholder": "Např. Fio CZK",
+    "number": "Číslo účtu",
+    "accountNumber": "Číslo účtu",
+    "bankCode": "Kód banky",
+    "currency": "Měna",
+    "isDefault": "Výchozí účet pro tuto měnu",
+    "default": "výchozí",
+    "deleteTitle": "Smazat bankovní účet?"
+  },
+  "items": {
+    "intro": "Uložené služby a produkty, které vybíráte do faktury našeptávačem.",
+    "empty": "Ceník je prázdný.",
+    "add": "Přidat položku",
+    "addTitle": "Nová položka",
+    "editTitle": "Upravit položku",
+    "name": "Název",
+    "description": "Popis",
+    "unit": "Jednotka",
+    "unitPrice": "Cena / j.",
+    "vatRate": "DPH",
+    "deleteTitle": "Smazat položku z ceníku?"
+  },
+  "numbering": {
+    "intro": "Číslo se přidělí při vystavení faktury. Koncepty číslo nemají.",
+    "invoicePattern": "Vzor čísla faktury",
+    "proformaPattern": "Vzor čísla zálohové faktury",
+    "preview": "Náhled",
+    "invalidPattern": "Vzor musí obsahovat pořadové číslo, např. {NNN}.",
+    "variables": "Proměnné",
+    "varYear": "rok",
+    "varYear2": "rok dvoumístně",
+    "varMonth": "měsíc",
+    "varSeq": "pořadové číslo, počet N určuje počet míst",
+    "resetNote": "Pokud vzor obsahuje rok, pořadové číslo se každý rok začíná od 1."
+  },
+  "customers": {
+    "title": "Zákazníci",
+    "add": "Nový zákazník",
+    "newTitle": "Nový zákazník",
+    "empty": "Zatím žádný zákazník. Přidejte prvního, ať máte komu fakturovat.",
+    "name": "Název / jméno",
+    "ico": "IČO",
+    "dic": "DIČ",
+    "email": "E-mail",
+    "phone": "Telefon",
+    "street": "Ulice a číslo",
+    "city": "Město",
+    "zip": "PSČ",
+    "country": "Země",
+    "language": "Jazyk faktur",
+    "currency": "Měna",
+    "dueDays": "Splatnost (dny)",
+    "dueDaysDefault": "výchozí firmy",
+    "note": "Poznámka",
+    "deleteTitle": "Smazat zákazníka?",
+    "deleteDescription": "Již vystavené faktury zůstanou zachované."
   }
 }

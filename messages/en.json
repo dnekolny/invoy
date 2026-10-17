@@ -1,5 +1,7 @@
 {
-  "app": { "name": "Invoy" },
+  "app": {
+    "name": "Invoy"
+  },
   "login": {
     "title": "Sign in",
     "subtitle": "Issue invoices in seconds.",
@@ -17,11 +19,128 @@
   "nav": {
     "dashboard": "Dashboard",
     "signOut": "Sign out",
-    "language": "Language"
+    "language": "Language",
+    "customers": "Customers",
+    "settings": "Settings"
   },
   "dashboard": {
     "title": "Dashboard",
     "welcome": "Welcome, {name}.",
-    "empty": "Nothing here yet. Company settings and the first invoice come in the next phase."
+    "customers": "Customers",
+    "bankAccounts": "Bank accounts",
+    "items": "Price list items",
+    "next": "Invoices arrive in the next phase."
+  },
+  "common": {
+    "save": "Save",
+    "saved": "Saved.",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "error": "Something went wrong, please try again."
+  },
+  "onboarding": {
+    "title": "Set up your company",
+    "subtitle": "These details appear on your invoices. Enter a Czech IČO and we fill in the rest from ARES.",
+    "submit": "Create company"
+  },
+  "settings": {
+    "title": "Settings",
+    "company": "Company",
+    "bankAccounts": "Bank accounts",
+    "items": "Price list",
+    "numbering": "Numbering"
+  },
+  "ares": {
+    "ico": "Company ID (IČO)",
+    "lookup": "Load from ARES",
+    "notFound": "No company with this IČO found in ARES.",
+    "loaded": "Details loaded from ARES.",
+    "hint": "Check the loaded details, ARES may be out of date."
+  },
+  "company": {
+    "identity": "Identity",
+    "name": "Company / full name",
+    "dic": "VAT ID (DIČ)",
+    "vatPayer": "VAT payer",
+    "address": "Registered address",
+    "street": "Street and number",
+    "city": "City",
+    "zip": "Postal code",
+    "country": "Country",
+    "contact": "Contact",
+    "email": "Email",
+    "phone": "Phone",
+    "web": "Website",
+    "invoicing": "Invoicing",
+    "defaultDueDays": "Default due period (days)",
+    "defaultCurrency": "Default currency",
+    "registrationNote": "Registration note",
+    "registrationNotePlaceholder": "E.g. Registered in the Commercial Register at the Municipal Court in Prague, section C, insert 12345",
+    "footerText": "Invoice footer text"
+  },
+  "bank": {
+    "intro": "Accounts your customers pay to. The default account is preselected on invoices by currency.",
+    "empty": "No bank accounts yet.",
+    "add": "Add account",
+    "addTitle": "New bank account",
+    "editTitle": "Edit account",
+    "label": "Label",
+    "labelPlaceholder": "E.g. Fio CZK",
+    "number": "Account number",
+    "accountNumber": "Account number",
+    "bankCode": "Bank code",
+    "currency": "Currency",
+    "isDefault": "Default account for this currency",
+    "default": "default",
+    "deleteTitle": "Delete bank account?"
+  },
+  "items": {
+    "intro": "Saved services and products you pick into invoices with autocomplete.",
+    "empty": "The price list is empty.",
+    "add": "Add item",
+    "addTitle": "New item",
+    "editTitle": "Edit item",
+    "name": "Name",
+    "description": "Description",
+    "unit": "Unit",
+    "unitPrice": "Unit price",
+    "vatRate": "VAT",
+    "deleteTitle": "Delete item from price list?"
+  },
+  "numbering": {
+    "intro": "The number is assigned when the invoice is issued. Drafts have no number.",
+    "invoicePattern": "Invoice number pattern",
+    "proformaPattern": "Proforma number pattern",
+    "preview": "Preview",
+    "invalidPattern": "The pattern must contain a sequence, e.g. {NNN}.",
+    "variables": "Variables",
+    "varYear": "year",
+    "varYear2": "two-digit year",
+    "varMonth": "month",
+    "varSeq": "sequence number, the count of N sets the width",
+    "resetNote": "If the pattern contains a year, the sequence restarts at 1 every year."
+  },
+  "customers": {
+    "title": "Customers",
+    "add": "New customer",
+    "newTitle": "New customer",
+    "empty": "No customers yet. Add your first one to have someone to invoice.",
+    "name": "Name",
+    "ico": "Company ID",
+    "dic": "VAT ID",
+    "email": "Email",
+    "phone": "Phone",
+    "street": "Street and number",
+    "city": "City",
+    "zip": "Postal code",
+    "country": "Country",
+    "language": "Invoice language",
+    "currency": "Currency",
+    "dueDays": "Due period (days)",
+    "dueDaysDefault": "company default",
+    "note": "Note",
+    "deleteTitle": "Delete customer?",
+    "deleteDescription": "Already issued invoices are kept."
   }
 }
