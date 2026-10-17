@@ -7,6 +7,8 @@ export const optionalText = z
   .nullable()
   .optional();
 
+export const checkbox = z.preprocess((v) => v === "true" || v === "on", z.boolean());
+
 export const currencySchema = z.enum(["CZK", "EUR"]);
 export const languageSchema = z.enum(["cs", "en"]);
 export const vatRateSchema = z.coerce.number().int().refine((v) => [21, 12, 0].includes(v));
@@ -15,7 +17,7 @@ export const companySchema = z.object({
   name: z.string().trim().min(1),
   ico: optionalText,
   dic: optionalText,
-  vatPayer: z.coerce.boolean(),
+  vatPayer: checkbox,
   street: optionalText,
   city: optionalText,
   zip: optionalText,
@@ -41,7 +43,7 @@ export const bankAccountSchema = z.object({
   iban: optionalText,
   swift: optionalText,
   currency: currencySchema,
-  isDefault: z.coerce.boolean(),
+  isDefault: checkbox,
 });
 
 export const customerSchema = z.object({
