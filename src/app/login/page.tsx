@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { getSession } from "@/lib/session";
 import { LoginForm } from "./login-form";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 export default async function LoginPage() {
   const session = await getSession();
@@ -15,6 +16,9 @@ export default async function LoginPage() {
           <p className="mt-1 text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
         <LoginForm />
+        <div className="mt-6 flex justify-center">
+          <LanguageSwitcher />
+        </div>
       </div>
     </main>
   );

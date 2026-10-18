@@ -1,5 +1,7 @@
 # Invoy – plán implementace
 
+> Stav k 2026-10-18: fáze 0–6 nasazené na https://invoy-six.vercel.app. Zbývá doladění podle zpětné vazby a položky v sekci „Později“.
+
 Jednoduchý nástroj na vystavování a odesílání faktur. Multi-tenant (každý uživatel své firmy a zákazníky), zdarma pro známé.
 
 ## Rozhodnutí ze zadání (2026-10-16)
@@ -17,7 +19,7 @@ Jednoduchý nástroj na vystavování a odesílání faktur. Multi-tenant (každ
 | Data | Ceník položek, více bankovních účtů (CZK/EUR) |
 | Odesílání | Uživatel si vybere: Gmail (OAuth), Seznam (SMTP), vlastní SMTP |
 | UI jazyk | Čeština i angličtina od začátku |
-| Nasazení | Vercel, *.vercel.app, repo na GitHubu (zařídí uživatel) |
+| Nasazení | Vercel, produkce `invoy-six.vercel.app` (doména `invoy.vercel.app` patří cizímu projektu), repo github.com/dnekolny/invoy |
 
 ## Technologický stack
 
@@ -28,11 +30,11 @@ Jednoduchý nástroj na vystavování a odesílání faktur. Multi-tenant (každ
 | Databáze | Postgres (Neon přes Vercel Marketplace) + Drizzle ORM | Serverless-friendly, typované schéma, migrace v repu |
 | Auth | Better Auth (Google + plugin emailOTP) | Hotový OTP kód e-mailem, Google social login, session v DB |
 | i18n | next-intl | cs/en v UI i v PDF |
-| PDF | HTML/React šablona → Playwright + @sparticuz/chromium | Stejné HTML pro veřejný náhled i PDF; šablony jako běžné React komponenty, cesta k WYSIWYG |
-| Soubory | Vercel Blob | Loga firem, cache vygenerovaných PDF |
-| Odesílání faktur | nodemailer (SMTP) + Gmail API (OAuth gmail.send) | Pokrývá Seznam, vlastní SMTP i Gmail |
+| PDF | HTML šablona (čistý string) → puppeteer-core + @sparticuz/chromium | Stejné HTML pro náhled v aplikaci, veřejný odkaz i PDF; šablony jako funkce vracející HTML, cesta k WYSIWYG |
+| Soubory | Logo jako data URL v DB (max 600 px) | Bez Blob storage, PDF se generuje na vyžádání |
+| Odesílání faktur | nodemailer (SMTP) s presety Gmail (app password), Seznam, vlastní | Heslo šifrované AES-256-GCM (`ENCRYPTION_KEY`); Gmail OAuth odloženo |
 | Systémové e-maily | nodemailer přes SMTP vlastníka (v1), později Resend na vlastní doméně | OTP kódy, bez domény nelze použít Resend |
-| Cron | Vercel Cron | Opakované faktury, přepnutí „po splatnosti“ |
+| Cron | Vercel Cron (denně 5:00 UTC, `CRON_SECRET`) | Opakované faktury; „po splatnosti“ se počítá dynamicky z data splatnosti |
 | QR platba | vlastní SPAYD builder + `qrcode` | Standard českých bank |
 | Kurzy | ČNB denní kurzovní lístek | Kurz na cizoměnové faktuře pro plátce DPH |
 | Validace | zod | Sdílená mezi formuláři a API |
@@ -105,6 +107,7 @@ Jednoduchý nástroj na vystavování a odesílání faktur. Multi-tenant (každ
 - Responzivita na mobilu
 
 ## Později (mimo v1)
+- Gmail OAuth (gmail.send) místo app password
 - WYSIWYG editor šablon (layout jako JSON → React render)
 - Automatické upomínky
 - Dobropisy / opravné doklady
