@@ -37,9 +37,7 @@ export function CompanyForm({ company, action, submitLabel }: Props) {
       <section className="space-y-4">
         <h2 className="text-base font-medium">{t("identity")}</h2>
         <AresLookup
-          value={ico}
-          onChange={setIco}
-          onResult={(r) => {
+          onSelect={(r) => {
             setIco(r.ico);
             setName(r.name);
             setDic(r.dic ?? "");
@@ -50,7 +48,8 @@ export function CompanyForm({ company, action, submitLabel }: Props) {
           }}
         />
         <Field label={t("name")} name="name" required value={name} onChange={(e) => setName(e.target.value)} />
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Field label={t("ico")} name="ico" inputMode="numeric" value={ico} onChange={(e) => setIco(e.target.value)} />
           <Field label={t("dic")} name="dic" value={dic} onChange={(e) => setDic(e.target.value)} />
           <div className="flex items-end pb-2">
             <CheckboxField name="vatPayer" label={t("vatPayer")} checked={vatPayer} onChange={setVatPayer} />

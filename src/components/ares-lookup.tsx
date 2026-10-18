@@ -1,58 +1,93 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { Search } from "lucide-react";
-import { toast } from "sonner";
-import { aresLookupAction } from "@/actions/ares";
+import { aresSearchAction } from "@/actions/ares";
 import type { AresResult } from "@/lib/ares";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-type Props = { value: string; onChange: (v: string) => void; onResult: (r: AresResult) => void };
+type Props = { onSelect: (r: AresResult) => void };
 
-export function AresLookup({ value, onChange, onResult }: Props) {
+export function AresLookup({ onSelect }: Props) {
   const t = useTranslations("ares");
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<AresResult[] | null>(null);
   const [pending, start] = useTransition();
-  const [touched, setTouched] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  function lookup() {
-    setTouched(true);
-    start(async () => {
-      const r = await aresLookupAction(value);
-      if (!r) {
-        toast.error(t("notFound"));
-        return;
-      }
-      onResult(r);
-      toast.success(t("loaded"));
-    });
+  useEffect(() => () => clearTimeout(timer.current ?? undefined), []);
+
+  function change(value: string) {
+    setQuery(value);
+    if (timer.current) clearTimeout(timer.current);
+    const q = value.trim();
+    if (q.length < 3) {
+      setResults(null);
+      return;
+    }
+    timer.current = setTimeout(() => {
+      start(async () => {
+        setResults(await aresSearchAction(q));
+      });
+    }, 400);
+  }
+
+  function pick(r: AresResult) {
+    onSelect(r);
+    setQuery("");
+    setResults(null);
   }
 
   return (
     <div className="space-y-1.5">
-      <Label htmlFor="ico">{t("ico")}</Label>
-      <div className="flex gap-2">
+      <Label htmlFor="ares-query">{t("search")}</Label>
+      <div className="relative">
+        <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          id="ico"
-          name="ico"
-          inputMode="numeric"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
+          id="ares-query"
+          className="pl-8"
+          placeholder={t("placeholder")}
+          autoComplete="off"
+          value={query}
+          onChange={(e) => change(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              lookup();
+              if (results?.length === 1) pick(results[0]);
             }
           }}
         />
-        <Button type="button" variant="outline" onClick={lookup} disabled={pending || value.replace(/\s/g, "").length !== 8}>
-          <Search />
-          {t("lookup")}
-        </Button>
       </div>
-      {touched && <p className="text-xs text-muted-foreground">{t("hint")}</p>}
+      {query.trim().length >= 3 && (
+        <div className="overflow-hidden rounded-lg border bg-popover text-sm shadow-sm">
+          {pending && results === null ? (
+            <p className="px-3 py-2 text-muted-foreground">{t("searching")}</p>
+          ) : results && results.length === 0 ? (
+            <p className="px-3 py-2 text-muted-foreground">{t("notFound")}</p>
+          ) : (
+            <ul className="max-h-64 divide-y overflow-y-auto">
+              {results?.map((r) => (
+                <li key={r.ico}>
+                  <button
+                    type="button"
+                    onClick={() => pick(r)}
+                    className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left hover:bg-accent"
+                  >
+                    <span className="font-medium">{r.name}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {t("ico")} {r.ico}
+                      {r.city ? ` · ${r.city}` : ""}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+      <p className="text-xs text-muted-foreground">{t("hint")}</p>
     </div>
   );
 }

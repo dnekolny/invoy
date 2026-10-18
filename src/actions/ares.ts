@@ -1,9 +1,9 @@
 "use server";
 
-import { lookupAres } from "@/lib/ares";
+import { searchAres } from "@/lib/ares";
 import { requireSession } from "@/lib/session";
 
-export async function aresLookupAction(ico: string) {
+export async function aresSearchAction(query: string) {
   await requireSession();
-  return lookupAres(ico);
+  return searchAres(query);
 }

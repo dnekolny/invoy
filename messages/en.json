@@ -52,11 +52,12 @@
     "numbering": "Numbering"
   },
   "ares": {
-    "ico": "Company ID (IČO)",
-    "lookup": "Load from ARES",
-    "notFound": "No company with this IČO found in ARES.",
-    "loaded": "Details loaded from ARES.",
-    "hint": "Check the loaded details, ARES may be out of date."
+    "search": "Search ARES (Czech company register)",
+    "placeholder": "Company name or IČO",
+    "searching": "Searching…",
+    "notFound": "Nothing found. Try another name or enter the details manually.",
+    "hint": "Selecting a result fills in the name, IČO, VAT ID and address. Check the details, ARES may be out of date.",
+    "ico": "IČO"
   },
   "company": {
     "identity": "Identity",
@@ -77,7 +78,8 @@
     "defaultCurrency": "Default currency",
     "registrationNote": "Registration note",
     "registrationNotePlaceholder": "E.g. Registered in the Commercial Register at the Municipal Court in Prague, section C, insert 12345",
-    "footerText": "Invoice footer text"
+    "footerText": "Invoice footer text",
+    "ico": "Company ID (IČO)"
   },
   "bank": {
     "intro": "Accounts your customers pay to. The default account is preselected on invoices by currency.",

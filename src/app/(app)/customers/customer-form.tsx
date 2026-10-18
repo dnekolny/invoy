@@ -33,9 +33,7 @@ export function CustomerForm({ customer, action, defaultCurrency }: Props) {
     <form action={submit} className="space-y-6">
       <section className="space-y-4">
         <AresLookup
-          value={ico}
-          onChange={setIco}
-          onResult={(r) => {
+          onSelect={(r) => {
             setIco(r.ico);
             setName(r.name);
             setDic(r.dic ?? "");
@@ -45,7 +43,10 @@ export function CustomerForm({ customer, action, defaultCurrency }: Props) {
           }}
         />
         <Field label={t("name")} name="name" required value={name} onChange={(e) => setName(e.target.value)} />
-        <Field label={t("dic")} name="dic" value={dic} onChange={(e) => setDic(e.target.value)} />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label={t("ico")} name="ico" inputMode="numeric" value={ico} onChange={(e) => setIco(e.target.value)} />
+          <Field label={t("dic")} name="dic" value={dic} onChange={(e) => setDic(e.target.value)} />
+        </div>
       </section>
       <section className="space-y-4">
         <Field label={t("street")} name="street" value={street} onChange={(e) => setStreet(e.target.value)} />

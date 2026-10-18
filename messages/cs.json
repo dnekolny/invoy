@@ -52,11 +52,12 @@
     "numbering": "Číslování"
   },
   "ares": {
-    "ico": "IČO",
-    "lookup": "Načíst z ARES",
-    "notFound": "Subjekt s tímto IČO jsme v ARES nenašli.",
-    "loaded": "Údaje načteny z ARES.",
-    "hint": "Zkontrolujte načtené údaje, ARES nemusí mít aktuální data."
+    "search": "Vyhledat v ARES",
+    "placeholder": "Název firmy nebo IČO",
+    "searching": "Hledám…",
+    "notFound": "Nic jsme nenašli. Zkuste jiný název nebo zadejte údaje ručně.",
+    "hint": "Výběrem se předvyplní název, IČO, DIČ a adresa. Údaje zkontrolujte, ARES nemusí být aktuální.",
+    "ico": "IČO"
   },
   "company": {
     "identity": "Identifikace",
@@ -77,7 +78,8 @@
     "defaultCurrency": "Výchozí měna",
     "registrationNote": "Zápis v rejstříku",
     "registrationNotePlaceholder": "Např. Zapsána v OR u Městského soudu v Praze, oddíl C, vložka 12345",
-    "footerText": "Text v zápatí faktury"
+    "footerText": "Text v zápatí faktury",
+    "ico": "IČO"
   },
   "bank": {
     "intro": "Účty, na které vám zákazníci platí. Výchozí účet se předvyplní na faktuře podle měny.",
