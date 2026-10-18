@@ -15,6 +15,8 @@ export default async function SettingsLayout({ children }: { children: React.Rea
             { href: "/settings/bank-accounts", label: t("bankAccounts") },
             { href: "/settings/items", label: t("items") },
             { href: "/settings/numbering", label: t("numbering") },
+            { href: "/settings/appearance", label: t("appearance") },
+            { href: "/settings/email", label: t("email") },
           ]}
         />
         <div className="min-w-0 max-w-2xl">{children}</div>

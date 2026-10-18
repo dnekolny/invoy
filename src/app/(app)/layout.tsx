@@ -19,7 +19,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               active
                 ? [
                     { href: "/dashboard", label: t("dashboard") },
+                    { href: "/invoices", label: t("invoices") },
                     { href: "/customers", label: t("customers") },
+                    { href: "/recurring", label: t("recurring") },
                     { href: "/settings", label: t("settings") },
                   ]
                 : []

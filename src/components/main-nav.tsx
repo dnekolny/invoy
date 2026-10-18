@@ -9,7 +9,7 @@ type Props = { companyName: string | null; items: { href: string; label: string 
 export function MainNav({ companyName, items }: Props) {
   const pathname = usePathname();
   return (
-    <nav className="flex items-center gap-5">
+    <nav className="flex items-center gap-4 overflow-x-auto whitespace-nowrap sm:gap-5">
       <Link href="/dashboard" className="font-semibold">
         Invoy
         {companyName && <span className="ml-2 hidden font-normal text-muted-foreground sm:inline">· {companyName}</span>}
