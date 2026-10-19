@@ -296,7 +296,12 @@
     "shortcutHint": "Ctrl+S uloží koncept. Enter v poslední položce přidá další řádek.",
     "unitPriceNet": "Cena / j. bez DPH",
     "linePlaceholderNoItems": "Název položky",
-    "enterHint": "Šipkami vyberete položku z ceníku, Enter ji vloží."
+    "enterHint": "Šipkami vyberete položku z ceníku, Enter ji vloží.",
+    "addIntro": "Přidat úvodní text nad položky",
+    "intro": "Úvodní text",
+    "removeIntro": "Odebrat",
+    "introPlaceholder": "Např. Fakturujeme vám za služby poskytnuté v říjnu 2026 dle smlouvy č. 12.",
+    "introHint": "Zobrazí se na faktuře nad tabulkou položek."
   },
   "invoiceDetail": {
     "invoice": "Faktura",
@@ -337,8 +342,13 @@
       "sent": "Odesláno e-mailem",
       "viewed": "Otevřeno zákazníkem",
       "paid": "Zaplaceno",
-      "cancelled": "Stornováno"
-    }
+      "cancelled": "Stornováno",
+      "reminded": "{n, plural, one {Odeslána # upomínka} few {Odeslány # upomínky} other {Odesláno # upomínek}}"
+    },
+    "enableReminders": "Zapnout automatické upomínky",
+    "noEmailForReminder": "Zákazník nemá e-mail, upomínka se nepošle automaticky.",
+    "reminderTag": "upomínka",
+    "errorTag": "chyba"
   },
   "payments": {
     "title": "Úhrady",
@@ -408,7 +418,8 @@
       "splatnost": "splatnost",
       "firma": "vaše firma",
       "zakaznik": "zákazník",
-      "odkaz": "veřejný odkaz"
+      "odkaz": "veřejný odkaz",
+      "dni": "dní po splatnosti"
     },
     "showPassword": "Zobrazit heslo",
     "hidePassword": "Skrýt heslo",
@@ -416,7 +427,14 @@
     "useDefault": "Vložit výchozí text",
     "templatesHint": "Klikněte na proměnnou a vloží se tam, kde máte kurzor. Před odesláním můžete text ještě upravit.",
     "savedTestHint": "Uloženo. Pošlete si testovací e-mail, ať víte, že to funguje.",
-    "notVerified": "Zatím neověřeno"
+    "notVerified": "Zatím neověřeno",
+    "reminders": "Automatické upomínky",
+    "remindersIntro": "Když zákazník nezaplatí, pošle se mu každý den v 7:00 ráno upomínka podle nastavených dnů po splatnosti. Jen faktury se zadaným e-mailem zákazníka, zálohové faktury se neupomínají.",
+    "remindersEnabled": "Posílat upomínky automaticky",
+    "reminderDays": "Dny po splatnosti",
+    "reminderDaysHint": "Upomínka se pošle {days}. den po splatnosti, celkem nejvýše {count}.",
+    "reminderDaysInvalid": "Zadejte dny oddělené čárkou, např. 3,10,20.",
+    "reminderTemplate": "Text upomínky (volitelné, jinak výchozí)"
   },
   "appearance": {
     "template": "Šablona",
@@ -476,5 +494,12 @@
     "upcoming": "Nejbližší vystavení",
     "create": "Vytvořit",
     "pickCustomer": "Vyberte zákazníka…"
+  },
+  "reminder": {
+    "button": "Poslat upomínku",
+    "buttonAgain": "Poslat upomínku",
+    "title": "Poslat upomínku",
+    "description": "Faktura se přiloží jako PDF. Text můžete před odesláním upravit.",
+    "sent": "Upomínka odeslána."
   }
 }

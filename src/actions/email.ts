@@ -9,7 +9,9 @@ import { requireCompany } from "@/lib/company";
 import { encrypt } from "@/lib/crypto";
 import { sendWithChannel, transportFor } from "@/lib/invoice-mail";
 import { getInvoiceDocument, getInvoiceWithLines } from "@/lib/invoices";
+import { parseReminderDays } from "@/lib/mail-templates";
 import { htmlToPdf } from "@/lib/pdf";
+import { sendReminder } from "@/lib/reminders";
 import { invoiceFileName, renderInvoiceHtml } from "@/templates";
 import { formToObject, type ActionResult } from "@/lib/validation";
 
@@ -26,6 +28,10 @@ const channelSchema = z.object({
   bcc: z.string().trim().email().or(z.literal("")).transform((v) => v || null),
   subjectTemplate: z.string().trim().transform((v) => v || null),
   bodyTemplate: z.string().trim().transform((v) => v || null),
+  remindersEnabled: z.preprocess((v) => v === "true" || v === "on", z.boolean()),
+  reminderDays: z.string().trim().refine((v) => parseReminderDays(v).length > 0).transform((v) => parseReminderDays(v).join(",")),
+  reminderSubjectTemplate: z.string().trim().transform((v) => v || null),
+  reminderBodyTemplate: z.string().trim().transform((v) => v || null),
 });
 
 export async function saveEmailChannelAction(fd: FormData): Promise<ActionResult> {
@@ -105,5 +111,23 @@ export async function sendInvoiceAction(id: string, raw: unknown): Promise<Actio
   }
   revalidatePath(`/invoices/${id}`);
   revalidatePath("/invoices");
+  return { ok: true };
+}
+
+export async function sendReminderAction(id: string, raw: unknown): Promise<ActionResult> {
+  const active = await requireCompany();
+  const parsed = sendSchema.safeParse(raw);
+  if (!parsed.success) return { ok: false, error: "invalid" };
+  const [ch] = await db.select().from(emailChannel).where(eq(emailChannel.companyId, active.id)).limit(1);
+  if (!ch) return { ok: false, error: "nochannel" };
+  const inv = await getInvoiceWithLines(active.id, id);
+  if (!inv || inv.status === "draft" || inv.status === "paid" || inv.status === "cancelled") return { ok: false, error: "state" };
+  try {
+    await sendReminder(inv, ch, active.name, parsed.data);
+  } catch (e) {
+    revalidatePath(`/invoices/${id}`);
+    return { ok: false, error: (e as Error).message.slice(0, 300) };
+  }
+  revalidatePath(`/invoices/${id}`);
   return { ok: true };
 }

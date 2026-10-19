@@ -109,7 +109,6 @@ Jednoduchý nástroj na vystavování a odesílání faktur. Multi-tenant (každ
 ## Později (mimo v1)
 - Gmail OAuth (gmail.send) místo app password
 - WYSIWYG editor šablon (layout jako JSON → React render)
-- Automatické upomínky
 - Dobropisy / opravné doklady
 - Párování plateb z banky (Fio API, ČSOB)
 - Resend na vlastní doméně pro systémové e-maily

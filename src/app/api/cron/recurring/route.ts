@@ -1,4 +1,5 @@
 import { runRecurring } from "@/lib/recurring";
+import { runReminders } from "@/lib/reminders";
 
 export const maxDuration = 300;
 
@@ -7,6 +8,7 @@ export async function GET(req: Request) {
   if (!process.env.CRON_SECRET || auth !== `Bearer ${process.env.CRON_SECRET}`) {
     return new Response("Unauthorized", { status: 401 });
   }
-  const results = await runRecurring();
-  return Response.json({ processed: results.length, results });
+  const recurring = await runRecurring();
+  const reminders = await runReminders();
+  return Response.json({ processed: recurring.length, results: recurring, reminders });
 }

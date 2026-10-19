@@ -17,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Field } from "@/components/form/field";
 import { NativeSelect } from "@/components/form/native-select";
 import { LinesEditor, newLine, type EditorLine } from "@/components/lines-editor";
+import { IntroField } from "@/components/intro-field";
 import { CustomerDialog } from "../customers/customer-dialog";
 
 type Props = {
@@ -50,6 +51,7 @@ export function InvoiceEditor({ company, customers: initialCustomers, bankAccoun
   const [currency, setCurrency] = useState(invoice?.currency ?? initialCustomer?.currency ?? company.defaultCurrency);
   const [language, setLanguage] = useState(invoice?.language ?? initialCustomer?.language ?? "cs");
   const [bankAccountId, setBankAccountId] = useState(invoice?.bankAccountId ?? defaultBank(bankAccounts, invoice?.currency ?? initialCustomer?.currency ?? company.defaultCurrency));
+  const [intro, setIntro] = useState(invoice?.intro ?? "");
   const [note, setNote] = useState(invoice?.note ?? "");
   const [lines, setLines] = useState<EditorLine[]>(
     invoice?.lines.length
@@ -116,6 +118,7 @@ export function InvoiceEditor({ company, customers: initialCustomers, bankAccoun
       currency,
       language,
       bankAccountId: bankAccountId || null,
+      intro: intro.trim() || null,
       note: note.trim() || null,
       lines: lines
         .filter((l) => l.name.trim())
@@ -249,7 +252,8 @@ export function InvoiceEditor({ company, customers: initialCustomers, bankAccoun
             <CardHeader>
               <CardTitle className="text-base">{t("lines")}</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
+              <IntroField value={intro} onChange={(v) => { mark(); setIntro(v); }} />
               <LinesEditor lines={lines} onChange={(l) => { mark(); setLines(l); }} items={items} vatPayer={company.vatPayer} currency={currency} locale={locale} />
               {items.length === 0 && (
                 <p className="mt-3 text-xs text-muted-foreground">

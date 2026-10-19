@@ -18,6 +18,7 @@ import { Field } from "@/components/form/field";
 import { NativeSelect } from "@/components/form/native-select";
 import { CheckboxField } from "@/components/form/checkbox-field";
 import { LinesEditor, newLine, type EditorLine } from "@/components/lines-editor";
+import { IntroField } from "@/components/intro-field";
 
 type Props = { company: Company; customers: Customer[]; items: Item[]; template?: RecurringTemplate };
 
@@ -34,6 +35,7 @@ export function RecurringForm({ company, customers, items, template }: Props) {
   const [nextDate, setNextDate] = useState(template?.nextDate ?? todayIso());
   const [dueDays, setDueDays] = useState(String(template?.dueDays ?? company.defaultDueDays));
   const [currency, setCurrency] = useState(template?.currency ?? company.defaultCurrency);
+  const [intro, setIntro] = useState(template?.intro ?? "");
   const [note, setNote] = useState(template?.note ?? "");
   const [autoIssue, setAutoIssue] = useState(template?.autoIssue ?? true);
   const [autoSend, setAutoSend] = useState(template?.autoSend ?? false);
@@ -42,7 +44,7 @@ export function RecurringForm({ company, customers, items, template }: Props) {
 
   function save() {
     const payload = {
-      name, customerId, type, interval, nextDate, dueDays, currency, note: note.trim() || null, autoIssue, autoSend, active,
+      name, customerId, type, interval, nextDate, dueDays, currency, intro: intro.trim() || null, note: note.trim() || null, autoIssue, autoSend, active,
       lines: lines.filter((l) => l.name.trim()).map((l) => ({ name: l.name, quantity: l.quantity || "1", unit: l.unit || "ks", unitPrice: l.unitPrice || "0", vatRate: l.vatRate })),
     };
     if (!payload.customerId) {
@@ -101,7 +103,8 @@ export function RecurringForm({ company, customers, items, template }: Props) {
         </Card>
         <Card>
           <CardHeader><CardTitle className="text-base">{t("lines")}</CardTitle></CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
+            <IntroField value={intro} onChange={setIntro} />
             <LinesEditor lines={lines} onChange={setLines} items={items} vatPayer={company.vatPayer} currency={currency} locale={locale} />
           </CardContent>
         </Card>

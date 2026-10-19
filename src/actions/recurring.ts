@@ -20,6 +20,7 @@ const schema = z.object({
   nextDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   dueDays: z.coerce.number().int().min(0).max(365),
   currency: currencySchema,
+  intro: z.string().trim().max(2000).nullable(),
   note: z.string().trim().max(2000).nullable(),
   autoIssue: z.boolean(),
   autoSend: z.boolean(),

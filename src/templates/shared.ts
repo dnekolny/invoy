@@ -126,6 +126,11 @@ export function datesBlock(d: TemplateData) {
   return `<table style="width:auto">${rows.map(([k, v]) => `<tr><td class="muted" style="padding:2px 12px 2px 0;white-space:nowrap">${k}</td><td style="padding:2px 0;font-weight:500;white-space:nowrap">${esc(v)}</td></tr>`).join("")}</table>`;
 }
 
+export function introBlock(d: TemplateData) {
+  const intro = d.doc.invoice.intro;
+  return intro ? `<div style="margin-bottom:10px;line-height:1.5">${nl2br(intro)}</div>` : "";
+}
+
 export function noteBlock(d: TemplateData) {
   const { t, doc } = d;
   const parts: string[] = [];

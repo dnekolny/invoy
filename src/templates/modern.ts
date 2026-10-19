@@ -1,6 +1,6 @@
 import type { TemplateData } from "./data";
 import { esc } from "./data";
-import { baseCss, datesBlock, fontLink, footer, linesTable, noteBlock, partyBlock, paymentBlock, qrBlock, totalsBlock, watermark } from "./shared";
+import { baseCss, datesBlock, fontLink, footer, introBlock, linesTable, noteBlock, partyBlock, paymentBlock, qrBlock, totalsBlock, watermark } from "./shared";
 
 export function modernTemplate(d: TemplateData) {
   const { t, doc, accent, title, money } = d;
@@ -29,6 +29,7 @@ export function modernTemplate(d: TemplateData) {
     </div>
     <div class="parties">${partyBlock(d, "supplier")}${partyBlock(d, "customer")}</div>
     <div class="meta">${paymentBlock(d)}${datesBlock(d)}</div>
+    ${introBlock(d)}
     ${linesTable(d, { headerBg: accent, headerColor: "#fff", border: "#e5e7eb" })}
     <div class="bottom">
       <div>${qrBlock(d)}</div>

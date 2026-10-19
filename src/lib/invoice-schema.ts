@@ -19,6 +19,7 @@ export const invoiceInputSchema = z.object({
   currency: currencySchema,
   language: languageSchema,
   bankAccountId: z.string().uuid().nullable(),
+  intro: z.string().trim().max(2000).nullable(),
   note: z.string().trim().max(2000).nullable(),
   lines: z.array(lineInputSchema).min(1),
 });

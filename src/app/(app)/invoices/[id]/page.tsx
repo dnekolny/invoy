@@ -10,6 +10,7 @@ import { requireCompany } from "@/lib/company";
 import { daysOverdue } from "@/lib/dates";
 import { formatDate, formatMoney } from "@/lib/format";
 import { companyCounters } from "@/lib/invoice-number";
+import { mailContext } from "@/lib/mail-context";
 import { peekNumber } from "@/lib/invoice-number-peek";
 import { effectiveStatus, getInvoiceActivity, getInvoiceWithLines } from "@/lib/invoices";
 import { Button } from "@/components/ui/button";
@@ -29,7 +30,11 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
     getTranslations("invoiceDetail"),
     getLocale(),
     getInvoiceActivity(id),
-    db.select({ id: emailChannel.id, subjectTemplate: emailChannel.subjectTemplate, bodyTemplate: emailChannel.bodyTemplate }).from(emailChannel).where(eq(emailChannel.companyId, active.id)).limit(1),
+    db
+      .select({ id: emailChannel.id, subjectTemplate: emailChannel.subjectTemplate, bodyTemplate: emailChannel.bodyTemplate, reminderSubjectTemplate: emailChannel.reminderSubjectTemplate, reminderBodyTemplate: emailChannel.reminderBodyTemplate, remindersEnabled: emailChannel.remindersEnabled })
+      .from(emailChannel)
+      .where(eq(emailChannel.companyId, active.id))
+      .limit(1),
     inv.status === "draft" ? companyCounters(active.id) : Promise.resolve({}),
   ]);
   const status = effectiveStatus(inv);
@@ -39,12 +44,14 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
   const dt = new Intl.DateTimeFormat(locale === "cs" ? "cs-CZ" : "en-GB", { dateStyle: "medium", timeStyle: "short" });
   const nextNumber = inv.status === "draft" ? peekNumber(counters, inv.type, inv.type === "proforma" ? active.proformaPattern : active.invoicePattern, inv.issueDate) : null;
   const overdueDays = status === "overdue" ? daysOverdue(inv.dueDate) : 0;
+  const ctx = mailContext(inv, active.name);
 
   const timeline: { label: string; at: Date | string | null; done: boolean }[] = [
     { label: t("timeline.created"), at: inv.createdAt, done: true },
     { label: t("timeline.issued"), at: inv.status === "draft" ? null : inv.issueDate, done: inv.status !== "draft" },
     { label: t("timeline.sent"), at: inv.sentAt, done: Boolean(inv.sentAt) },
     { label: t("timeline.viewed"), at: inv.viewedAt, done: Boolean(inv.viewedAt) },
+    ...(inv.reminderCount > 0 ? [{ label: t("timeline.reminded", { n: inv.reminderCount }), at: inv.lastReminderAt, done: true }] : []),
     { label: inv.status === "cancelled" ? t("timeline.cancelled") : t("timeline.paid"), at: inv.paidAt, done: inv.status === "paid" || inv.status === "cancelled" },
   ];
 
@@ -68,6 +75,12 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
           </p>
           {nextNumber && <p className="mt-1 text-xs text-muted-foreground">{t("nextNumber", { number: nextNumber })}</p>}
           {inv.status === "draft" && !inv.customerId && <p className="mt-1 text-xs text-amber-700">{t("needCustomer")}</p>}
+          {status === "overdue" && channel && !channel.remindersEnabled && (
+            <p className="mt-1 text-xs text-muted-foreground">
+              <Link href="/settings/email" className="underline">{t("enableReminders")}</Link>
+            </p>
+          )}
+          {status === "overdue" && channel?.remindersEnabled && !inv.customerEmail && <p className="mt-1 text-xs text-amber-700">{t("noEmailForReminder")}</p>}
         </div>
         <div className="flex flex-wrap gap-2">
           {editable && (
@@ -86,17 +99,18 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
               defaultTo={inv.customerEmail ?? ""}
               hasChannel={Boolean(channel)}
               alreadySent={Boolean(inv.sentAt)}
-              context={{
-                number: inv.number ?? "",
-                total: formatMoney(inv.total, inv.currency, inv.language),
-                dueDate: formatDate(inv.dueDate, inv.language),
-                company: active.name,
-                customer: inv.customerName,
-                link: publicUrl,
-                lang: inv.language,
-                type: inv.type,
-              }}
+              context={ctx}
               templates={{ subject: channel?.subjectTemplate ?? null, body: channel?.bodyTemplate ?? null }}
+            />
+          )}
+          {status === "overdue" && (
+            <SendDialog
+              invoiceId={inv.id}
+              defaultTo={inv.customerEmail ?? ""}
+              hasChannel={Boolean(channel)}
+              mode="reminder"
+              context={ctx}
+              templates={{ subject: channel?.reminderSubjectTemplate ?? null, body: channel?.reminderBodyTemplate ?? null }}
             />
           )}
           <InvoiceActions invoice={{ id: inv.id, status: inv.status, type: inv.type, customerId: inv.customerId, proformaId: inv.proformaId, remaining: remaining.toFixed(2) }} />
@@ -161,7 +175,11 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
                 {activity.mails.map((m) => (
                   <div key={m.id} className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <div className="truncate">{m.to}</div>
+                      <div className="truncate">
+                        {m.to}
+                        {m.kind === "reminder" && <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-xs text-amber-800">{t("reminderTag")}</span>}
+                        {m.status === "error" && <span className="ml-2 rounded bg-red-100 px-1.5 py-0.5 text-xs text-red-800">{t("errorTag")}</span>}
+                      </div>
                       <div className="truncate text-xs text-muted-foreground">{m.subject}</div>
                       {m.error && <div className="text-xs text-red-600">{m.error}</div>}
                     </div>

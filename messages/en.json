@@ -296,7 +296,12 @@
     "shortcutHint": "Ctrl+S saves the draft. Enter on the last line adds another one.",
     "unitPriceNet": "Unit price excl. VAT",
     "linePlaceholderNoItems": "Item name",
-    "enterHint": "Use arrow keys to pick a price list item, Enter inserts it."
+    "enterHint": "Use arrow keys to pick a price list item, Enter inserts it.",
+    "addIntro": "Add intro text above items",
+    "intro": "Intro text",
+    "removeIntro": "Remove",
+    "introPlaceholder": "E.g. We invoice you for services provided in October 2026 under contract no. 12.",
+    "introHint": "Printed on the invoice above the items table."
   },
   "invoiceDetail": {
     "invoice": "Invoice",
@@ -337,8 +342,13 @@
       "sent": "Sent by email",
       "viewed": "Opened by customer",
       "paid": "Paid",
-      "cancelled": "Cancelled"
-    }
+      "cancelled": "Cancelled",
+      "reminded": "{n, plural, one {# reminder sent} other {# reminders sent}}"
+    },
+    "enableReminders": "Turn on automatic reminders",
+    "noEmailForReminder": "The customer has no email, reminders will not be sent automatically.",
+    "reminderTag": "reminder",
+    "errorTag": "error"
   },
   "payments": {
     "title": "Payments",
@@ -408,7 +418,8 @@
       "splatnost": "due date",
       "firma": "your company",
       "zakaznik": "customer",
-      "odkaz": "public link"
+      "odkaz": "public link",
+      "dni": "days overdue"
     },
     "showPassword": "Show password",
     "hidePassword": "Hide password",
@@ -416,7 +427,14 @@
     "useDefault": "Insert default text",
     "templatesHint": "Click a variable to insert it at the cursor. You can still edit the text before sending.",
     "savedTestHint": "Saved. Send yourself a test email to make sure it works.",
-    "notVerified": "Not verified yet"
+    "notVerified": "Not verified yet",
+    "reminders": "Automatic reminders",
+    "remindersIntro": "When a customer does not pay, a reminder is sent daily at 7:00 according to the configured days after the due date. Only invoices with a customer email, proformas are not reminded.",
+    "remindersEnabled": "Send reminders automatically",
+    "reminderDays": "Days after due date",
+    "reminderDaysHint": "A reminder goes out on day {days} after the due date, at most {count} in total.",
+    "reminderDaysInvalid": "Enter days separated by commas, e.g. 3,10,20.",
+    "reminderTemplate": "Reminder text (optional, default otherwise)"
   },
   "appearance": {
     "template": "Template",
@@ -476,5 +494,12 @@
     "upcoming": "Next issues",
     "create": "Create",
     "pickCustomer": "Pick a customer…"
+  },
+  "reminder": {
+    "button": "Send reminder",
+    "buttonAgain": "Send reminder",
+    "title": "Send a payment reminder",
+    "description": "The invoice PDF is attached. You can edit the text before sending.",
+    "sent": "Reminder sent."
   }
 }

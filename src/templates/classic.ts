@@ -1,6 +1,6 @@
 import type { TemplateData } from "./data";
 import { esc } from "./data";
-import { baseCss, datesBlock, fontLink, footer, linesTable, noteBlock, partyBlock, paymentBlock, qrBlock, totalsBlock, watermark } from "./shared";
+import { baseCss, datesBlock, fontLink, footer, introBlock, linesTable, noteBlock, partyBlock, paymentBlock, qrBlock, totalsBlock, watermark } from "./shared";
 
 export function classicTemplate(d: TemplateData) {
   const { t, doc, accent, title } = d;
@@ -24,6 +24,7 @@ export function classicTemplate(d: TemplateData) {
     </div>
     <div class="parties">${partyBlock(d, "supplier")}${partyBlock(d, "customer")}</div>
     <div class="meta">${paymentBlock(d)}${datesBlock(d)}</div>
+    ${introBlock(d)}
     ${linesTable(d, { headerBg: "#f3f4f6", headerColor: "#374151", border: "#e5e7eb" })}
     <div class="bottom">
       <div>${qrBlock(d)}</div>

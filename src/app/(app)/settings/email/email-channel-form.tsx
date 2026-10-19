@@ -6,7 +6,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { deleteEmailChannelAction, saveEmailChannelAction, testEmailChannelAction } from "@/actions/email";
 import type { EmailChannel } from "@/db/schema";
-import { defaultTemplates, MAIL_TOKENS } from "@/lib/mail-templates";
+import { defaultReminderTemplates, defaultTemplates, MAIL_TOKENS, parseReminderDays, REMINDER_TOKENS } from "@/lib/mail-templates";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,6 +40,14 @@ export function EmailChannelForm({ channel, defaults }: { channel: EmailChannel 
   const [body, setBody] = useState(channel?.bodyTemplate ?? "");
   const subjectRef = useRef<HTMLInputElement>(null);
   const bodyRef = useRef<HTMLTextAreaElement>(null);
+  const [remindersEnabled, setRemindersEnabled] = useState(channel?.remindersEnabled ?? false);
+  const [reminderDays, setReminderDays] = useState(channel?.reminderDays ?? "3,10,20");
+  const [rSubject, setRSubject] = useState(channel?.reminderSubjectTemplate ?? "");
+  const [rBody, setRBody] = useState(channel?.reminderBodyTemplate ?? "");
+  const rSubjectRef = useRef<HTMLInputElement>(null);
+  const rBodyRef = useRef<HTMLTextAreaElement>(null);
+  const reminderTokens = REMINDER_TOKENS.map((k) => ({ value: `{${k}}`, label: t(`tokens.${k}`) }));
+  const parsedDays = parseReminderDays(reminderDays);
   const [pending, start] = useTransition();
   const tokens = MAIL_TOKENS.map((k) => ({ value: `{${k}}`, label: t(`tokens.${k}`) }));
 
@@ -165,6 +173,55 @@ export function EmailChannelForm({ channel, defaults }: { channel: EmailChannel 
           <Textarea ref={bodyRef} id="bodyTemplate" name="bodyTemplate" rows={8} value={body} onChange={(e) => setBody(e.target.value)} placeholder={defaultTemplates.cs.body} />
           <InsertChips tokens={tokens} targetRef={bodyRef} value={body} onChange={setBody} />
         </div>
+      </div>
+
+      <div className="space-y-4 border-t pt-6">
+        <div>
+          <h2 className="text-base font-medium">{t("reminders")}</h2>
+          <p className="text-xs text-muted-foreground">{t("remindersIntro")}</p>
+        </div>
+        <CheckboxField name="remindersEnabled" label={t("remindersEnabled")} checked={remindersEnabled} onChange={setRemindersEnabled} />
+        <div className="space-y-1.5">
+          <Field label={t("reminderDays")} name="reminderDays" value={reminderDays} onChange={(e) => setReminderDays(e.target.value)} placeholder="3,10,20" disabled={!remindersEnabled} className="sm:max-w-xs" />
+          <div className="flex flex-wrap gap-1">
+            {["3,10,20", "7,14", "1,7,14,30"].map((p) => (
+              <button key={p} type="button" disabled={!remindersEnabled} onClick={() => setReminderDays(p)} className="rounded-md border bg-muted/60 px-2 py-0.5 font-mono text-xs hover:bg-muted disabled:opacity-50">
+                {p}
+              </button>
+            ))}
+          </div>
+          <p className={`text-xs ${parsedDays.length ? "text-muted-foreground" : "text-red-600"}`}>
+            {parsedDays.length ? t("reminderDaysHint", { days: parsedDays.join(", "), count: parsedDays.length }) : t("reminderDaysInvalid")}
+          </p>
+        </div>
+        <details open={Boolean(channel?.reminderSubjectTemplate || channel?.reminderBodyTemplate)}>
+          <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">{t("reminderTemplate")}</summary>
+          <div className="mt-3 space-y-4">
+            <div className="flex justify-end">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setRSubject(defaultReminderTemplates.cs.subject);
+                  setRBody(defaultReminderTemplates.cs.body);
+                }}
+              >
+                {t("useDefault")}
+              </Button>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="reminderSubjectTemplate">{t("subjectTemplate")}</Label>
+              <Input ref={rSubjectRef} id="reminderSubjectTemplate" name="reminderSubjectTemplate" value={rSubject} onChange={(e) => setRSubject(e.target.value)} placeholder={defaultReminderTemplates.cs.subject} />
+              <InsertChips tokens={reminderTokens} targetRef={rSubjectRef} value={rSubject} onChange={setRSubject} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="reminderBodyTemplate">{t("bodyTemplate")}</Label>
+              <Textarea ref={rBodyRef} id="reminderBodyTemplate" name="reminderBodyTemplate" rows={8} value={rBody} onChange={(e) => setRBody(e.target.value)} placeholder={defaultReminderTemplates.cs.body} />
+              <InsertChips tokens={reminderTokens} targetRef={rBodyRef} value={rBody} onChange={setRBody} />
+            </div>
+          </div>
+        </details>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">

@@ -2,12 +2,13 @@ import { randomBytes } from "node:crypto";
 import { and, eq, lte } from "drizzle-orm";
 import Decimal from "decimal.js";
 import { db } from "@/db";
-import { company, customer, emailChannel, invoice, invoiceLine, recurringTemplate, type RecurringTemplate } from "@/db/schema";
+import { company, customer, emailChannel, emailLog, invoice, invoiceLine, recurringTemplate, type RecurringTemplate } from "@/db/schema";
 import { cnbRate } from "@/lib/cnb";
 import { addDays, advance, todayIso } from "@/lib/dates";
 import { nextInvoiceNumber } from "@/lib/invoice-number";
 import { defaultTemplates, fillTemplate, sendWithChannel } from "@/lib/invoice-mail";
 import { companyBankAccounts, getInvoiceDocument } from "@/lib/invoices";
+import { mailContext } from "@/lib/mail-context";
 import { computeLine, computeTotals, toDb } from "@/lib/money";
 import { htmlToPdf } from "@/lib/pdf";
 import { invoiceFileName, renderInvoiceHtml } from "@/templates";
@@ -67,6 +68,7 @@ export async function generateFromTemplate(tpl: RecurringTemplate, issueDate: st
       subtotal: toDb(totals.subtotal),
       vatTotal: toDb(totals.vatTotal),
       total: toDb(totals.total),
+      intro: tpl.intro,
       note: tpl.note,
       publicToken: randomBytes(24).toString("base64url"),
       recurringId: tpl.id,
@@ -89,23 +91,12 @@ export async function generateFromTemplate(tpl: RecurringTemplate, issueDate: st
     if (ch) {
       const [inv] = await db.select().from(invoice).where(eq(invoice.id, row.id)).limit(1);
       const doc = await getInvoiceDocument(inv);
-      const lang = cust.language === "en" ? "en" : "cs";
-      const loc = lang === "cs" ? "cs-CZ" : "en-GB";
-      const ctx = {
-        number: inv.number ?? "",
-        total: new Intl.NumberFormat(loc, { style: "currency", currency: inv.currency }).format(Number(inv.total)),
-        dueDate: new Intl.DateTimeFormat(loc, { dateStyle: "medium" }).format(new Date(inv.dueDate + "T00:00:00")),
-        company: comp.name,
-        customer: cust.name,
-        link: `${process.env.BETTER_AUTH_URL}/i/${inv.publicToken}`,
-        lang,
-        type: inv.type,
-      };
+      const ctx = mailContext(inv, comp.name);
+      const lang = ctx.lang === "en" ? "en" : "cs";
       const subject = fillTemplate(ch.subjectTemplate ?? defaultTemplates[lang].subject, ctx);
       const body = fillTemplate(ch.bodyTemplate ?? defaultTemplates[lang].body, ctx);
       const pdf = await htmlToPdf(await renderInvoiceHtml(doc));
       await sendWithChannel(ch, { to: cust.email, subject, text: body, attachments: [{ filename: invoiceFileName(doc), content: Buffer.from(pdf), contentType: "application/pdf" }] });
-      const { emailLog } = await import("@/db/schema");
       await db.insert(emailLog).values({ invoiceId: inv.id, to: cust.email, subject, status: "sent" });
       await db.update(invoice).set({ status: "sent", sentAt: new Date() }).where(eq(invoice.id, inv.id));
     }

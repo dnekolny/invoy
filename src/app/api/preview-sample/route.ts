@@ -24,7 +24,7 @@ export async function GET(req: Request) {
     language: "cs", vatPayer: vat, bankAccountId: bank?.id ?? null,
     customerName: "Vzorový zákazník s.r.o.", customerIco: "12345678", customerDic: vat ? "CZ12345678" : null, customerStreet: "Náměstí 1", customerCity: "Brno", customerZip: "602 00", customerCountry: "CZ", customerEmail: null,
     subtotal: subtotal.toFixed(2), vatTotal: vatTotal.toFixed(2), total: (subtotal + vatTotal).toFixed(2), paidAmount: "0", paidAt: null,
-    note: "Ukázková faktura pro náhled šablony.", publicToken: "sample", proformaId: null, recurringId: null, sentAt: null, viewedAt: null, createdAt: new Date(), updatedAt: new Date(),
+    intro: active.defaultCurrency === "EUR" ? "We invoice you for services provided in October." : "Fakturujeme vám za služby poskytnuté v říjnu.", note: "Ukázková faktura pro náhled šablony.", reminderCount: 0, lastReminderAt: null, publicToken: "sample", proformaId: null, recurringId: null, sentAt: null, viewedAt: null, createdAt: new Date(), updatedAt: new Date(),
   };
   const company = accent ? { ...active, accentColor: accent } : active;
   const html = await renderInvoiceHtml({ company, invoice: inv, lines, bank: bank ?? null }, template);

@@ -71,6 +71,7 @@ export async function saveInvoiceAction(id: string | null, raw: unknown): Promis
     currency: input.currency,
     language: input.language,
     bankAccountId: input.bankAccountId,
+    intro: input.intro,
     note: input.note,
     vatPayer: active.vatPayer,
     subtotal: toDb(totals.subtotal),
@@ -156,8 +157,8 @@ async function cloneInvoice(sourceId: string, overrides: Partial<typeof invoice.
   const active = await requireCompany();
   const src = await getInvoiceWithLines(active.id, sourceId);
   if (!src) return null;
-  const { id: _id, lines, number: _n, variableSymbol: _vs, status: _s, publicToken: _t, createdAt: _c, updatedAt: _u, sentAt: _sa, viewedAt: _va, paidAmount: _pa, paidAt: _pd, exchangeRate: _er, proformaId: _pf, recurringId: _ri, ...rest } = src;
-  void [_id, _n, _vs, _s, _t, _c, _u, _sa, _va, _pa, _pd, _er, _pf, _ri];
+  const { id: _id, lines, number: _n, variableSymbol: _vs, status: _s, publicToken: _t, createdAt: _c, updatedAt: _u, sentAt: _sa, viewedAt: _va, paidAmount: _pa, paidAt: _pd, exchangeRate: _er, proformaId: _pf, recurringId: _ri, reminderCount: _rc, lastReminderAt: _lr, ...rest } = src;
+  void [_id, _n, _vs, _s, _t, _c, _u, _sa, _va, _pa, _pd, _er, _pf, _ri, _rc, _lr];
   const today = todayIso();
   const dueDays = Math.max(0, Math.round((new Date(src.dueDate).getTime() - new Date(src.issueDate).getTime()) / 86400000));
   const [row] = await db
@@ -194,7 +195,7 @@ export async function invoiceFromProformaAction(id: string): Promise<SaveResult>
   const active = await requireCompany();
   const src = await getInvoiceWithLines(active.id, id);
   if (!src || src.type !== "proforma") return { ok: false, error: "notfound" };
-  const newId = await cloneInvoice(id, { type: "invoice", proformaId: id, note: src.note });
+  const newId = await cloneInvoice(id, { type: "invoice", proformaId: id, intro: src.intro, note: src.note });
   if (!newId) return { ok: false, error: "notfound" };
   revalidatePath("/invoices");
   return { ok: true, id: newId };
