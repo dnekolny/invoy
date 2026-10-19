@@ -96,7 +96,7 @@ function Sidebar({ user, companyName, items, onNavigate }: Omit<Props, "children
         </form>
       )}
       <nav className="flex flex-col gap-0.5">
-        <p className="px-3 pb-1 text-[11px] font-medium tracking-wider text-muted-foreground uppercase">{t("menu")}</p>
+        {items.length > 0 && <p className="px-3 pb-1 text-[11px] font-medium tracking-wider text-muted-foreground uppercase">{t("menu")}</p>}
         {items.map((i) => {
           const Icon = ICONS[i.icon];
           const active = pathname === i.href || pathname.startsWith(i.href + "/");

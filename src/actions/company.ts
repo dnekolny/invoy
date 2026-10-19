@@ -15,6 +15,7 @@ export async function createCompanyAction(fd: FormData): Promise<ActionResult> {
   const parsed = companySchema.safeParse(formToObject(fd));
   if (!parsed.success) return { ok: false, error: "invalid" };
   await db.insert(company).values({ ...parsed.data, ownerId: session.user.id });
+  revalidatePath("/", "layout");
   redirect("/dashboard");
 }
 
