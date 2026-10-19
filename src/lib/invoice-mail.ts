@@ -13,12 +13,13 @@ export function transportFor(ch: EmailChannel) {
   });
 }
 
-export async function sendWithChannel(ch: EmailChannel, msg: { to: string; subject: string; text: string; attachments?: { filename: string; content: Buffer; contentType: string }[] }) {
+export async function sendWithChannel(ch: EmailChannel, msg: { to: string; subject: string; text: string; bcc?: string; attachments?: { filename: string; content: Buffer; contentType: string }[] }) {
   const transport = transportFor(ch);
+  const bcc = [ch.bcc, msg.bcc].filter((v): v is string => Boolean(v));
   return transport.sendMail({
     from: { name: ch.fromName, address: ch.fromEmail },
     replyTo: ch.replyTo ?? undefined,
-    bcc: ch.bcc ?? undefined,
     ...msg,
+    bcc: bcc.length ? bcc : undefined,
   });
 }

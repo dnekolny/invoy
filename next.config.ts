@@ -8,6 +8,7 @@ const chromiumFiles = [
 ];
 
 const nextConfig: NextConfig = {
+  agentRules: false,
   serverExternalPackages: ["@sparticuz/chromium", "puppeteer-core"],
   outputFileTracingIncludes: Object.fromEntries(
     ["/api/**", "/invoices/**", "/recurring/**", "/i/**"].map((route) => [route, chromiumFiles])

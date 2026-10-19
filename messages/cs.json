@@ -32,7 +32,7 @@
     "overdue": "Po splatnosti",
     "thisMonth": "Fakturováno tento měsíc",
     "thisYear": "Fakturováno {year}",
-    "count": "{n} faktur",
+    "count": "{n, plural, =0 {žádná faktura} one {# faktura} few {# faktury} other {# faktur}}",
     "recent": "Poslední faktury",
     "all": "Všechny",
     "noInvoices": "Zatím žádná faktura.",
@@ -43,7 +43,8 @@
       "customer": "Přidat prvního zákazníka",
       "invoice": "Vystavit první fakturu",
       "email": "Nastavit odesílání e-mailů"
-    }
+    },
+    "newCustomer": "Nový zákazník"
   },
   "common": {
     "save": "Uložit",
@@ -51,7 +52,8 @@
     "cancel": "Zrušit",
     "delete": "Smazat",
     "edit": "Upravit",
-    "error": "Něco se nepovedlo, zkuste to znovu."
+    "error": "Něco se nepovedlo, zkuste to znovu.",
+    "invalid": "Zkontrolujte vyplněné údaje, něco chybí nebo má špatný formát."
   },
   "onboarding": {
     "title": "Založte svou firmu",
@@ -65,7 +67,13 @@
     "items": "Ceník",
     "numbering": "Číslování",
     "appearance": "Vzhled faktury",
-    "email": "Odesílání e-mailů"
+    "email": "Odesílání e-mailů",
+    "companyDesc": "Údaje, které se tisknou na faktury jako dodavatel.",
+    "bankAccountsDesc": "Kam vám zákazníci platí. Z účtu se generuje QR platba.",
+    "itemsDesc": "Opakující se služby a produkty pro našeptávač v editoru faktury.",
+    "numberingDesc": "Formát čísla faktury a zálohové faktury.",
+    "appearanceDesc": "Šablona, barva a logo na PDF.",
+    "emailDesc": "Vaše schránka, ze které se faktury odesílají, a šablona e-mailu."
   },
   "ares": {
     "search": "Vyhledat v ARES",
@@ -95,7 +103,12 @@
     "registrationNote": "Zápis v rejstříku",
     "registrationNotePlaceholder": "Např. Zapsána v OR u Městského soudu v Praze, oddíl C, vložka 12345",
     "footerText": "Text v zápatí faktury",
-    "ico": "IČO"
+    "ico": "IČO",
+    "contactHint": "E-mail a telefon se tisknou na fakturu, aby vás zákazník mohl kontaktovat.",
+    "regPresetTrade": "Fyzická osoba zapsaná v živnostenském rejstříku.",
+    "regPresetCommercial": "Zapsána v obchodním rejstříku vedeném Městským soudem v Praze, oddíl C, vložka …",
+    "registrationNoteHint": "Povinný údaj na faktuře. OSVČ použije první variantu, s.r.o. doplní soud, oddíl a vložku.",
+    "footerPlaceholder": "Např. Děkujeme za spolupráci."
   },
   "bank": {
     "intro": "Účty, na které vám zákazníci platí. Výchozí účet se předvyplní na faktuře podle měny.",
@@ -111,7 +124,13 @@
     "currency": "Měna",
     "isDefault": "Výchozí účet pro tuto měnu",
     "default": "výchozí",
-    "deleteTitle": "Smazat bankovní účet?"
+    "deleteTitle": "Smazat bankovní účet?",
+    "bank": "Banka",
+    "pickBank": "Vyberte banku…",
+    "otherBank": "Jiná banka (zadám kód ručně)",
+    "dialogHint": "Vyberte banku, kód a SWIFT se doplní. IBAN spočítáme z čísla účtu.",
+    "ibanAuto": "doplní se automaticky",
+    "foreignDetails": "IBAN a SWIFT zadat ručně (zahraniční účet)"
   },
   "items": {
     "intro": "Uložené služby a produkty, které vybíráte do faktury našeptávačem.",
@@ -124,7 +143,9 @@
     "unit": "Jednotka",
     "unitPrice": "Cena / j.",
     "vatRate": "DPH",
-    "deleteTitle": "Smazat položku z ceníku?"
+    "deleteTitle": "Smazat položku z ceníku?",
+    "unitPriceNet": "Cena / j. bez DPH",
+    "namePlaceholder": "Např. Konzultace"
   },
   "numbering": {
     "intro": "Číslo se přidělí při vystavení faktury. Koncepty číslo nemají.",
@@ -137,7 +158,9 @@
     "varYear2": "rok dvoumístně",
     "varMonth": "měsíc",
     "varSeq": "pořadové číslo, počet N určuje počet míst",
-    "resetNote": "Pokud vzor obsahuje rok, pořadové číslo se každý rok začíná od 1."
+    "resetNote": "Pokud vzor obsahuje rok, pořadové číslo se každý rok začíná od 1.",
+    "varSeqShort": "pořadí",
+    "presets": "Vzory"
   },
   "customers": {
     "title": "Zákazníci",
@@ -159,7 +182,23 @@
     "dueDaysDefault": "výchozí firmy",
     "note": "Poznámka",
     "deleteTitle": "Smazat zákazníka?",
-    "deleteDescription": "Již vystavené faktury zůstanou zachované."
+    "deleteDescription": "Již vystavené faktury zůstanou zachované.",
+    "create": "Vytvořit zákazníka",
+    "emailHint": "Na e-mail se posílají faktury. Bez něj půjde faktura odeslat jen ručně.",
+    "notePlaceholder": "Interní poznámka, na fakturu se netiskne.",
+    "search": "Hledat zákazníka",
+    "clearSearch": "Zrušit hledání",
+    "emptySearch": "Nikdo neodpovídá hledání.",
+    "invoicesCount": "Faktur",
+    "unpaid": "Nezaplaceno",
+    "noEmail": "bez e-mailu",
+    "newInvoiceFor": "Nová faktura pro zákazníka",
+    "invoice": "Faktura",
+    "backToList": "Zákazníci",
+    "recentInvoices": "Faktury zákazníka",
+    "noInvoicesYet": "Zatím žádná faktura.",
+    "draft": "Koncept",
+    "newSubtitle": "Zadejte IČO nebo název firmy a údaje se doplní z ARES."
   },
   "status": {
     "draft": "Koncept",
@@ -199,7 +238,14 @@
     "search": "Hledat číslo nebo odběratele",
     "export": "Export",
     "exportXlsx": "Excel (XLSX) za {year}",
-    "exportCsv": "CSV za {year}"
+    "exportCsv": "CSV za {year}",
+    "emptyFiltered": "Žádná faktura neodpovídá filtru.",
+    "clearFilters": "Zrušit filtry",
+    "overdueDays": "{n, plural, one {# den po splatnosti} few {# dny po splatnosti} other {# dní po splatnosti}}",
+    "paidOn": "zaplaceno {date}",
+    "remaining": "zbývá {amount}",
+    "countRows": "{n, plural, one {# faktura} few {# faktury} other {# faktur}}",
+    "clearSearch": "Zrušit hledání"
   },
   "invoiceEditor": {
     "newInvoice": "Nová faktura",
@@ -239,7 +285,18 @@
     "addBankAccount": "Přidat bankovní účet v nastavení",
     "cnbNote": "Kurz ČNB se doplní automaticky při vystavení.",
     "needLine": "Přidejte alespoň jednu položku.",
-    "needCustomer": "Pro vystavení vyberte zákazníka."
+    "needCustomer": "Pro vystavení vyberte zákazníka.",
+    "nextNumber": "Při vystavení dostane číslo {number}",
+    "noCustomers": "Zatím nemáte zákazníky, přidejte prvního",
+    "noCustomerEmail": "Zákazník nemá e-mail, fakturu nepůjde odeslat jedním klikem.",
+    "priceListHint": "Tip: uložte si opakující se položky do ceníku, pak je stačí vybrat.",
+    "dueBeforeIssue": "Splatnost nemůže být před datem vystavení.",
+    "daysShort": "{n} dní",
+    "noBankWarning": "Bez účtu nebude na faktuře QR platba ani číslo účtu.",
+    "shortcutHint": "Ctrl+S uloží koncept. Enter v poslední položce přidá další řádek.",
+    "unitPriceNet": "Cena / j. bez DPH",
+    "linePlaceholderNoItems": "Název položky",
+    "enterHint": "Šipkami vyberete položku z ceníku, Enter ji vloží."
   },
   "invoiceDetail": {
     "invoice": "Faktura",
@@ -265,7 +322,23 @@
     "notViewed": "Zákazník zatím neotevřel.",
     "history": "Historie odeslání",
     "noMails": "Zatím neodesláno.",
-    "fromProforma": "Vytvořeno ze zálohové faktury"
+    "fromProforma": "Vytvořeno ze zálohové faktury",
+    "backToList": "Faktury",
+    "overdueDays": "{n, plural, one {# den po splatnosti} few {# dny po splatnosti} other {# dní po splatnosti}}",
+    "nextNumber": "Při vystavení dostane číslo {number}",
+    "publicLinkHint": "Odkaz můžete poslat zákazníkovi i mimo e-mail. Uvidí fakturu online a stáhne PDF.",
+    "copyLink": "Kopírovat odkaz",
+    "linkCopied": "Odkaz zkopírován.",
+    "openLink": "Otevřít",
+    "timeline": {
+      "title": "Průběh",
+      "created": "Vytvořeno",
+      "issued": "Vystaveno",
+      "sent": "Odesláno e-mailem",
+      "viewed": "Otevřeno zákazníkem",
+      "paid": "Zaplaceno",
+      "cancelled": "Stornováno"
+    }
   },
   "payments": {
     "title": "Úhrady",
@@ -276,7 +349,9 @@
     "note": "Poznámka",
     "added": "Úhrada zaznamenána.",
     "paid": "Uhrazeno",
-    "remaining": "Zbývá"
+    "remaining": "Zbývá",
+    "markPaidFull": "Zaplaceno",
+    "markedPaid": "Faktura označena jako zaplacená."
   },
   "send": {
     "button": "Odeslat",
@@ -290,7 +365,9 @@
     "sent": "Faktura odeslána.",
     "failed": "Odeslání selhalo",
     "noChannel": "Nejdřív nastavte odesílací e-mail.",
-    "setupChannel": "Nastavit e-mail"
+    "setupChannel": "Nastavit e-mail",
+    "copyToMe": "Poslat kopii i mně",
+    "buttonAgain": "Odeslat znovu"
   },
   "emailSettings": {
     "intro": "Faktury se odesílají z vaší vlastní schránky, takže odpovědi chodí k vám.",
@@ -312,7 +389,7 @@
     "passwordRequired": "Zadejte heslo.",
     "replyTo": "Odpovědět na (volitelné)",
     "bcc": "Skrytá kopie (volitelné)",
-    "bccHint": "např. vaše účetní",
+    "bccHint": "Skrytá kopie každé faktury, třeba pro vaši účetní.",
     "templates": "Šablona e-mailu",
     "subjectTemplate": "Předmět",
     "bodyTemplate": "Text",
@@ -322,7 +399,24 @@
     "testOk": "Test prošel, e-mail dorazil do vaší schránky.",
     "testFailed": "Test selhal",
     "verified": "Ověřeno",
-    "deleteTitle": "Odebrat e-mailové nastavení?"
+    "deleteTitle": "Odebrat e-mailové nastavení?",
+    "tokens": {
+      "typ": "Faktura / Zálohová faktura",
+      "typ_mala": "faktura (malé písmeno)",
+      "cislo": "číslo",
+      "castka": "částka",
+      "splatnost": "splatnost",
+      "firma": "vaše firma",
+      "zakaznik": "zákazník",
+      "odkaz": "veřejný odkaz"
+    },
+    "showPassword": "Zobrazit heslo",
+    "hidePassword": "Skrýt heslo",
+    "advanced": "Další možnosti (odpovědět na, skrytá kopie)",
+    "useDefault": "Vložit výchozí text",
+    "templatesHint": "Klikněte na proměnnou a vloží se tam, kde máte kurzor. Před odesláním můžete text ještě upravit.",
+    "savedTestHint": "Uloženo. Pošlete si testovací e-mail, ať víte, že to funguje.",
+    "notVerified": "Zatím neověřeno"
   },
   "appearance": {
     "template": "Šablona",
@@ -378,6 +472,9 @@
     "generated": "Faktura vygenerována.",
     "needCustomer": "Vyberte zákazníka.",
     "needLine": "Přidejte alespoň jednu položku.",
-    "deleteTitle": "Smazat opakovanou fakturu?"
+    "deleteTitle": "Smazat opakovanou fakturu?",
+    "upcoming": "Nejbližší vystavení",
+    "create": "Vytvořit",
+    "pickCustomer": "Vyberte zákazníka…"
   }
 }

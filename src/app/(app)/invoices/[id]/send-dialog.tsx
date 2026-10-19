@@ -13,10 +13,12 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Field } from "@/components/form/field";
+import { EmailField } from "@/components/form/email-field";
+import { CheckboxField } from "@/components/form/checkbox-field";
 
-type Props = { invoiceId: string; defaultTo: string; hasChannel: boolean; context: MailContext; templates: { subject: string | null; body: string | null } };
+type Props = { invoiceId: string; defaultTo: string; hasChannel: boolean; alreadySent?: boolean; context: MailContext; templates: { subject: string | null; body: string | null } };
 
-export function SendDialog({ invoiceId, defaultTo, hasChannel, context, templates }: Props) {
+export function SendDialog({ invoiceId, defaultTo, hasChannel, alreadySent, context, templates }: Props) {
   const t = useTranslations("send");
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -25,10 +27,11 @@ export function SendDialog({ invoiceId, defaultTo, hasChannel, context, template
   const [to, setTo] = useState(defaultTo);
   const [subject, setSubject] = useState(fillTemplate(templates.subject ?? defaults.subject, context));
   const [body, setBody] = useState(fillTemplate(templates.body ?? defaults.body, context));
+  const [copyToMe, setCopyToMe] = useState(false);
 
   function send() {
     start(async () => {
-      const r = await sendInvoiceAction(invoiceId, { to, subject, body });
+      const r = await sendInvoiceAction(invoiceId, { to, subject, body, copyToMe });
       if (!r.ok) {
         toast.error(r.error === "nochannel" ? t("noChannel") : `${t("failed")}: ${r.error}`);
         return;
@@ -41,9 +44,9 @@ export function SendDialog({ invoiceId, defaultTo, hasChannel, context, template
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button size="sm" />}>
+      <DialogTrigger render={<Button size="sm" variant={alreadySent ? "outline" : "default"} />}>
         <Send />
-        {t("button")}
+        {alreadySent ? t("buttonAgain") : t("button")}
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
@@ -53,16 +56,17 @@ export function SendDialog({ invoiceId, defaultTo, hasChannel, context, template
         {!hasChannel ? (
           <div className="space-y-3 text-sm">
             <p>{t("noChannel")}</p>
-            <Button render={<Link href="/settings/email" />}>{t("setupChannel")}</Button>
+            <Button nativeButton={false} render={<Link href="/settings/email" />}>{t("setupChannel")}</Button>
           </div>
         ) : (
           <div className="space-y-4">
-            <Field label={t("to")} name="to" type="email" value={to} onChange={(e) => setTo(e.target.value)} required />
+            <EmailField label={t("to")} name="to" value={to} onChange={setTo} required autoFocus={!to} />
             <Field label={t("subject")} name="subject" value={subject} onChange={(e) => setSubject(e.target.value)} />
             <div className="space-y-1.5">
               <Label htmlFor="body">{t("body")}</Label>
               <Textarea id="body" rows={9} value={body} onChange={(e) => setBody(e.target.value)} />
             </div>
+            <CheckboxField name="copyToMe" label={t("copyToMe")} checked={copyToMe} onChange={setCopyToMe} />
             <p className="text-xs text-muted-foreground">{t("attachmentNote")}</p>
             <div className="flex justify-end">
               <Button onClick={send} disabled={pending || !to}>

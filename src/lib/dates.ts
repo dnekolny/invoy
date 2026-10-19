@@ -21,3 +21,20 @@ export function addMonths(iso: string, months: number) {
 export function isOverdue(inv: { status: string; dueDate: string }) {
   return (inv.status === "issued" || inv.status === "sent") && inv.dueDate < todayIso();
 }
+
+export function advance(iso: string, interval: string) {
+  switch (interval) {
+    case "weekly":
+      return addDays(iso, 7);
+    case "quarterly":
+      return addMonths(iso, 3);
+    case "yearly":
+      return addMonths(iso, 12);
+    default:
+      return addMonths(iso, 1);
+  }
+}
+
+export function daysOverdue(dueDate: string) {
+  return Math.round((Date.parse(todayIso()) - Date.parse(dueDate)) / 86400000);
+}

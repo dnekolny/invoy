@@ -35,7 +35,7 @@ export default async function PublicInvoicePage({ params }: { params: Promise<{ 
               <div className="font-semibold tabular-nums">{money}</div>
               <div className="text-muted-foreground">{t.dueDate}: {due}</div>
             </div>
-            <Button render={<a href={`/i/${token}/pdf`} />}>
+            <Button nativeButton={false} render={<a href={`/i/${token}/pdf`} />}>
               <FileDown />
               PDF
             </Button>

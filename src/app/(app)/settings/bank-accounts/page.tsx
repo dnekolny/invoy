@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { bankAccount } from "@/db/schema";
 import { deleteBankAccountAction } from "@/actions/bank-accounts";
 import { requireCompany } from "@/lib/company";
+import { bankByCode } from "@/lib/banks";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ConfirmDelete } from "@/components/form/confirm-delete";
@@ -17,7 +18,7 @@ export default async function BankAccountsPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">{t("intro")}</p>
-        <BankAccountDialog />
+        <BankAccountDialog isFirst={rows.length === 0} />
       </div>
       {rows.length === 0 ? (
         <p className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">{t("empty")}</p>
@@ -37,8 +38,9 @@ export default async function BankAccountsPage() {
                 <TableCell className="font-medium">
                   {r.label} {r.isDefault && <Badge variant="secondary" className="ml-1">{t("default")}</Badge>}
                 </TableCell>
-                <TableCell className="font-mono text-xs">
-                  {r.accountNumber ? `${r.accountNumber}/${r.bankCode}` : r.iban}
+                <TableCell>
+                  <div className="font-mono text-xs">{r.accountNumber ? `${r.accountNumber}/${r.bankCode}` : r.iban}</div>
+                  {bankByCode(r.bankCode) && <div className="text-xs text-muted-foreground">{bankByCode(r.bankCode)!.name}</div>}
                 </TableCell>
                 <TableCell>{r.currency}</TableCell>
                 <TableCell className="text-right">

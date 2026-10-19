@@ -32,7 +32,7 @@
     "overdue": "Overdue",
     "thisMonth": "Invoiced this month",
     "thisYear": "Invoiced {year}",
-    "count": "{n} invoices",
+    "count": "{n, plural, =0 {no invoices} one {# invoice} other {# invoices}}",
     "recent": "Recent invoices",
     "all": "All",
     "noInvoices": "No invoices yet.",
@@ -43,7 +43,8 @@
       "customer": "Add your first customer",
       "invoice": "Issue your first invoice",
       "email": "Set up email sending"
-    }
+    },
+    "newCustomer": "New customer"
   },
   "common": {
     "save": "Save",
@@ -51,7 +52,8 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit",
-    "error": "Something went wrong, please try again."
+    "error": "Something went wrong, please try again.",
+    "invalid": "Please check the form, something is missing or in a wrong format."
   },
   "onboarding": {
     "title": "Set up your company",
@@ -65,7 +67,13 @@
     "items": "Price list",
     "numbering": "Numbering",
     "appearance": "Invoice design",
-    "email": "Email sending"
+    "email": "Email sending",
+    "companyDesc": "Details printed on invoices as the supplier.",
+    "bankAccountsDesc": "Where customers pay you. The QR payment is generated from the account.",
+    "itemsDesc": "Recurring services and products for the invoice editor autocomplete.",
+    "numberingDesc": "Number format for invoices and proformas.",
+    "appearanceDesc": "Template, colour and logo on the PDF.",
+    "emailDesc": "Your mailbox used for sending invoices, and the email template."
   },
   "ares": {
     "search": "Search ARES (Czech company register)",
@@ -95,7 +103,12 @@
     "registrationNote": "Registration note",
     "registrationNotePlaceholder": "E.g. Registered in the Commercial Register at the Municipal Court in Prague, section C, insert 12345",
     "footerText": "Invoice footer text",
-    "ico": "Company ID (IČO)"
+    "ico": "Company ID (IČO)",
+    "contactHint": "Email and phone are printed on the invoice so the customer can reach you.",
+    "regPresetTrade": "Sole trader registered in the Trade Register.",
+    "regPresetCommercial": "Registered in the Commercial Register kept by the Municipal Court in Prague, section C, insert …",
+    "registrationNoteHint": "Required on Czech invoices. Sole traders use the first option, companies add the court, section and insert.",
+    "footerPlaceholder": "E.g. Thank you for your business."
   },
   "bank": {
     "intro": "Accounts your customers pay to. The default account is preselected on invoices by currency.",
@@ -111,7 +124,13 @@
     "currency": "Currency",
     "isDefault": "Default account for this currency",
     "default": "default",
-    "deleteTitle": "Delete bank account?"
+    "deleteTitle": "Delete bank account?",
+    "bank": "Bank",
+    "pickBank": "Pick a bank…",
+    "otherBank": "Other bank (enter the code manually)",
+    "dialogHint": "Pick a bank and the code and SWIFT fill in. IBAN is computed from the account number.",
+    "ibanAuto": "filled in automatically",
+    "foreignDetails": "Enter IBAN and SWIFT manually (foreign account)"
   },
   "items": {
     "intro": "Saved services and products you pick into invoices with autocomplete.",
@@ -124,7 +143,9 @@
     "unit": "Unit",
     "unitPrice": "Unit price",
     "vatRate": "VAT",
-    "deleteTitle": "Delete item from price list?"
+    "deleteTitle": "Delete item from price list?",
+    "unitPriceNet": "Unit price excl. VAT",
+    "namePlaceholder": "E.g. Consulting"
   },
   "numbering": {
     "intro": "The number is assigned when the invoice is issued. Drafts have no number.",
@@ -137,7 +158,9 @@
     "varYear2": "two-digit year",
     "varMonth": "month",
     "varSeq": "sequence number, the count of N sets the width",
-    "resetNote": "If the pattern contains a year, the sequence restarts at 1 every year."
+    "resetNote": "If the pattern contains a year, the sequence restarts at 1 every year.",
+    "varSeqShort": "sequence",
+    "presets": "Presets"
   },
   "customers": {
     "title": "Customers",
@@ -159,7 +182,23 @@
     "dueDaysDefault": "company default",
     "note": "Note",
     "deleteTitle": "Delete customer?",
-    "deleteDescription": "Already issued invoices are kept."
+    "deleteDescription": "Already issued invoices are kept.",
+    "create": "Create customer",
+    "emailHint": "Invoices are sent to this email. Without it you can only share the link manually.",
+    "notePlaceholder": "Internal note, not printed on invoices.",
+    "search": "Search customers",
+    "clearSearch": "Clear search",
+    "emptySearch": "No customer matches your search.",
+    "invoicesCount": "Invoices",
+    "unpaid": "Unpaid",
+    "noEmail": "no email",
+    "newInvoiceFor": "New invoice for this customer",
+    "invoice": "Invoice",
+    "backToList": "Customers",
+    "recentInvoices": "Customer's invoices",
+    "noInvoicesYet": "No invoices yet.",
+    "draft": "Draft",
+    "newSubtitle": "Enter an IČO or company name and we fill in the details from ARES."
   },
   "status": {
     "draft": "Draft",
@@ -199,7 +238,14 @@
     "search": "Search number or customer",
     "export": "Export",
     "exportXlsx": "Excel (XLSX) for {year}",
-    "exportCsv": "CSV for {year}"
+    "exportCsv": "CSV for {year}",
+    "emptyFiltered": "No invoice matches the filter.",
+    "clearFilters": "Clear filters",
+    "overdueDays": "{n, plural, one {# day overdue} other {# days overdue}}",
+    "paidOn": "paid {date}",
+    "remaining": "{amount} remaining",
+    "countRows": "{n, plural, one {# invoice} other {# invoices}}",
+    "clearSearch": "Clear search"
   },
   "invoiceEditor": {
     "newInvoice": "New invoice",
@@ -239,7 +285,18 @@
     "addBankAccount": "Add a bank account in settings",
     "cnbNote": "The CNB exchange rate is filled in automatically on issue.",
     "needLine": "Add at least one item.",
-    "needCustomer": "Pick a customer to issue."
+    "needCustomer": "Pick a customer to issue.",
+    "nextNumber": "Will be numbered {number} when issued",
+    "noCustomers": "No customers yet, add the first one",
+    "noCustomerEmail": "This customer has no email, the invoice cannot be sent with one click.",
+    "priceListHint": "Tip: save recurring items to the price list and just pick them next time.",
+    "dueBeforeIssue": "Due date cannot be before the issue date.",
+    "daysShort": "{n} days",
+    "noBankWarning": "Without an account the invoice has no QR payment or account number.",
+    "shortcutHint": "Ctrl+S saves the draft. Enter on the last line adds another one.",
+    "unitPriceNet": "Unit price excl. VAT",
+    "linePlaceholderNoItems": "Item name",
+    "enterHint": "Use arrow keys to pick a price list item, Enter inserts it."
   },
   "invoiceDetail": {
     "invoice": "Invoice",
@@ -265,7 +322,23 @@
     "notViewed": "Not opened by the customer yet.",
     "history": "Sending history",
     "noMails": "Not sent yet.",
-    "fromProforma": "Created from a proforma invoice"
+    "fromProforma": "Created from a proforma invoice",
+    "backToList": "Invoices",
+    "overdueDays": "{n, plural, one {# day overdue} other {# days overdue}}",
+    "nextNumber": "Will be numbered {number} when issued",
+    "publicLinkHint": "Share the link with the customer outside email. They see the invoice online and can download the PDF.",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied.",
+    "openLink": "Open",
+    "timeline": {
+      "title": "Timeline",
+      "created": "Created",
+      "issued": "Issued",
+      "sent": "Sent by email",
+      "viewed": "Opened by customer",
+      "paid": "Paid",
+      "cancelled": "Cancelled"
+    }
   },
   "payments": {
     "title": "Payments",
@@ -276,7 +349,9 @@
     "note": "Note",
     "added": "Payment recorded.",
     "paid": "Paid",
-    "remaining": "Remaining"
+    "remaining": "Remaining",
+    "markPaidFull": "Mark as paid",
+    "markedPaid": "Invoice marked as paid."
   },
   "send": {
     "button": "Send",
@@ -290,7 +365,9 @@
     "sent": "Invoice sent.",
     "failed": "Sending failed",
     "noChannel": "Set up your sending email first.",
-    "setupChannel": "Set up email"
+    "setupChannel": "Set up email",
+    "copyToMe": "Send me a copy",
+    "buttonAgain": "Send again"
   },
   "emailSettings": {
     "intro": "Invoices are sent from your own mailbox, so replies come straight to you.",
@@ -312,7 +389,7 @@
     "passwordRequired": "Enter a password.",
     "replyTo": "Reply-to (optional)",
     "bcc": "BCC (optional)",
-    "bccHint": "e.g. your accountant",
+    "bccHint": "A blind copy of every invoice, e.g. for your accountant.",
     "templates": "Email template",
     "subjectTemplate": "Subject",
     "bodyTemplate": "Message",
@@ -322,7 +399,24 @@
     "testOk": "Test passed, the email arrived in your mailbox.",
     "testFailed": "Test failed",
     "verified": "Verified",
-    "deleteTitle": "Remove email settings?"
+    "deleteTitle": "Remove email settings?",
+    "tokens": {
+      "typ": "Invoice / Proforma invoice",
+      "typ_mala": "invoice (lowercase)",
+      "cislo": "number",
+      "castka": "amount",
+      "splatnost": "due date",
+      "firma": "your company",
+      "zakaznik": "customer",
+      "odkaz": "public link"
+    },
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "advanced": "More options (reply-to, BCC)",
+    "useDefault": "Insert default text",
+    "templatesHint": "Click a variable to insert it at the cursor. You can still edit the text before sending.",
+    "savedTestHint": "Saved. Send yourself a test email to make sure it works.",
+    "notVerified": "Not verified yet"
   },
   "appearance": {
     "template": "Template",
@@ -378,6 +472,9 @@
     "generated": "Invoice generated.",
     "needCustomer": "Pick a customer.",
     "needLine": "Add at least one item.",
-    "deleteTitle": "Delete recurring invoice?"
+    "deleteTitle": "Delete recurring invoice?",
+    "upcoming": "Next issues",
+    "create": "Create",
+    "pickCustomer": "Pick a customer…"
   }
 }

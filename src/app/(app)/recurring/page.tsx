@@ -28,7 +28,7 @@ export default async function RecurringPage() {
           <h1 className="text-2xl font-semibold">{t("title")}</h1>
           <p className="text-sm text-muted-foreground">{t("intro")}</p>
         </div>
-        <Button size="sm" render={<Link href="/recurring/new" />}>
+        <Button size="sm" nativeButton={false} render={<Link href="/recurring/new" />}>
           <Plus />
           {t("add")}
         </Button>

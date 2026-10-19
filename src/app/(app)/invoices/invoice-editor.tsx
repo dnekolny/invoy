@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -9,6 +9,7 @@ import { issueInvoiceAction, saveInvoiceAction } from "@/actions/invoices";
 import type { BankAccount, Company, Customer, Item, InvoiceType } from "@/db/schema";
 import type { InvoiceWithLines } from "@/lib/invoices";
 import { addDays, todayIso } from "@/lib/dates";
+import { peekNumber } from "@/lib/invoice-number-peek";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -16,17 +17,22 @@ import { Textarea } from "@/components/ui/textarea";
 import { Field } from "@/components/form/field";
 import { NativeSelect } from "@/components/form/native-select";
 import { LinesEditor, newLine, type EditorLine } from "@/components/lines-editor";
+import { CustomerDialog } from "../customers/customer-dialog";
 
 type Props = {
   company: Company;
   customers: Customer[];
   bankAccounts: BankAccount[];
   items: Item[];
+  counters: Record<string, number>;
   invoice?: InvoiceWithLines;
   initialType?: InvoiceType;
+  initialCustomerId?: string;
 };
 
-export function InvoiceEditor({ company, customers, bankAccounts, items, invoice, initialType }: Props) {
+const DUE_PRESETS = [7, 14, 30];
+
+export function InvoiceEditor({ company, customers: initialCustomers, bankAccounts, items, counters, invoice, initialType, initialCustomerId }: Props) {
   const t = useTranslations("invoiceEditor");
   const tc = useTranslations("common");
   const locale = useLocale();
@@ -34,24 +40,55 @@ export function InvoiceEditor({ company, customers, bankAccounts, items, invoice
   const [pending, start] = useTransition();
   const isDraft = !invoice || invoice.status === "draft";
 
+  const [customers, setCustomers] = useState(initialCustomers);
   const [type, setType] = useState<InvoiceType>(invoice?.type ?? initialType ?? "invoice");
-  const [customerId, setCustomerId] = useState(invoice?.customerId ?? "");
+  const [customerId, setCustomerId] = useState(invoice?.customerId ?? initialCustomerId ?? "");
+  const initialCustomer = initialCustomers.find((c) => c.id === (invoice?.customerId ?? initialCustomerId));
   const [issueDate, setIssueDate] = useState(invoice?.issueDate ?? todayIso());
   const [taxDate, setTaxDate] = useState(invoice?.taxDate ?? invoice?.issueDate ?? todayIso());
-  const [dueDate, setDueDate] = useState(invoice?.dueDate ?? addDays(todayIso(), company.defaultDueDays));
-  const [currency, setCurrency] = useState(invoice?.currency ?? company.defaultCurrency);
-  const [language, setLanguage] = useState(invoice?.language ?? "cs");
-  const [bankAccountId, setBankAccountId] = useState(invoice?.bankAccountId ?? defaultBank(bankAccounts, invoice?.currency ?? company.defaultCurrency));
+  const [dueDate, setDueDate] = useState(invoice?.dueDate ?? addDays(todayIso(), initialCustomer?.dueDays ?? company.defaultDueDays));
+  const [currency, setCurrency] = useState(invoice?.currency ?? initialCustomer?.currency ?? company.defaultCurrency);
+  const [language, setLanguage] = useState(invoice?.language ?? initialCustomer?.language ?? "cs");
+  const [bankAccountId, setBankAccountId] = useState(invoice?.bankAccountId ?? defaultBank(bankAccounts, invoice?.currency ?? initialCustomer?.currency ?? company.defaultCurrency));
   const [note, setNote] = useState(invoice?.note ?? "");
   const [lines, setLines] = useState<EditorLine[]>(
     invoice?.lines.length
       ? invoice.lines.map((l) => newLine({ name: l.name, quantity: trimNum(l.quantity), unit: l.unit, unitPrice: trimNum(l.unitPrice), vatRate: l.vatRate }))
       : [newLine()]
   );
+  const dirty = useRef(false);
+  const saved = useRef(false);
+
+  useEffect(() => {
+    function warn(e: BeforeUnloadEvent) {
+      if (dirty.current && !saved.current) e.preventDefault();
+    }
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, []);
+
+  useEffect(() => {
+    function key(e: KeyboardEvent) {
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault();
+        save(false);
+      }
+    }
+    window.addEventListener("keydown", key);
+    return () => window.removeEventListener("keydown", key);
+  });
 
   const customer = useMemo(() => customers.find((c) => c.id === customerId), [customers, customerId]);
+  const dueDays = Math.round((Date.parse(dueDate) - Date.parse(issueDate)) / 86400000);
+  const pattern = type === "proforma" ? company.proformaPattern : company.invoicePattern;
+  const nextNumber = isDraft && issueDate ? peekNumber(counters, type, pattern, issueDate) : null;
+
+  function mark() {
+    dirty.current = true;
+  }
 
   function pickCustomer(id: string) {
+    mark();
     setCustomerId(id);
     const c = customers.find((x) => x.id === id);
     if (!c) return;
@@ -62,7 +99,8 @@ export function InvoiceEditor({ company, customers, bankAccounts, items, invoice
   }
 
   function changeIssueDate(v: string) {
-    const days = customer?.dueDays ?? company.defaultDueDays;
+    mark();
+    const days = dueDays >= 0 ? dueDays : (customer?.dueDays ?? company.defaultDueDays);
     setIssueDate(v);
     setTaxDate(v);
     if (v) setDueDate(addDays(v, days));
@@ -86,6 +124,7 @@ export function InvoiceEditor({ company, customers, bankAccounts, items, invoice
   }
 
   function save(issue: boolean) {
+    if (pending) return;
     const p = payload();
     if (p.lines.length === 0) {
       toast.error(t("needLine"));
@@ -95,12 +134,17 @@ export function InvoiceEditor({ company, customers, bankAccounts, items, invoice
       toast.error(t("needCustomer"));
       return;
     }
+    if (p.dueDate < p.issueDate) {
+      toast.error(t("dueBeforeIssue"));
+      return;
+    }
     start(async () => {
       const r = await saveInvoiceAction(invoice?.id ?? null, p);
       if (!r.ok) {
-        toast.error(tc("error"));
+        toast.error(r.error === "invalid" ? tc("invalid") : tc("error"));
         return;
       }
+      saved.current = true;
       if (issue) {
         const i = await issueInvoiceAction(r.id);
         if (!i.ok) {
@@ -117,8 +161,10 @@ export function InvoiceEditor({ company, customers, bankAccounts, items, invoice
     });
   }
 
+  const selectClass = "h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30";
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" onChange={mark}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">
@@ -127,23 +173,26 @@ export function InvoiceEditor({ company, customers, bankAccounts, items, invoice
           {!invoice && (
             <div className="mt-2 flex gap-1">
               {(["invoice", "proforma"] as const).map((k) => (
-                <Button key={k} type="button" size="sm" variant={type === k ? "secondary" : "ghost"} onClick={() => setType(k)}>
+                <Button key={k} type="button" size="sm" variant={type === k ? "secondary" : "ghost"} onClick={() => { mark(); setType(k); }}>
                   {t(k === "invoice" ? "typeInvoice" : "typeProforma")}
                 </Button>
               ))}
             </div>
           )}
         </div>
-        <div className="flex gap-2">
-          <Button variant="ghost" render={<Link href={invoice ? `/invoices/${invoice.id}` : "/invoices"} />}>{tc("cancel")}</Button>
-          <Button variant="outline" disabled={pending} onClick={() => save(false)}>
-            {isDraft ? t("saveDraft") : tc("save")}
-          </Button>
-          {isDraft && (
-            <Button disabled={pending} onClick={() => save(true)}>
-              {t("issue")}
+        <div className="flex flex-col items-end gap-1">
+          <div className="flex gap-2">
+            <Button variant="ghost" nativeButton={false} render={<Link href={invoice ? `/invoices/${invoice.id}` : "/invoices"} />}>{tc("cancel")}</Button>
+            <Button variant="outline" disabled={pending} onClick={() => save(false)}>
+              {isDraft ? t("saveDraft") : tc("save")}
             </Button>
-          )}
+            {isDraft && (
+              <Button disabled={pending} onClick={() => save(true)}>
+                {t("issue")}
+              </Button>
+            )}
+          </div>
+          {nextNumber && <p className="text-xs text-muted-foreground">{t("nextNumber", { number: nextNumber })}</p>}
         </div>
       </div>
 
@@ -155,31 +204,42 @@ export function InvoiceEditor({ company, customers, bankAccounts, items, invoice
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex gap-2">
-                <select
-                  className="h-8 flex-1 rounded-lg border border-input bg-transparent px-2.5 text-sm dark:bg-input/30"
-                  value={customerId}
-                  onChange={(e) => pickCustomer(e.target.value)}
-                >
-                  <option value="">{t("pickCustomer")}</option>
+                <select className={selectClass} value={customerId} onChange={(e) => pickCustomer(e.target.value)} autoFocus={!invoice && !customerId}>
+                  <option value="">{customers.length ? t("pickCustomer") : t("noCustomers")}</option>
                   {customers.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name}
                     </option>
                   ))}
                 </select>
-                <Button variant="outline" size="sm" render={<Link href="/customers/new" />}>{t("newCustomer")}</Button>
+                <CustomerDialog
+                  defaultCurrency={company.defaultCurrency}
+                  onCreated={(c) => {
+                    setCustomers((list) => [...list, c].sort((a, b) => a.name.localeCompare(b.name)));
+                    setCustomerId(c.id);
+                    setLanguage(c.language);
+                    setCurrency(c.currency);
+                    setBankAccountId(defaultBank(bankAccounts, c.currency));
+                    setDueDate(addDays(issueDate, c.dueDays ?? company.defaultDueDays));
+                    mark();
+                    router.refresh();
+                  }}
+                />
               </div>
               {customer && (
-                <div className="rounded-lg bg-muted/60 p-3 text-sm leading-relaxed">
-                  <div className="font-medium">{customer.name}</div>
-                  {customer.street && <div>{customer.street}</div>}
-                  {(customer.zip || customer.city) && <div>{[customer.zip, customer.city].filter(Boolean).join(" ")}</div>}
-                  {(customer.ico || customer.dic) && (
-                    <div className="text-muted-foreground">
-                      {customer.ico && <>IČO {customer.ico}</>} {customer.dic && <>· DIČ {customer.dic}</>}
-                    </div>
-                  )}
-                  {customer.email && <div className="text-muted-foreground">{customer.email}</div>}
+                <div className="flex items-start justify-between gap-3 rounded-lg bg-muted/60 p-3 text-sm leading-relaxed">
+                  <div>
+                    <div className="font-medium">{customer.name}</div>
+                    {customer.street && <div>{customer.street}</div>}
+                    {(customer.zip || customer.city) && <div>{[customer.zip, customer.city].filter(Boolean).join(" ")}</div>}
+                    {(customer.ico || customer.dic) && (
+                      <div className="text-muted-foreground">
+                        {customer.ico && <>IČO {customer.ico}</>} {customer.dic && <>· DIČ {customer.dic}</>}
+                      </div>
+                    )}
+                    {customer.email ? <div className="text-muted-foreground">{customer.email}</div> : <div className="text-xs text-amber-700">{t("noCustomerEmail")}</div>}
+                  </div>
+                  <Link href={`/customers/${customer.id}`} className="shrink-0 text-xs text-muted-foreground underline-offset-2 hover:underline">{tc("edit")}</Link>
                 </div>
               )}
             </CardContent>
@@ -190,7 +250,12 @@ export function InvoiceEditor({ company, customers, bankAccounts, items, invoice
               <CardTitle className="text-base">{t("lines")}</CardTitle>
             </CardHeader>
             <CardContent>
-              <LinesEditor lines={lines} onChange={setLines} items={items} vatPayer={company.vatPayer} currency={currency} locale={locale} />
+              <LinesEditor lines={lines} onChange={(l) => { mark(); setLines(l); }} items={items} vatPayer={company.vatPayer} currency={currency} locale={locale} />
+              {items.length === 0 && (
+                <p className="mt-3 text-xs text-muted-foreground">
+                  <Link href="/settings/items" className="underline">{t("priceListHint")}</Link>
+                </p>
+              )}
             </CardContent>
           </Card>
 
@@ -214,7 +279,22 @@ export function InvoiceEditor({ company, customers, bankAccounts, items, invoice
               {company.vatPayer && type === "invoice" && (
                 <Field label={t("taxDate")} name="taxDate" type="date" value={taxDate} onChange={(e) => setTaxDate(e.target.value)} />
               )}
-              <Field label={t("dueDate")} name="dueDate" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+              <div className="space-y-1.5">
+                <Field label={t("dueDate")} name="dueDate" type="date" value={dueDate} min={issueDate} onChange={(e) => setDueDate(e.target.value)} />
+                <div className="flex flex-wrap gap-1">
+                  {DUE_PRESETS.map((d) => (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => { mark(); setDueDate(addDays(issueDate, d)); }}
+                      className={`rounded-md border px-2 py-0.5 text-xs ${dueDays === d ? "border-foreground bg-foreground text-background" : "bg-muted/60 hover:bg-muted"}`}
+                    >
+                      {t("daysShort", { n: d })}
+                    </button>
+                  ))}
+                  {!DUE_PRESETS.includes(dueDays) && dueDays >= 0 && <span className="self-center text-xs text-muted-foreground">{t("daysShort", { n: dueDays })}</span>}
+                </div>
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 <NativeSelect
                   label={t("currency")}
@@ -242,12 +322,7 @@ export function InvoiceEditor({ company, customers, bankAccounts, items, invoice
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="bankAccountId">{t("bankAccount")}</Label>
-                <select
-                  id="bankAccountId"
-                  className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm dark:bg-input/30"
-                  value={bankAccountId}
-                  onChange={(e) => setBankAccountId(e.target.value)}
-                >
+                <select id="bankAccountId" className={selectClass} value={bankAccountId} onChange={(e) => setBankAccountId(e.target.value)}>
                   <option value="">{t("noBankAccount")}</option>
                   {bankAccounts.map((b) => (
                     <option key={b.id} value={b.id}>
@@ -255,15 +330,18 @@ export function InvoiceEditor({ company, customers, bankAccounts, items, invoice
                     </option>
                   ))}
                 </select>
-                {bankAccounts.length === 0 && (
-                  <p className="text-xs text-muted-foreground">
+                {bankAccounts.length === 0 ? (
+                  <p className="text-xs text-amber-700">
                     <Link href="/settings/bank-accounts" className="underline">{t("addBankAccount")}</Link>
                   </p>
+                ) : (
+                  !bankAccountId && <p className="text-xs text-amber-700">{t("noBankWarning")}</p>
                 )}
               </div>
               {currency !== "CZK" && company.vatPayer && <p className="text-xs text-muted-foreground">{t("cnbNote")}</p>}
             </CardContent>
           </Card>
+          <p className="text-xs text-muted-foreground">{t("shortcutHint")}</p>
         </div>
       </div>
     </div>

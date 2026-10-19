@@ -8,9 +8,9 @@ import type { AresResult } from "@/lib/ares";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-type Props = { onSelect: (r: AresResult) => void };
+type Props = { onSelect: (r: AresResult) => void; autoFocus?: boolean };
 
-export function AresLookup({ onSelect }: Props) {
+export function AresLookup({ onSelect, autoFocus }: Props) {
   const t = useTranslations("ares");
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<AresResult[] | null>(null);
@@ -50,6 +50,7 @@ export function AresLookup({ onSelect }: Props) {
           className="pl-8"
           placeholder={t("placeholder")}
           autoComplete="off"
+          autoFocus={autoFocus}
           value={query}
           onChange={(e) => change(e.target.value)}
           onKeyDown={(e) => {

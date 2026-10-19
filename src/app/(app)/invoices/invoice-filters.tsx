@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -51,7 +51,12 @@ export function InvoiceFilters({ filter, type, q, year }: Props) {
         }}
       >
         <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input name="q" defaultValue={q} placeholder={t("search")} className="w-56 pl-8" />
+        <Input name="q" defaultValue={q} placeholder={t("search")} className="w-56 pl-8 pr-8" key={q} />
+        {q && (
+          <button type="button" onClick={() => set({ q: undefined })} className="absolute top-1/2 right-2 -translate-y-1/2 text-muted-foreground hover:text-foreground" aria-label={t("clearSearch")}>
+            <X className="size-4" />
+          </button>
+        )}
       </form>
     </div>
   );

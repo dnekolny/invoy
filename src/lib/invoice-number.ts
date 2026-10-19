@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { numberingCounter, type InvoiceType } from "@/db/schema";
 import { formatNumber, patternYearly } from "@/lib/numbering";
@@ -15,4 +15,9 @@ export async function nextInvoiceNumber(companyId: string, type: InvoiceType, pa
     })
     .returning({ last: numberingCounter.last });
   return formatNumber(pattern, date, row.last);
+}
+
+export async function companyCounters(companyId: string) {
+  const rows = await db.select({ series: numberingCounter.series, year: numberingCounter.year, last: numberingCounter.last }).from(numberingCounter).where(eq(numberingCounter.companyId, companyId));
+  return Object.fromEntries(rows.map((r) => [`${r.series}:${r.year}`, r.last])) as Record<string, number>;
 }

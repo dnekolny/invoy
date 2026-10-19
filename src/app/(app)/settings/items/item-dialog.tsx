@@ -13,6 +13,7 @@ import { NativeSelect } from "@/components/form/native-select";
 import { SubmitButton } from "@/components/form/submit-button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { UnitsDatalist, UNITS_LIST_ID } from "@/components/form/units-datalist";
 
 export function ItemDialog({ item, vatPayer }: { item?: Item; vatPayer: boolean }) {
   const t = useTranslations("items");
@@ -22,7 +23,7 @@ export function ItemDialog({ item, vatPayer }: { item?: Item; vatPayer: boolean 
   async function submit(fd: FormData) {
     const r = await saveItemAction(item?.id ?? null, fd);
     if (!r.ok) {
-      toast.error(tc("error"));
+      toast.error(r.error === "invalid" ? tc("invalid") : tc("error"));
       return;
     }
     toast.success(tc("saved"));
@@ -39,14 +40,14 @@ export function ItemDialog({ item, vatPayer }: { item?: Item; vatPayer: boolean 
           <DialogTitle>{item ? t("editTitle") : t("addTitle")}</DialogTitle>
         </DialogHeader>
         <form action={submit} className="space-y-4">
-          <Field label={t("name")} name="name" required defaultValue={item?.name ?? ""} />
+          <Field label={t("name")} name="name" required defaultValue={item?.name ?? ""} autoFocus placeholder={t("namePlaceholder")} />
           <div className="space-y-1.5">
             <Label htmlFor="description">{t("description")}</Label>
             <Textarea id="description" name="description" rows={2} defaultValue={item?.description ?? ""} />
           </div>
           <div className="grid grid-cols-3 gap-4">
-            <Field label={t("unitPrice")} name="unitPrice" type="number" step="0.01" min={0} required defaultValue={item?.unitPrice ?? ""} />
-            <Field label={t("unit")} name="unit" defaultValue={item?.unit ?? "ks"} />
+            <Field label={vatPayer ? t("unitPriceNet") : t("unitPrice")} name="unitPrice" type="number" step="0.01" min={0} required defaultValue={item?.unitPrice ?? ""} />
+            <Field label={t("unit")} name="unit" defaultValue={item?.unit ?? "ks"} list={UNITS_LIST_ID} autoComplete="off" />
             {vatPayer ? (
               <NativeSelect
                 label={t("vatRate")}
@@ -62,7 +63,9 @@ export function ItemDialog({ item, vatPayer }: { item?: Item; vatPayer: boolean 
               <input type="hidden" name="vatRate" value="0" />
             )}
           </div>
-          <div className="flex justify-end">
+          <UnitsDatalist />
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>{tc("cancel")}</Button>
             <SubmitButton>{tc("save")}</SubmitButton>
           </div>
         </form>

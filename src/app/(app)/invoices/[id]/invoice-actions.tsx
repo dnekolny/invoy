@@ -3,17 +3,21 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Ban, CheckCircle2, Copy, FilePlus2, MoreHorizontal, RotateCcw, Trash2 } from "lucide-react";
+import { Ban, CheckCircle2, Copy, FilePlus2, MoreHorizontal, RotateCcw, Trash2, Wallet } from "lucide-react";
 import { toast } from "sonner";
-import { deleteInvoiceAction, duplicateInvoiceAction, invoiceFromProformaAction, issueInvoiceAction, setInvoiceStatusAction } from "@/actions/invoices";
+import { addPaymentAction, deleteInvoiceAction, duplicateInvoiceAction, invoiceFromProformaAction, issueInvoiceAction, setInvoiceStatusAction } from "@/actions/invoices";
 import type { InvoiceStatus, InvoiceType } from "@/db/schema";
+import { todayIso } from "@/lib/dates";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
-type Props = { invoice: { id: string; status: InvoiceStatus; type: InvoiceType; customerId: string | null; proformaId: string | null } };
+type Props = {
+  invoice: { id: string; status: InvoiceStatus; type: InvoiceType; customerId: string | null; proformaId: string | null; remaining: string };
+};
 
 export function InvoiceActions({ invoice }: Props) {
   const t = useTranslations("invoiceDetail");
+  const tp = useTranslations("payments");
   const tc = useTranslations("common");
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -31,12 +35,25 @@ export function InvoiceActions({ invoice }: Props) {
     });
   }
 
+  const unpaid = (invoice.status === "issued" || invoice.status === "sent") && Number(invoice.remaining) > 0;
+
   return (
     <>
       {invoice.status === "draft" && (
         <Button size="sm" disabled={pending} onClick={() => run(() => issueInvoiceAction(invoice.id), t("issued"))}>
           <CheckCircle2 />
           {t("issue")}
+        </Button>
+      )}
+      {unpaid && (
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={pending}
+          onClick={() => run(() => addPaymentAction(invoice.id, { date: todayIso(), amount: invoice.remaining, note: null }), tp("markedPaid"))}
+        >
+          <Wallet />
+          {tp("markPaidFull")}
         </Button>
       )}
       {invoice.type === "proforma" && invoice.status !== "draft" && invoice.status !== "cancelled" && (

@@ -71,6 +71,7 @@ const sendSchema = z.object({
   to: z.string().trim().email(),
   subject: z.string().trim().min(1),
   body: z.string().trim().min(1),
+  copyToMe: z.boolean().optional(),
 });
 
 export async function sendInvoiceAction(id: string, raw: unknown): Promise<ActionResult> {
@@ -88,6 +89,7 @@ export async function sendInvoiceAction(id: string, raw: unknown): Promise<Actio
       to: parsed.data.to,
       subject: parsed.data.subject,
       text: parsed.data.body,
+      bcc: parsed.data.copyToMe ? ch.fromEmail : undefined,
       attachments: [{ filename: invoiceFileName(doc), content: Buffer.from(pdf), contentType: "application/pdf" }],
     });
     await db.insert(emailLog).values({ invoiceId: id, to: parsed.data.to, subject: parsed.data.subject, status: "sent" });

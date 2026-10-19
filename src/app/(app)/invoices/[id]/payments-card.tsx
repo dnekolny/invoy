@@ -31,7 +31,7 @@ export function PaymentsCard({ invoiceId, currency, total, paidAmount, payments 
     start(async () => {
       const r = await addPaymentAction(invoiceId, { date, amount, note: note || null });
       if (!r.ok) {
-        toast.error(tc("error"));
+        toast.error(r.error === "invalid" ? tc("invalid") : tc("error"));
         return;
       }
       toast.success(t("added"));
@@ -56,9 +56,10 @@ export function PaymentsCard({ invoiceId, currency, total, paidAmount, payments 
               </DialogHeader>
               <div className="space-y-4">
                 <Field label={t("date")} name="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-                <Field label={`${t("amount")} (${currency})`} name="amount" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} />
+                <Field label={`${t("amount")} (${currency})`} name="amount" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} onFocus={(e) => e.target.select()} autoFocus />
                 <Field label={t("note")} name="note" value={note} onChange={(e) => setNote(e.target.value)} />
-                <div className="flex justify-end">
+                <div className="flex justify-end gap-2">
+                  <Button variant="ghost" onClick={() => setOpen(false)}>{tc("cancel")}</Button>
                   <Button onClick={add} disabled={pending}>{tc("save")}</Button>
                 </div>
               </div>

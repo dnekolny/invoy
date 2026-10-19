@@ -1,16 +1,20 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
+import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { deleteEmailChannelAction, saveEmailChannelAction, testEmailChannelAction } from "@/actions/email";
 import type { EmailChannel } from "@/db/schema";
-import { defaultTemplates } from "@/lib/mail-templates";
+import { defaultTemplates, MAIL_TOKENS } from "@/lib/mail-templates";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Field } from "@/components/form/field";
+import { EmailField } from "@/components/form/email-field";
 import { CheckboxField } from "@/components/form/checkbox-field";
+import { InsertChips } from "@/components/form/insert-chips";
 import { SubmitButton } from "@/components/form/submit-button";
 import { ConfirmDelete } from "@/components/form/confirm-delete";
 
@@ -31,7 +35,13 @@ export function EmailChannelForm({ channel, defaults }: { channel: EmailChannel 
   const [secure, setSecure] = useState(channel?.secure ?? PRESETS.gmail.secure);
   const [fromEmail, setFromEmail] = useState(channel?.fromEmail ?? defaults.fromEmail);
   const [username, setUsername] = useState(channel?.username ?? defaults.fromEmail);
+  const [showPassword, setShowPassword] = useState(false);
+  const [subject, setSubject] = useState(channel?.subjectTemplate ?? "");
+  const [body, setBody] = useState(channel?.bodyTemplate ?? "");
+  const subjectRef = useRef<HTMLInputElement>(null);
+  const bodyRef = useRef<HTMLTextAreaElement>(null);
   const [pending, start] = useTransition();
+  const tokens = MAIL_TOKENS.map((k) => ({ value: `{${k}}`, label: t(`tokens.${k}`) }));
 
   function choosePreset(p: Preset) {
     setPreset(p);
@@ -43,10 +53,10 @@ export function EmailChannelForm({ channel, defaults }: { channel: EmailChannel 
   async function submit(fd: FormData) {
     const r = await saveEmailChannelAction(fd);
     if (!r.ok) {
-      toast.error(r.error === "password" ? t("passwordRequired") : tc("error"));
+      toast.error(r.error === "password" ? t("passwordRequired") : r.error === "invalid" ? tc("invalid") : tc("error"));
       return;
     }
-    toast.success(tc("saved"));
+    toast.success(channel ? tc("saved") : t("savedTestHint"));
   }
 
   function test() {
@@ -81,33 +91,80 @@ export function EmailChannelForm({ channel, defaults }: { channel: EmailChannel 
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label={t("fromName")} name="fromName" required defaultValue={channel?.fromName ?? defaults.fromName} />
-        <Field label={t("fromEmail")} name="fromEmail" type="email" required value={fromEmail} onChange={(e) => { setFromEmail(e.target.value); if (!channel) setUsername(e.target.value); }} />
+        <EmailField
+          label={t("fromEmail")}
+          name="fromEmail"
+          required
+          value={fromEmail}
+          onChange={(v) => {
+            setFromEmail(v);
+            if (!channel) setUsername(v);
+          }}
+        />
       </div>
-      <div className="grid gap-4 sm:grid-cols-[1fr_100px]">
-        <Field label={t("host")} name="host" required value={host} onChange={(e) => setHost(e.target.value)} readOnly={preset !== "custom"} />
-        <Field label={t("port")} name="port" inputMode="numeric" required value={port} onChange={(e) => setPort(e.target.value)} readOnly={preset !== "custom"} />
-      </div>
-      {preset === "custom" && <CheckboxField name="secure" label={t("secure")} checked={secure} onChange={setSecure} />}
-      {preset !== "custom" && <input type="hidden" name="secure" value={secure ? "true" : "false"} />}
+      {preset === "custom" && (
+        <>
+          <div className="grid gap-4 sm:grid-cols-[1fr_100px]">
+            <Field label={t("host")} name="host" required value={host} onChange={(e) => setHost(e.target.value)} placeholder="smtp.domena.cz" />
+            <Field label={t("port")} name="port" inputMode="numeric" required value={port} onChange={(e) => setPort(e.target.value)} />
+          </div>
+          <CheckboxField name="secure" label={t("secure")} checked={secure} onChange={setSecure} />
+        </>
+      )}
+      {preset !== "custom" && (
+        <>
+          <input type="hidden" name="host" value={host} />
+          <input type="hidden" name="port" value={port} />
+          <input type="hidden" name="secure" value={secure ? "true" : "false"} />
+        </>
+      )}
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label={t("username")} name="username" required value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="off" />
-        <Field label={channel ? t("passwordKeep") : t("password")} name="password" type="password" autoComplete="new-password" required={!channel} />
+        <div className="space-y-1.5">
+          <Label htmlFor="password">{channel ? t("passwordKeep") : t("password")}</Label>
+          <div className="relative">
+            <Input id="password" name="password" type={showPassword ? "text" : "password"} autoComplete="new-password" required={!channel} className="pr-9" />
+            <button type="button" onClick={() => setShowPassword((s) => !s)} className="absolute top-1/2 right-2 -translate-y-1/2 text-muted-foreground hover:text-foreground" aria-label={showPassword ? t("hidePassword") : t("showPassword")}>
+              {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            </button>
+          </div>
+        </div>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label={t("replyTo")} name="replyTo" type="email" defaultValue={channel?.replyTo ?? ""} />
-        <Field label={t("bcc")} name="bcc" type="email" defaultValue={channel?.bcc ?? ""} placeholder={t("bccHint")} />
-      </div>
+      <details open={Boolean(channel?.replyTo || channel?.bcc)}>
+        <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">{t("advanced")}</summary>
+        <div className="mt-3 grid gap-4 sm:grid-cols-2">
+          <EmailField label={t("replyTo")} name="replyTo" defaultValue={channel?.replyTo ?? ""} />
+          <EmailField label={t("bcc")} name="bcc" defaultValue={channel?.bcc ?? ""} />
+        </div>
+        <p className="mt-2 text-xs text-muted-foreground">{t("bccHint")}</p>
+      </details>
 
       <div className="space-y-4 border-t pt-6">
-        <h2 className="text-base font-medium">{t("templates")}</h2>
-        <Field label={t("subjectTemplate")} name="subjectTemplate" defaultValue={channel?.subjectTemplate ?? ""} placeholder={defaultTemplates.cs.subject} />
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-base font-medium">{t("templates")}</h2>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setSubject(defaultTemplates.cs.subject);
+              setBody(defaultTemplates.cs.body);
+            }}
+          >
+            {t("useDefault")}
+          </Button>
+        </div>
+        <p className="text-xs text-muted-foreground">{t("templatesHint")}</p>
+        <div className="space-y-1.5">
+          <Label htmlFor="subjectTemplate">{t("subjectTemplate")}</Label>
+          <Input ref={subjectRef} id="subjectTemplate" name="subjectTemplate" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder={defaultTemplates.cs.subject} />
+          <InsertChips tokens={tokens} targetRef={subjectRef} value={subject} onChange={setSubject} />
+        </div>
         <div className="space-y-1.5">
           <Label htmlFor="bodyTemplate">{t("bodyTemplate")}</Label>
-          <Textarea id="bodyTemplate" name="bodyTemplate" rows={7} defaultValue={channel?.bodyTemplate ?? ""} placeholder={defaultTemplates.cs.body} />
+          <Textarea ref={bodyRef} id="bodyTemplate" name="bodyTemplate" rows={8} value={body} onChange={(e) => setBody(e.target.value)} placeholder={defaultTemplates.cs.body} />
+          <InsertChips tokens={tokens} targetRef={bodyRef} value={body} onChange={setBody} />
         </div>
-        <p className="text-xs text-muted-foreground">
-          {t("variables")}: <code>{"{typ} {cislo} {castka} {splatnost} {firma} {zakaznik} {odkaz}"}</code>
-        </p>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -118,6 +175,7 @@ export function EmailChannelForm({ channel, defaults }: { channel: EmailChannel 
           </Button>
         )}
         {channel?.verifiedAt && <span className="text-xs text-emerald-600">{t("verified")}</span>}
+        {channel && !channel.verifiedAt && <span className="text-xs text-muted-foreground">{t("notVerified")}</span>}
         {channel && (
           <div className="ml-auto">
             <ConfirmDelete action={deleteEmailChannelAction} title={t("deleteTitle")} />

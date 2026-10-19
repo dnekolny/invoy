@@ -4,26 +4,13 @@ import Decimal from "decimal.js";
 import { db } from "@/db";
 import { company, customer, emailChannel, invoice, invoiceLine, recurringTemplate, type RecurringTemplate } from "@/db/schema";
 import { cnbRate } from "@/lib/cnb";
-import { addDays, addMonths, todayIso } from "@/lib/dates";
+import { addDays, advance, todayIso } from "@/lib/dates";
 import { nextInvoiceNumber } from "@/lib/invoice-number";
 import { defaultTemplates, fillTemplate, sendWithChannel } from "@/lib/invoice-mail";
 import { companyBankAccounts, getInvoiceDocument } from "@/lib/invoices";
 import { computeLine, computeTotals, toDb } from "@/lib/money";
 import { htmlToPdf } from "@/lib/pdf";
 import { invoiceFileName, renderInvoiceHtml } from "@/templates";
-
-export function advance(iso: string, interval: string) {
-  switch (interval) {
-    case "weekly":
-      return addDays(iso, 7);
-    case "quarterly":
-      return addMonths(iso, 3);
-    case "yearly":
-      return addMonths(iso, 12);
-    default:
-      return addMonths(iso, 1);
-  }
-}
 
 export async function runRecurring(now = todayIso()) {
   const due = await db

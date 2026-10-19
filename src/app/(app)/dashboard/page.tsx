@@ -53,10 +53,15 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">{t("title")}</h1>
-        <Button size="sm" render={<Link href="/invoices/new" />}>
-          <Plus />
-          {t("newInvoice")}
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" nativeButton={false} render={<Link href="/customers/new" />}>
+            {t("newCustomer")}
+          </Button>
+          <Button size="sm" nativeButton={false} render={<Link href="/invoices/new" />}>
+            <Plus />
+            {t("newInvoice")}
+          </Button>
+        </div>
       </div>
 
       {showChecklist && (

@@ -8,7 +8,8 @@ import { Play } from "lucide-react";
 import { toast } from "sonner";
 import { runRecurringNowAction, saveRecurringAction } from "@/actions/recurring";
 import type { Company, Customer, Item, RecurringTemplate } from "@/db/schema";
-import { todayIso } from "@/lib/dates";
+import { advance, todayIso } from "@/lib/dates";
+import { formatDate } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -87,7 +88,7 @@ export function RecurringForm({ company, customers, items, template }: Props) {
             <div className="space-y-1.5">
               <Label htmlFor="customerId">{t("customer")}</Label>
               <select id="customerId" className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm dark:bg-input/30" value={customerId} onChange={(e) => setCustomerId(e.target.value)}>
-                <option value="">—</option>
+                <option value="">{customers.length ? t("pickCustomer") : t("addCustomer")}</option>
                 {customers.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
@@ -126,17 +127,22 @@ export function RecurringForm({ company, customers, items, template }: Props) {
               <CheckboxField name="active" label={t("active")} checked={active} onChange={setActive} />
             </div>
             <p className="text-xs text-muted-foreground">{t("cronNote")}</p>
+            {nextDate && (
+              <p className="text-xs text-muted-foreground">
+                {t("upcoming")}: {[0, 1, 2].reduce<string[]>((acc) => [...acc, acc.length ? advance(acc[acc.length - 1], interval) : nextDate], []).map((d) => formatDate(d, locale)).join(", ")}
+              </p>
+            )}
           </CardContent>
         </Card>
         <div className="flex flex-col gap-2">
-          <Button onClick={save} disabled={pending}>{tc("save")}</Button>
+          <Button onClick={save} disabled={pending}>{template ? tc("save") : t("create")}</Button>
           {template && (
             <Button variant="outline" onClick={runNow} disabled={pending}>
               <Play />
               {t("runNow")}
             </Button>
           )}
-          <Button variant="ghost" render={<Link href="/recurring" />}>{tc("cancel")}</Button>
+          <Button variant="ghost" nativeButton={false} render={<Link href="/recurring" />}>{tc("cancel")}</Button>
         </div>
       </div>
     </div>

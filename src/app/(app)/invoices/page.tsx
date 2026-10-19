@@ -2,12 +2,14 @@ import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Plus } from "lucide-react";
 import { requireCompany } from "@/lib/company";
+import { daysOverdue } from "@/lib/dates";
 import { formatDate, formatMoney } from "@/lib/format";
 import { effectiveStatus, listInvoices, type InvoiceFilter } from "@/lib/invoices";
 import type { InvoiceType } from "@/db/schema";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { StatusBadge } from "@/components/status-badge";
+import { LinkRow } from "@/components/link-row";
 import { InvoiceFilters } from "./invoice-filters";
 import { ExportMenu } from "./export-menu";
 
@@ -30,6 +32,7 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
     },
     {} as Record<string, number>
   );
+  const filtered = filter !== "all" || type !== "all" || Boolean(sp.q) || Boolean(year);
 
   return (
     <div className="space-y-6">
@@ -37,10 +40,10 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
         <h1 className="text-2xl font-semibold">{t("title")}</h1>
         <div className="flex gap-2">
           <ExportMenu year={year} />
-          <Button variant="outline" size="sm" render={<Link href="/invoices/new?type=proforma" />}>
+          <Button variant="outline" size="sm" nativeButton={false} render={<Link href="/invoices/new?type=proforma" />}>
             {t("newProforma")}
           </Button>
-          <Button size="sm" render={<Link href="/invoices/new" />}>
+          <Button size="sm" nativeButton={false} render={<Link href="/invoices/new" />}>
             <Plus />
             {t("newInvoice")}
           </Button>
@@ -49,11 +52,17 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
       <InvoiceFilters filter={filter} type={type} q={sp.q ?? ""} year={year} />
       {rows.length === 0 ? (
         <div className="rounded-lg border border-dashed p-12 text-center">
-          <p className="text-sm text-muted-foreground">{t("empty")}</p>
-          <Button className="mt-4" size="sm" render={<Link href="/invoices/new" />}>
-            <Plus />
-            {t("newInvoice")}
-          </Button>
+          <p className="text-sm text-muted-foreground">{filtered ? t("emptyFiltered") : t("empty")}</p>
+          {filtered ? (
+            <Button className="mt-4" variant="outline" size="sm" nativeButton={false} render={<Link href="/invoices" />}>
+              {t("clearFilters")}
+            </Button>
+          ) : (
+            <Button className="mt-4" size="sm" nativeButton={false} render={<Link href="/invoices/new" />}>
+              <Plus />
+              {t("newInvoice")}
+            </Button>
+          )}
         </div>
       ) : (
         <>
@@ -71,26 +80,37 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
             <TableBody>
               {rows.map((r) => {
                 const st = effectiveStatus(r);
+                const overdueDays = st === "overdue" ? daysOverdue(r.dueDate) : 0;
+                const remaining = Number(r.total) - Number(r.paidAmount);
                 return (
-                  <TableRow key={r.id}>
+                  <LinkRow key={r.id} href={`/invoices/${r.id}`}>
                     <TableCell>
                       <Link href={`/invoices/${r.id}`} className="font-medium hover:underline">
                         {r.number ?? <span className="text-muted-foreground">{t("draftNo")}</span>}
                       </Link>
                       {r.type === "proforma" && <span className="ml-2 text-xs text-muted-foreground">{t("proformaShort")}</span>}
                     </TableCell>
-                    <TableCell>{r.customerName || <span className="text-muted-foreground">—</span>}</TableCell>
+                    <TableCell className="max-w-64 truncate">{r.customerName || <span className="text-muted-foreground">—</span>}</TableCell>
                     <TableCell className="tabular-nums">{formatDate(r.issueDate, locale)}</TableCell>
-                    <TableCell className={st === "overdue" ? "font-medium text-red-600 tabular-nums" : "tabular-nums"}>{formatDate(r.dueDate, locale)}</TableCell>
+                    <TableCell className="tabular-nums">
+                      <span className={st === "overdue" ? "font-medium text-red-600" : ""}>{formatDate(r.dueDate, locale)}</span>
+                      {overdueDays > 0 && <div className="text-xs text-red-600">{t("overdueDays", { n: overdueDays })}</div>}
+                      {st === "paid" && r.paidAt && <div className="text-xs text-muted-foreground">{t("paidOn", { date: formatDate(r.paidAt, locale) })}</div>}
+                    </TableCell>
                     <TableCell><StatusBadge status={st} /></TableCell>
-                    <TableCell className="text-right font-medium tabular-nums">{formatMoney(r.total, r.currency, locale)}</TableCell>
-                  </TableRow>
+                    <TableCell className="text-right font-medium tabular-nums">
+                      {formatMoney(r.total, r.currency, locale)}
+                      {(st === "issued" || st === "sent" || st === "overdue") && remaining > 0 && remaining < Number(r.total) && (
+                        <div className="text-xs font-normal text-muted-foreground">{t("remaining", { amount: formatMoney(remaining, r.currency, locale) })}</div>
+                      )}
+                    </TableCell>
+                  </LinkRow>
                 );
               })}
             </TableBody>
           </Table>
           <p className="text-right text-sm text-muted-foreground">
-            {t("sum")}: {Object.entries(totals).map(([c, v]) => formatMoney(v, c, locale)).join(" + ") || "—"}
+            {t("countRows", { n: rows.length })} · {t("sum")}: {Object.entries(totals).map(([c, v]) => formatMoney(v, c, locale)).join(" + ") || "—"}
           </p>
         </>
       )}

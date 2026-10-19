@@ -1,3 +1,5 @@
+export const MAIL_TOKENS = ["typ", "typ_mala", "cislo", "castka", "splatnost", "firma", "zakaznik", "odkaz"] as const;
+
 export type MailContext = { number: string; total: string; dueDate: string; company: string; customer: string; link: string; lang: string; type: string };
 
 export const defaultTemplates = {
