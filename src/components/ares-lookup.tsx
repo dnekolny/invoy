@@ -47,7 +47,7 @@ export function AresLookup({ onSelect, autoFocus }: Props) {
         <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           id="ares-query"
-          className="pl-8"
+          className="h-10 bg-card pl-8"
           placeholder={t("placeholder")}
           autoComplete="off"
           autoFocus={autoFocus}

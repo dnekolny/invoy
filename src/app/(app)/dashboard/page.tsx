@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { getLocale, getTranslations } from "next-intl/server";
-import { ArrowRight, Plus } from "lucide-react";
+import { AlertTriangle, ArrowRight, CalendarDays, Plus, TrendingUp, Wallet } from "lucide-react";
 import { db } from "@/db";
 import { bankAccount, customer, emailChannel, invoice } from "@/db/schema";
 import { requireCompany } from "@/lib/company";
@@ -11,6 +11,7 @@ import { effectiveStatus } from "@/lib/invoices";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/status-badge";
+import { PageHeader } from "@/components/page-header";
 
 export default async function DashboardPage() {
   const active = await requireCompany();
@@ -51,18 +52,21 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold">{t("title")}</h1>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" nativeButton={false} render={<Link href="/customers/new" />}>
-            {t("newCustomer")}
-          </Button>
-          <Button size="sm" nativeButton={false} render={<Link href="/invoices/new" />}>
-            <Plus />
-            {t("newInvoice")}
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title={t("title")}
+        description={t("welcome", { name: active.name })}
+        actions={
+          <>
+            <Button variant="outline" size="sm" nativeButton={false} render={<Link href="/customers/new" />}>
+              {t("newCustomer")}
+            </Button>
+            <Button size="sm" nativeButton={false} render={<Link href="/invoices/new" />}>
+              <Plus />
+              {t("newInvoice")}
+            </Button>
+          </>
+        }
+      />
 
       {showChecklist && (
         <Card className="border-primary/30 bg-primary/5">
@@ -83,10 +87,10 @@ export default async function DashboardPage() {
       )}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat title={t("unpaid")} value={money(unpaid)} hint={t("count", { n: unpaid.reduce((a, r) => a + Number(r.count), 0) })} href="/invoices?filter=unpaid" />
-        <Stat title={t("overdue")} value={money(overdue)} hint={t("count", { n: overdue.reduce((a, r) => a + Number(r.count), 0) })} href="/invoices?filter=overdue" danger={overdue.some((r) => Number(r.total) > 0)} />
-        <Stat title={t("thisMonth")} value={money(issuedMonth)} href={`/invoices?year=${year}`} />
-        <Stat title={t("thisYear", { year })} value={money(issuedYear)} href={`/invoices?year=${year}`} />
+        <Stat icon={<Wallet className="size-4" />} title={t("unpaid")} value={money(unpaid)} hint={t("count", { n: unpaid.reduce((a, r) => a + Number(r.count), 0) })} href="/invoices?filter=unpaid" />
+        <Stat icon={<AlertTriangle className="size-4" />} title={t("overdue")} value={money(overdue)} hint={t("count", { n: overdue.reduce((a, r) => a + Number(r.count), 0) })} href="/invoices?filter=overdue" danger={overdue.some((r) => Number(r.total) > 0)} />
+        <Stat icon={<CalendarDays className="size-4" />} title={t("thisMonth")} value={money(issuedMonth)} href={`/invoices?year=${year}`} />
+        <Stat icon={<TrendingUp className="size-4" />} title={t("thisYear", { year })} value={money(issuedYear)} href={`/invoices?year=${year}`} />
       </div>
 
       <Card>
@@ -122,16 +126,17 @@ export default async function DashboardPage() {
   );
 }
 
-function Stat({ title, value, hint, href, danger }: { title: string; value: string; hint?: string; href: string; danger?: boolean }) {
+function Stat({ icon, title, value, hint, href, danger }: { icon: React.ReactNode; title: string; value: string; hint?: string; href: string; danger?: boolean }) {
   return (
-    <Link href={href}>
-      <Card className="h-full transition-colors hover:bg-muted/50">
-        <CardHeader className="pb-1">
-          <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className={`text-2xl font-semibold tabular-nums ${danger ? "text-red-600" : ""}`}>{value}</div>
-          {hint && <div className="text-xs text-muted-foreground">{hint}</div>}
+    <Link href={href} className="block">
+      <Card className="h-full transition-shadow hover:shadow-md">
+        <CardContent className="flex items-start gap-3">
+          <span className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${danger ? "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-200" : "bg-primary/10 text-primary"}`}>{icon}</span>
+          <div className="min-w-0">
+            <div className="text-xs font-medium text-muted-foreground">{title}</div>
+            <div className={`truncate text-xl font-semibold tabular-nums ${danger ? "text-red-600 dark:text-red-300" : ""}`}>{value}</div>
+            {hint && <div className="text-xs text-muted-foreground">{hint}</div>}
+          </div>
         </CardContent>
       </Card>
     </Link>

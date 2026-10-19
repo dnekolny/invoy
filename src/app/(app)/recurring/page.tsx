@@ -10,6 +10,8 @@ import { computeTotals } from "@/lib/money";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { LinkRow } from "@/components/link-row";
+import { PageHeader, Panel } from "@/components/page-header";
 
 export default async function RecurringPage() {
   const active = await requireCompany();
@@ -22,20 +24,21 @@ export default async function RecurringPage() {
     .where(eq(recurringTemplate.companyId, active.id))
     .orderBy(asc(recurringTemplate.nextDate));
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold">{t("title")}</h1>
-          <p className="text-sm text-muted-foreground">{t("intro")}</p>
-        </div>
-        <Button size="sm" nativeButton={false} render={<Link href="/recurring/new" />}>
-          <Plus />
-          {t("add")}
-        </Button>
-      </div>
+    <div>
+      <PageHeader
+        title={t("title")}
+        description={t("intro")}
+        actions={
+          <Button size="sm" nativeButton={false} render={<Link href="/recurring/new" />}>
+            <Plus />
+            {t("add")}
+          </Button>
+        }
+      />
       {rows.length === 0 ? (
-        <p className="rounded-lg border border-dashed p-10 text-center text-sm text-muted-foreground">{t("empty")}</p>
+        <p className="rounded-xl border border-dashed bg-card p-10 text-center text-sm text-muted-foreground">{t("empty")}</p>
       ) : (
+        <Panel className="overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
@@ -50,7 +53,7 @@ export default async function RecurringPage() {
             {rows.map(({ tpl, customerName }) => {
               const total = computeTotals(tpl.lines, active.vatPayer).total;
               return (
-                <TableRow key={tpl.id}>
+                <LinkRow key={tpl.id} href={`/recurring/${tpl.id}`}>
                   <TableCell>
                     <Link href={`/recurring/${tpl.id}`} className="font-medium hover:underline">{tpl.name}</Link>
                     {!tpl.active && <Badge variant="secondary" className="ml-2">{t("paused")}</Badge>}
@@ -59,11 +62,12 @@ export default async function RecurringPage() {
                   <TableCell>{t(`intervals.${tpl.interval}`)}</TableCell>
                   <TableCell className="tabular-nums">{formatDate(tpl.nextDate, locale)}</TableCell>
                   <TableCell className="text-right tabular-nums">{formatMoney(total.toNumber(), tpl.currency, locale)}</TableCell>
-                </TableRow>
+                </LinkRow>
               );
             })}
           </TableBody>
         </Table>
+        </Panel>
       )}
     </div>
   );

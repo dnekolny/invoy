@@ -67,10 +67,11 @@ export function LinesEditor({ lines, onChange, items, vatPayer, currency, locale
     vatPayer
   );
 
+  const wide = "@3xl:grid-cols-[16px_minmax(0,1fr)_64px_64px_96px_68px_96px_28px]";
   return (
-    <div className="space-y-3" ref={container}>
+    <div className="@container space-y-3" ref={container}>
       <UnitsDatalist />
-      <div className="hidden grid-cols-[16px_minmax(0,1fr)_64px_64px_96px_68px_96px_28px] gap-1.5 px-1 text-xs font-medium text-muted-foreground md:grid">
+      <div className={`hidden gap-1.5 px-1 text-xs font-medium text-muted-foreground @3xl:grid ${wide}`}>
         <span />
         <span>{t("lineName")}</span>
         <span className="text-right">{t("qty")}</span>
@@ -86,13 +87,14 @@ export function LinesEditor({ lines, onChange, items, vatPayer, currency, locale
         const suggestions = suggestFor === l.key ? (q ? items.filter((i) => fold(i.name).includes(q)) : items).slice(0, 6) : [];
         const isLast = idx === lines.length - 1;
         return (
-          <div key={l.key} className="grid grid-cols-2 gap-2 rounded-lg border p-2 md:grid-cols-[16px_minmax(0,1fr)_64px_64px_96px_68px_96px_28px] md:gap-1.5 md:items-center md:border-0 md:p-0">
-            <div className="hidden flex-col text-muted-foreground md:flex">
+          <div key={l.key} className={`rounded-lg border bg-muted/30 p-2 @3xl:grid @3xl:items-center @3xl:gap-1.5 @3xl:border-0 @3xl:bg-transparent @3xl:p-0 ${wide}`}>
+            <div className="hidden flex-col text-muted-foreground @3xl:flex">
               <button type="button" className="h-3 leading-none hover:text-foreground disabled:opacity-30" onClick={() => move(idx, idx - 1)} aria-label="↑" disabled={idx === 0}>▴</button>
               <button type="button" className="h-3 leading-none hover:text-foreground disabled:opacity-30" onClick={() => move(idx, idx + 1)} aria-label="↓" disabled={isLast}>▾</button>
             </div>
-            <div className="relative col-span-2 md:col-span-1">
+            <div className="relative">
               <Input
+                className="bg-card"
                 data-line={idx}
                 data-field="name"
                 value={l.name}
@@ -143,47 +145,49 @@ export function LinesEditor({ lines, onChange, items, vatPayer, currency, locale
                 </ul>
               )}
             </div>
-            <Input data-line={idx} data-field="qty" className="text-right" inputMode="decimal" value={l.quantity} onChange={(e) => update(l.key, { quantity: e.target.value })} onFocus={(e) => e.target.select()} aria-label={t("qty")} />
-            <Input value={l.unit} list={UNITS_LIST_ID} autoComplete="off" onChange={(e) => update(l.key, { unit: e.target.value })} aria-label={t("unit")} />
-            <Input
-              className="text-right"
-              inputMode="decimal"
-              value={l.unitPrice}
-              placeholder="0"
-              onChange={(e) => update(l.key, { unitPrice: e.target.value })}
-              onFocus={(e) => e.target.select()}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && isLast && !vatPayer) {
-                  e.preventDefault();
-                  addLine();
-                }
-              }}
-              aria-label={t("unitPrice")}
-            />
-            {vatPayer ? (
-              <select
-                className="h-8 rounded-lg border border-input bg-transparent px-1 text-right text-sm dark:bg-input/30"
-                value={l.vatRate}
-                onChange={(e) => update(l.key, { vatRate: Number(e.target.value) })}
+            <div className="mt-2 grid grid-cols-[1fr_1fr_1.3fr_1fr_1.3fr_28px] items-center gap-1.5 @3xl:contents">
+              <Input data-line={idx} data-field="qty" className="bg-card text-right" inputMode="decimal" value={l.quantity} onChange={(e) => update(l.key, { quantity: e.target.value })} onFocus={(e) => e.target.select()} aria-label={t("qty")} />
+              <Input className="bg-card" value={l.unit} list={UNITS_LIST_ID} autoComplete="off" onChange={(e) => update(l.key, { unit: e.target.value })} aria-label={t("unit")} />
+              <Input
+                className="bg-card text-right"
+                inputMode="decimal"
+                value={l.unitPrice}
+                placeholder="0"
+                onChange={(e) => update(l.key, { unitPrice: e.target.value })}
+                onFocus={(e) => e.target.select()}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && isLast) {
+                  if (e.key === "Enter" && isLast && !vatPayer) {
                     e.preventDefault();
                     addLine();
                   }
                 }}
-                aria-label={t("vat")}
-              >
-                <option value={21}>21 %</option>
-                <option value={12}>12 %</option>
-                <option value={0}>0 %</option>
-              </select>
-            ) : (
-              <span />
-            )}
-            <div className="text-right text-sm tabular-nums">{fmt.format(net.toNumber())}</div>
-            <Button type="button" variant="ghost" size="icon-sm" onClick={() => remove(l.key)} aria-label={t("removeLine")} disabled={lines.length === 1}>
-              <Trash2 />
-            </Button>
+                aria-label={t("unitPrice")}
+              />
+              {vatPayer ? (
+                <select
+                  className="h-8 rounded-lg border border-input bg-card px-1 text-right text-sm"
+                  value={l.vatRate}
+                  onChange={(e) => update(l.key, { vatRate: Number(e.target.value) })}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && isLast) {
+                      e.preventDefault();
+                      addLine();
+                    }
+                  }}
+                  aria-label={t("vat")}
+                >
+                  <option value={21}>21 %</option>
+                  <option value={12}>12 %</option>
+                  <option value={0}>0 %</option>
+                </select>
+              ) : (
+                <span />
+              )}
+              <div className="text-right text-sm tabular-nums">{fmt.format(net.toNumber())}</div>
+              <Button type="button" variant="ghost" size="icon-sm" onClick={() => remove(l.key)} aria-label={t("removeLine")} disabled={lines.length === 1}>
+                <Trash2 />
+              </Button>
+            </div>
           </div>
         );
       })}

@@ -8,9 +8,7 @@ import { deleteEmailChannelAction, saveEmailChannelAction, testEmailChannelActio
 import type { EmailChannel } from "@/db/schema";
 import { defaultReminderTemplates, defaultTemplates, MAIL_TOKENS, parseReminderDays, REMINDER_TOKENS } from "@/lib/mail-templates";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { TextareaField } from "@/components/form/textarea-field";
 import { Field } from "@/components/form/field";
 import { EmailField } from "@/components/form/email-field";
 import { CheckboxField } from "@/components/form/checkbox-field";
@@ -128,14 +126,11 @@ export function EmailChannelForm({ channel, defaults }: { channel: EmailChannel 
       )}
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label={t("username")} name="username" required value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="off" />
-        <div className="space-y-1.5">
-          <Label htmlFor="password">{channel ? t("passwordKeep") : t("password")}</Label>
-          <div className="relative">
-            <Input id="password" name="password" type={showPassword ? "text" : "password"} autoComplete="new-password" required={!channel} className="pr-9" />
-            <button type="button" onClick={() => setShowPassword((s) => !s)} className="absolute top-1/2 right-2 -translate-y-1/2 text-muted-foreground hover:text-foreground" aria-label={showPassword ? t("hidePassword") : t("showPassword")}>
-              {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-            </button>
-          </div>
+        <div className="relative">
+          <Field label={channel ? t("passwordKeep") : t("password")} name="password" type={showPassword ? "text" : "password"} autoComplete="new-password" required={!channel} className="pr-9" />
+          <button type="button" onClick={() => setShowPassword((s) => !s)} className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground" aria-label={showPassword ? t("hidePassword") : t("showPassword")}>
+            {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+          </button>
         </div>
       </div>
       <details open={Boolean(channel?.replyTo || channel?.bcc)}>
@@ -164,13 +159,11 @@ export function EmailChannelForm({ channel, defaults }: { channel: EmailChannel 
         </div>
         <p className="text-xs text-muted-foreground">{t("templatesHint")}</p>
         <div className="space-y-1.5">
-          <Label htmlFor="subjectTemplate">{t("subjectTemplate")}</Label>
-          <Input ref={subjectRef} id="subjectTemplate" name="subjectTemplate" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder={defaultTemplates.cs.subject} />
+          <Field ref={subjectRef} label={t("subjectTemplate")} name="subjectTemplate" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder={defaultTemplates.cs.subject} />
           <InsertChips tokens={tokens} targetRef={subjectRef} value={subject} onChange={setSubject} />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="bodyTemplate">{t("bodyTemplate")}</Label>
-          <Textarea ref={bodyRef} id="bodyTemplate" name="bodyTemplate" rows={8} value={body} onChange={(e) => setBody(e.target.value)} placeholder={defaultTemplates.cs.body} />
+          <TextareaField ref={bodyRef} label={t("bodyTemplate")} name="bodyTemplate" rows={8} value={body} onChange={(e) => setBody(e.target.value)} placeholder={defaultTemplates.cs.body} />
           <InsertChips tokens={tokens} targetRef={bodyRef} value={body} onChange={setBody} />
         </div>
       </div>
@@ -211,13 +204,11 @@ export function EmailChannelForm({ channel, defaults }: { channel: EmailChannel 
               </Button>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="reminderSubjectTemplate">{t("subjectTemplate")}</Label>
-              <Input ref={rSubjectRef} id="reminderSubjectTemplate" name="reminderSubjectTemplate" value={rSubject} onChange={(e) => setRSubject(e.target.value)} placeholder={defaultReminderTemplates.cs.subject} />
+              <Field ref={rSubjectRef} label={t("subjectTemplate")} name="reminderSubjectTemplate" value={rSubject} onChange={(e) => setRSubject(e.target.value)} placeholder={defaultReminderTemplates.cs.subject} />
               <InsertChips tokens={reminderTokens} targetRef={rSubjectRef} value={rSubject} onChange={setRSubject} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="reminderBodyTemplate">{t("bodyTemplate")}</Label>
-              <Textarea ref={rBodyRef} id="reminderBodyTemplate" name="reminderBodyTemplate" rows={8} value={rBody} onChange={(e) => setRBody(e.target.value)} placeholder={defaultReminderTemplates.cs.body} />
+              <TextareaField ref={rBodyRef} label={t("bodyTemplate")} name="reminderBodyTemplate" rows={8} value={rBody} onChange={(e) => setRBody(e.target.value)} placeholder={defaultReminderTemplates.cs.body} />
               <InsertChips tokens={reminderTokens} targetRef={rBodyRef} value={rBody} onChange={setRBody} />
             </div>
           </div>

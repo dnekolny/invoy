@@ -2,7 +2,7 @@ import Link from "next/link";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
-import { ArrowLeft, ExternalLink, FileDown, Pencil } from "lucide-react";
+import { ExternalLink, FileDown, Pencil } from "lucide-react";
 import Decimal from "decimal.js";
 import { db } from "@/db";
 import { emailChannel } from "@/db/schema";
@@ -16,6 +16,7 @@ import { effectiveStatus, getInvoiceActivity, getInvoiceWithLines } from "@/lib/
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/status-badge";
+import { PageHeader } from "@/components/page-header";
 import { CopyLink } from "./copy-link";
 import { InvoiceActions } from "./invoice-actions";
 import { PaymentsCard } from "./payments-card";
@@ -56,33 +57,31 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
   ];
 
   return (
-    <div className="space-y-6">
-      <Link href="/invoices" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="size-3.5" />
-        {t("backToList")}
-      </Link>
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-semibold">
-              {inv.type === "proforma" ? t("proforma") : t("invoice")} {inv.number ?? <span className="text-muted-foreground">{t("draft")}</span>}
-            </h1>
+    <div>
+      <PageHeader
+        crumbs={[{ label: t("backToList"), href: "/invoices" }, { label: inv.number ?? t("draft") }]}
+        title={
+          <span className="flex items-center gap-3">
+            {inv.type === "proforma" ? t("proforma") : t("invoice")} {inv.number ?? <span className="text-muted-foreground">{t("draft")}</span>}
             <StatusBadge status={status} />
-          </div>
-          <p className="mt-1 text-sm text-muted-foreground">
+          </span>
+        }
+        description={
+          <>
             {inv.customerName || "—"} · {formatMoney(inv.total, inv.currency, locale)} · {t("due")} {formatDate(inv.dueDate, locale)}
             {overdueDays > 0 && <span className="ml-1 font-medium text-red-600">({t("overdueDays", { n: overdueDays })})</span>}
-          </p>
-          {nextNumber && <p className="mt-1 text-xs text-muted-foreground">{t("nextNumber", { number: nextNumber })}</p>}
-          {inv.status === "draft" && !inv.customerId && <p className="mt-1 text-xs text-amber-700">{t("needCustomer")}</p>}
-          {status === "overdue" && channel && !channel.remindersEnabled && (
-            <p className="mt-1 text-xs text-muted-foreground">
-              <Link href="/settings/email" className="underline">{t("enableReminders")}</Link>
-            </p>
-          )}
-          {status === "overdue" && channel?.remindersEnabled && !inv.customerEmail && <p className="mt-1 text-xs text-amber-700">{t("noEmailForReminder")}</p>}
-        </div>
-        <div className="flex flex-wrap gap-2">
+            {nextNumber && <div className="mt-1 text-xs">{t("nextNumber", { number: nextNumber })}</div>}
+            {inv.status === "draft" && !inv.customerId && <div className="mt-1 text-xs text-amber-700">{t("needCustomer")}</div>}
+            {status === "overdue" && channel && !channel.remindersEnabled && (
+              <div className="mt-1 text-xs">
+                <Link href="/settings/email" className="underline">{t("enableReminders")}</Link>
+              </div>
+            )}
+            {status === "overdue" && channel?.remindersEnabled && !inv.customerEmail && <div className="mt-1 text-xs text-amber-700">{t("noEmailForReminder")}</div>}
+          </>
+        }
+        actions={
+          <>
           {editable && (
             <Button variant="outline" size="sm" nativeButton={false} render={<Link href={`/invoices/${inv.id}/edit`} />}>
               <Pencil />
@@ -114,11 +113,12 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
             />
           )}
           <InvoiceActions invoice={{ id: inv.id, status: inv.status, type: inv.type, customerId: inv.customerId, proformaId: inv.proformaId, remaining: remaining.toFixed(2) }} />
-        </div>
-      </div>
+          </>
+        }
+      />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
-        <div className="overflow-hidden rounded-lg border bg-[#e9e9ec]">
+        <div className="overflow-hidden rounded-xl border bg-[#e9e9ec] dark:bg-black/40">
           <iframe title="preview" src={`/api/invoices/${inv.id}/preview`} className="h-[1120px] w-full" />
         </div>
         <div className="space-y-6">

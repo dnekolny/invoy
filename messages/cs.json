@@ -14,7 +14,12 @@
     "verify": "Přihlásit se",
     "back": "Zadat jiný e-mail",
     "errorSend": "Kód se nepodařilo odeslat.",
-    "errorVerify": "Kód je neplatný nebo vypršel."
+    "errorVerify": "Kód je neplatný nebo vypršel.",
+    "heroTitle": "Faktury za pár vteřin, platby pod kontrolou.",
+    "point1": "Načtení firmy i zákazníků z ARES, QR platba na každé faktuře.",
+    "point2": "Odesílání z vaší schránky, veřejný odkaz a sledování otevření.",
+    "point3": "Úhrady, upomínky, opakované faktury a export pro účetní.",
+    "footer": "Invoy · jednoduché fakturování pro živnostníky a malé firmy"
   },
   "nav": {
     "dashboard": "Přehled",
@@ -23,7 +28,10 @@
     "customers": "Zákazníci",
     "settings": "Nastavení",
     "invoices": "Faktury",
-    "recurring": "Opakované"
+    "recurring": "Opakované",
+    "search": "Hledat fakturu…",
+    "menu": "Menu",
+    "darkMode": "Tmavý režim"
   },
   "dashboard": {
     "title": "Přehled",
@@ -44,7 +52,8 @@
       "invoice": "Vystavit první fakturu",
       "email": "Nastavit odesílání e-mailů"
     },
-    "newCustomer": "Nový zákazník"
+    "newCustomer": "Nový zákazník",
+    "welcome": "Přehled fakturace pro {name}."
   },
   "common": {
     "save": "Uložit",
@@ -73,7 +82,8 @@
     "itemsDesc": "Opakující se služby a produkty pro našeptávač v editoru faktury.",
     "numberingDesc": "Formát čísla faktury a zálohové faktury.",
     "appearanceDesc": "Šablona, barva a logo na PDF.",
-    "emailDesc": "Vaše schránka, ze které se faktury odesílají, a šablona e-mailu."
+    "emailDesc": "Vaše schránka, ze které se faktury odesílají, a šablona e-mailu.",
+    "subtitle": "Firma, účty, ceník, číslování, vzhled a odesílání."
   },
   "ares": {
     "search": "Vyhledat v ARES",
@@ -198,7 +208,8 @@
     "recentInvoices": "Faktury zákazníka",
     "noInvoicesYet": "Zatím žádná faktura.",
     "draft": "Koncept",
-    "newSubtitle": "Zadejte IČO nebo název firmy a údaje se doplní z ARES."
+    "newSubtitle": "Zadejte IČO nebo název firmy a údaje se doplní z ARES.",
+    "subtitle": "Komu fakturujete. Z detailu vystavíte fakturu jedním klikem."
   },
   "status": {
     "draft": "Koncept",
@@ -245,7 +256,8 @@
     "paidOn": "zaplaceno {date}",
     "remaining": "zbývá {amount}",
     "countRows": "{n, plural, one {# faktura} few {# faktury} other {# faktur}}",
-    "clearSearch": "Zrušit hledání"
+    "clearSearch": "Zrušit hledání",
+    "subtitle": "Všechny faktury a zálohové faktury na jednom místě."
   },
   "invoiceEditor": {
     "newInvoice": "Nová faktura",
@@ -294,14 +306,21 @@
     "daysShort": "{n} dní",
     "noBankWarning": "Bez účtu nebude na faktuře QR platba ani číslo účtu.",
     "shortcutHint": "Ctrl+S uloží koncept. Enter v poslední položce přidá další řádek.",
-    "unitPriceNet": "Cena / j. bez DPH",
+    "unitPriceNet": "Cena bez DPH",
     "linePlaceholderNoItems": "Název položky",
     "enterHint": "Šipkami vyberete položku z ceníku, Enter ji vloží.",
     "addIntro": "Přidat úvodní text nad položky",
     "intro": "Úvodní text",
     "removeIntro": "Odebrat",
     "introPlaceholder": "Např. Fakturujeme vám za služby poskytnuté v říjnu 2026 dle smlouvy č. 12.",
-    "introHint": "Zobrazí se na faktuře nad tabulkou položek."
+    "introHint": "Zobrazí se na faktuře nad tabulkou položek.",
+    "crumbInvoices": "Faktury",
+    "subtitle": "Vyberte zákazníka, přidejte položky a vystavte.",
+    "showPreview": "Náhled",
+    "preview": "Náhled faktury",
+    "previewHint": "Aktualizuje se při psaní",
+    "previewUpdating": "Aktualizuji…",
+    "previewLoading": "Náhled se načítá…"
   },
   "invoiceDetail": {
     "invoice": "Faktura",

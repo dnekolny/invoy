@@ -14,7 +14,12 @@
     "verify": "Sign in",
     "back": "Use a different email",
     "errorSend": "Could not send the code.",
-    "errorVerify": "The code is invalid or expired."
+    "errorVerify": "The code is invalid or expired.",
+    "heroTitle": "Invoices in seconds, payments under control.",
+    "point1": "Company and customer lookup from ARES, QR payment on every invoice.",
+    "point2": "Sending from your own mailbox, public link and open tracking.",
+    "point3": "Payments, reminders, recurring invoices and export for your accountant.",
+    "footer": "Invoy · simple invoicing for freelancers and small businesses"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -23,7 +28,10 @@
     "customers": "Customers",
     "settings": "Settings",
     "invoices": "Invoices",
-    "recurring": "Recurring"
+    "recurring": "Recurring",
+    "search": "Search invoices…",
+    "menu": "Menu",
+    "darkMode": "Dark mode"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -44,7 +52,8 @@
       "invoice": "Issue your first invoice",
       "email": "Set up email sending"
     },
-    "newCustomer": "New customer"
+    "newCustomer": "New customer",
+    "welcome": "Invoicing overview for {name}."
   },
   "common": {
     "save": "Save",
@@ -73,7 +82,8 @@
     "itemsDesc": "Recurring services and products for the invoice editor autocomplete.",
     "numberingDesc": "Number format for invoices and proformas.",
     "appearanceDesc": "Template, colour and logo on the PDF.",
-    "emailDesc": "Your mailbox used for sending invoices, and the email template."
+    "emailDesc": "Your mailbox used for sending invoices, and the email template.",
+    "subtitle": "Company, accounts, price list, numbering, design and sending."
   },
   "ares": {
     "search": "Search ARES (Czech company register)",
@@ -198,7 +208,8 @@
     "recentInvoices": "Customer's invoices",
     "noInvoicesYet": "No invoices yet.",
     "draft": "Draft",
-    "newSubtitle": "Enter an IČO or company name and we fill in the details from ARES."
+    "newSubtitle": "Enter an IČO or company name and we fill in the details from ARES.",
+    "subtitle": "Who you invoice. Create an invoice from the detail with one click."
   },
   "status": {
     "draft": "Draft",
@@ -245,7 +256,8 @@
     "paidOn": "paid {date}",
     "remaining": "{amount} remaining",
     "countRows": "{n, plural, one {# invoice} other {# invoices}}",
-    "clearSearch": "Clear search"
+    "clearSearch": "Clear search",
+    "subtitle": "All invoices and proformas in one place."
   },
   "invoiceEditor": {
     "newInvoice": "New invoice",
@@ -294,14 +306,21 @@
     "daysShort": "{n} days",
     "noBankWarning": "Without an account the invoice has no QR payment or account number.",
     "shortcutHint": "Ctrl+S saves the draft. Enter on the last line adds another one.",
-    "unitPriceNet": "Unit price excl. VAT",
+    "unitPriceNet": "Price excl. VAT",
     "linePlaceholderNoItems": "Item name",
     "enterHint": "Use arrow keys to pick a price list item, Enter inserts it.",
     "addIntro": "Add intro text above items",
     "intro": "Intro text",
     "removeIntro": "Remove",
     "introPlaceholder": "E.g. We invoice you for services provided in October 2026 under contract no. 12.",
-    "introHint": "Printed on the invoice above the items table."
+    "introHint": "Printed on the invoice above the items table.",
+    "crumbInvoices": "Invoices",
+    "subtitle": "Pick a customer, add items and issue.",
+    "showPreview": "Preview",
+    "preview": "Invoice preview",
+    "previewHint": "Updates as you type",
+    "previewUpdating": "Updating…",
+    "previewLoading": "Loading preview…"
   },
   "invoiceDetail": {
     "invoice": "Invoice",

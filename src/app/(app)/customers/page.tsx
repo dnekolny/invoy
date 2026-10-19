@@ -9,6 +9,7 @@ import { formatMoney } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LinkRow } from "@/components/link-row";
+import { PageHeader, Panel } from "@/components/page-header";
 import { CustomerSearch } from "./customer-search";
 
 export default async function CustomersPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
@@ -41,19 +42,22 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold">{t("title")}</h1>
-        <div className="flex items-center gap-2">
-          <CustomerSearch q={q ?? ""} />
-          <Button nativeButton={false} render={<Link href="/customers/new" />} size="sm">
-            <Plus />
-            {t("add")}
-          </Button>
-        </div>
-      </div>
+    <div>
+      <PageHeader
+        title={t("title")}
+        description={t("subtitle")}
+        actions={
+          <>
+            <CustomerSearch q={q ?? ""} />
+            <Button nativeButton={false} render={<Link href="/customers/new" />} size="sm">
+              <Plus />
+              {t("add")}
+            </Button>
+          </>
+        }
+      />
       {rows.length === 0 ? (
-        <div className="rounded-lg border border-dashed p-10 text-center">
+        <div className="rounded-xl border border-dashed bg-card p-10 text-center">
           <p className="text-sm text-muted-foreground">{q ? t("emptySearch") : t("empty")}</p>
           {!q && (
             <Button className="mt-4" size="sm" nativeButton={false} render={<Link href="/customers/new" />}>
@@ -63,6 +67,7 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
           )}
         </div>
       ) : (
+        <Panel className="overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
@@ -98,6 +103,7 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
             })}
           </TableBody>
         </Table>
+        </Panel>
       )}
     </div>
   );

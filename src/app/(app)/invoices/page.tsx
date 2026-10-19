@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { StatusBadge } from "@/components/status-badge";
 import { LinkRow } from "@/components/link-row";
+import { PageHeader, Panel } from "@/components/page-header";
 import { InvoiceFilters } from "./invoice-filters";
 import { ExportMenu } from "./export-menu";
 
@@ -35,23 +36,27 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
   const filtered = filter !== "all" || type !== "all" || Boolean(sp.q) || Boolean(year);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold">{t("title")}</h1>
-        <div className="flex gap-2">
-          <ExportMenu year={year} />
-          <Button variant="outline" size="sm" nativeButton={false} render={<Link href="/invoices/new?type=proforma" />}>
-            {t("newProforma")}
-          </Button>
-          <Button size="sm" nativeButton={false} render={<Link href="/invoices/new" />}>
-            <Plus />
-            {t("newInvoice")}
-          </Button>
-        </div>
-      </div>
-      <InvoiceFilters filter={filter} type={type} q={sp.q ?? ""} year={year} />
+    <div>
+      <PageHeader
+        title={t("title")}
+        description={t("subtitle")}
+        actions={
+          <>
+            <ExportMenu year={year} />
+            <Button variant="outline" size="sm" nativeButton={false} render={<Link href="/invoices/new?type=proforma" />}>
+              {t("newProforma")}
+            </Button>
+            <Button size="sm" nativeButton={false} render={<Link href="/invoices/new" />}>
+              <Plus />
+              {t("newInvoice")}
+            </Button>
+          </>
+        }
+      >
+        <InvoiceFilters filter={filter} type={type} q={sp.q ?? ""} year={year} />
+      </PageHeader>
       {rows.length === 0 ? (
-        <div className="rounded-lg border border-dashed p-12 text-center">
+        <div className="rounded-xl border border-dashed bg-card p-12 text-center">
           <p className="text-sm text-muted-foreground">{filtered ? t("emptyFiltered") : t("empty")}</p>
           {filtered ? (
             <Button className="mt-4" variant="outline" size="sm" nativeButton={false} render={<Link href="/invoices" />}>
@@ -65,7 +70,7 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
           )}
         </div>
       ) : (
-        <>
+        <Panel className="overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
@@ -109,10 +114,10 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
               })}
             </TableBody>
           </Table>
-          <p className="text-right text-sm text-muted-foreground">
+          <p className="border-t px-4 py-3 text-right text-sm text-muted-foreground">
             {t("countRows", { n: rows.length })} · {t("sum")}: {Object.entries(totals).map(([c, v]) => formatMoney(v, c, locale)).join(" + ") || "—"}
           </p>
-        </>
+        </Panel>
       )}
     </div>
   );

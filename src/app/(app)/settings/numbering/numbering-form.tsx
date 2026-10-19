@@ -5,8 +5,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { updateNumberingAction } from "@/actions/company";
 import { formatNumber, isValidPattern } from "@/lib/numbering";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Field } from "@/components/form/field";
 import { InsertChips } from "@/components/form/insert-chips";
 import { SubmitButton } from "@/components/form/submit-button";
 
@@ -43,8 +42,7 @@ export function NumberingForm(props: { invoicePattern: string; proformaPattern: 
   function block(id: string, label: string, value: string, set: (v: string) => void, ref: React.RefObject<HTMLInputElement | null>, prefix: string) {
     return (
       <div className="space-y-2">
-        <Label htmlFor={id}>{label}</Label>
-        <Input ref={ref} id={id} name={id} value={value} onChange={(e) => set(e.target.value)} className="font-mono" autoComplete="off" />
+        <Field ref={ref} label={label} name={id} value={value} onChange={(e) => set(e.target.value)} className="font-mono" autoComplete="off" />
         <InsertChips tokens={tokens} targetRef={ref} value={value} onChange={set} />
         <p className={`text-xs ${isValidPattern(value) ? "text-muted-foreground" : "text-red-600"}`}>
           {t("preview")}: {preview(value)}

@@ -14,8 +14,7 @@ import { PhoneField } from "@/components/form/phone-field";
 import { NativeSelect } from "@/components/form/native-select";
 import { SubmitButton } from "@/components/form/submit-button";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { TextareaField } from "@/components/form/textarea-field";
 
 type Props = {
   customer?: Customer;
@@ -113,10 +112,7 @@ export function CustomerForm({ customer, action, defaultCurrency, onCancel, comp
           <Field label={t("dueDays")} name="dueDays" type="number" min={0} max={365} defaultValue={customer?.dueDays ?? ""} placeholder={t("dueDaysDefault")} />
         </div>
         {!compact && (
-          <div className="space-y-1.5">
-            <Label htmlFor="note">{t("note")}</Label>
-            <Textarea id="note" name="note" rows={2} defaultValue={customer?.note ?? ""} placeholder={t("notePlaceholder")} />
-          </div>
+          <TextareaField label={t("note")} name="note" rows={2} defaultValue={customer?.note ?? ""} placeholder={t("notePlaceholder")} />
         )}
       </section>
       <div className="flex items-center gap-2">

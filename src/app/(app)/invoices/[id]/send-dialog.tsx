@@ -10,8 +10,7 @@ import { sendInvoiceAction, sendReminderAction } from "@/actions/email";
 import { defaultReminderTemplates, defaultTemplates, fillTemplate, type MailContext } from "@/lib/mail-templates";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { TextareaField } from "@/components/form/textarea-field";
 import { Field } from "@/components/form/field";
 import { EmailField } from "@/components/form/email-field";
 import { CheckboxField } from "@/components/form/checkbox-field";
@@ -63,10 +62,7 @@ export function SendDialog({ invoiceId, defaultTo, hasChannel, alreadySent, mode
           <div className="space-y-4">
             <EmailField label={ts("to")} name="to" value={to} onChange={setTo} required autoFocus={!to} />
             <Field label={ts("subject")} name="subject" value={subject} onChange={(e) => setSubject(e.target.value)} />
-            <div className="space-y-1.5">
-              <Label htmlFor="body">{ts("body")}</Label>
-              <Textarea id="body" rows={9} value={body} onChange={(e) => setBody(e.target.value)} />
-            </div>
+            <TextareaField label={ts("body")} name="body" rows={9} value={body} onChange={(e) => setBody(e.target.value)} />
             <CheckboxField name="copyToMe" label={ts("copyToMe")} checked={copyToMe} onChange={setCopyToMe} />
             <p className="text-xs text-muted-foreground">{ts("attachmentNote")}</p>
             <div className="flex justify-end">

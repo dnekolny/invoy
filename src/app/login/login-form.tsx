@@ -6,8 +6,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Field } from "@/components/form/field";
 import { Card, CardContent } from "@/components/ui/card";
 
 export function LoginForm() {
@@ -56,17 +55,7 @@ export function LoginForm() {
         </div>
         {step === "email" ? (
           <form onSubmit={sendCode} className="space-y-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="email">{t("email")}</Label>
-              <Input
-                id="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
+            <Field label={t("email")} name="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="jmeno@firma.cz" />
             <Button type="submit" className="w-full" disabled={busy}>
               {t("sendCode")}
             </Button>
@@ -74,19 +63,18 @@ export function LoginForm() {
         ) : (
           <form onSubmit={verify} className="space-y-3">
             <p className="text-sm text-muted-foreground">{t("codeSent", { email })}</p>
-            <div className="space-y-1.5">
-              <Label htmlFor="otp">{t("code")}</Label>
-              <Input
-                id="otp"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                pattern="[0-9]{6}"
-                required
-                autoFocus
-                value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
-              />
-            </div>
+            <Field
+              label={t("code")}
+              name="otp"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              pattern="[0-9]{6}"
+              required
+              autoFocus
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              className="font-mono tracking-[0.3em]"
+            />
             <Button type="submit" className="w-full" disabled={busy || otp.length !== 6}>
               {t("verify")}
             </Button>

@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { requireCompany } from "@/lib/company";
 import { SettingsHeading, SettingsNav, type SettingsItem } from "./settings-nav";
+import { PageHeader, Panel } from "@/components/page-header";
 
 export default async function SettingsLayout({ children }: { children: React.ReactNode }) {
   await requireCompany();
@@ -14,14 +15,16 @@ export default async function SettingsLayout({ children }: { children: React.Rea
     { href: "/settings/email", label: t("email"), description: t("emailDesc") },
   ];
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">{t("title")}</h1>
-      <div className="grid gap-8 md:grid-cols-[200px_1fr]">
+    <div>
+      <PageHeader title={t("title")} description={t("subtitle")} />
+      <div className="grid gap-6 md:grid-cols-[220px_1fr]">
         <SettingsNav items={items} />
-        <div className="min-w-0 max-w-2xl">
-          <SettingsHeading items={items} />
-          {children}
-        </div>
+        <Panel className="min-w-0 p-6">
+          <div className="max-w-2xl">
+            <SettingsHeading items={items} />
+            {children}
+          </div>
+        </Panel>
       </div>
     </div>
   );

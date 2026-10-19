@@ -1,15 +1,13 @@
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { FieldShell, SHELL_INPUT } from "@/components/form/field-shell";
 
-type Props = React.ComponentProps<typeof Input> & { label: string; className?: string };
+type Props = React.ComponentProps<typeof Input> & { label: string; className?: string; hint?: React.ReactNode };
 
-export function Field({ label, id, name, className, ...props }: Props) {
+export function Field({ label, id, name, className, hint, required, ...props }: Props) {
   const fieldId = id ?? name;
   return (
-    <div className={cn("space-y-1.5", className)}>
-      <Label htmlFor={fieldId}>{label}</Label>
-      <Input id={fieldId} name={name} {...props} />
-    </div>
+    <FieldShell label={label} htmlFor={fieldId} required={required} className={className} hint={hint}>
+      <Input id={fieldId} name={name} required={required} {...props} className={SHELL_INPUT} />
+    </FieldShell>
   );
 }

@@ -8,6 +8,7 @@ import { requireCompany } from "@/lib/company";
 import { companyCustomers } from "@/lib/invoices";
 import { ConfirmDelete } from "@/components/form/confirm-delete";
 import { RecurringForm } from "../recurring-form";
+import { PageHeader } from "@/components/page-header";
 
 export default async function EditRecurringPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -17,11 +18,8 @@ export default async function EditRecurringPage({ params }: { params: Promise<{ 
   if (!tpl) notFound();
   const [customers, items] = await Promise.all([companyCustomers(active.id), db.select().from(item).where(eq(item.companyId, active.id)).orderBy(asc(item.name))]);
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">{tpl.name}</h1>
-        <ConfirmDelete action={deleteRecurringAction.bind(null, tpl.id)} title={t("deleteTitle")} />
-      </div>
+    <div>
+      <PageHeader crumbs={[{ label: t("title"), href: "/recurring" }, { label: tpl.name }]} title={tpl.name} actions={<ConfirmDelete action={deleteRecurringAction.bind(null, tpl.id)} title={t("deleteTitle")} />} />
       <RecurringForm company={active} customers={customers} items={items} template={tpl} />
     </div>
   );

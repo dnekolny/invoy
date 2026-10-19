@@ -13,8 +13,7 @@ import { PhoneField } from "@/components/form/phone-field";
 import { NativeSelect } from "@/components/form/native-select";
 import { CheckboxField } from "@/components/form/checkbox-field";
 import { SubmitButton } from "@/components/form/submit-button";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { TextareaField } from "@/components/form/textarea-field";
 
 type Props = { company?: Company; action: (fd: FormData) => Promise<ActionResult>; submitLabel: string };
 
@@ -109,8 +108,7 @@ export function CompanyForm({ company, action, submitLabel }: Props) {
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="registrationNote">{t("registrationNote")}</Label>
-          <Textarea id="registrationNote" name="registrationNote" rows={2} value={registrationNote} onChange={(e) => setRegistrationNote(e.target.value)} placeholder={t("registrationNotePlaceholder")} />
+          <TextareaField label={t("registrationNote")} name="registrationNote" rows={2} value={registrationNote} onChange={(e) => setRegistrationNote(e.target.value)} placeholder={t("registrationNotePlaceholder")} />
           <div className="flex flex-wrap gap-1">
             {[t("regPresetTrade"), t("regPresetCommercial")].map((p) => (
               <button key={p} type="button" onClick={() => setRegistrationNote(p)} className="rounded-md border bg-muted/60 px-2 py-0.5 text-xs hover:bg-muted">
@@ -120,10 +118,7 @@ export function CompanyForm({ company, action, submitLabel }: Props) {
           </div>
           <p className="text-xs text-muted-foreground">{t("registrationNoteHint")}</p>
         </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="footerText">{t("footerText")}</Label>
-          <Textarea id="footerText" name="footerText" rows={2} defaultValue={company?.footerText ?? ""} placeholder={t("footerPlaceholder")} />
-        </div>
+        <TextareaField label={t("footerText")} name="footerText" rows={2} defaultValue={company?.footerText ?? ""} placeholder={t("footerPlaceholder")} />
       </section>
 
       <SubmitButton>{submitLabel}</SubmitButton>

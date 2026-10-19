@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FieldShell, SHELL_INPUT } from "@/components/form/field-shell";
 import { joinPhone, PHONE_PREFIXES, splitPhone } from "@/lib/countries";
 import { cn } from "@/lib/utils";
 
@@ -17,12 +17,10 @@ type Props = {
 
 export function PhoneField({ label, name, defaultValue, prefix, onPrefixChange, className }: Props) {
   const [number, setNumber] = useState(() => splitPhone(defaultValue, prefix).number);
-  const selectClass = "h-8 rounded-lg border border-input bg-transparent px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30";
   return (
-    <div className={cn("space-y-1.5", className)}>
-      <Label htmlFor={`${name}-number`}>{label}</Label>
-      <div className="flex gap-1">
-        <select aria-label="Předvolba" className={selectClass} value={prefix} onChange={(e) => onPrefixChange(e.target.value)}>
+    <FieldShell label={label} htmlFor={`${name}-number`} className={className}>
+      <div className="flex">
+        <select aria-label="Předvolba" className="h-11 rounded-l-[inherit] border-r border-input bg-transparent pt-3 pb-1 pl-3 pr-1 text-sm outline-none" value={prefix} onChange={(e) => onPrefixChange(e.target.value)}>
           {(PHONE_PREFIXES.includes(prefix) ? PHONE_PREFIXES : [prefix, ...PHONE_PREFIXES]).map((p) => (
             <option key={p} value={p}>{p}</option>
           ))}
@@ -45,10 +43,10 @@ export function PhoneField({ label, name, defaultValue, prefix, onPrefixChange, 
             }
             setNumber(v);
           }}
-          className="flex-1"
+          className={cn(SHELL_INPUT, "flex-1")}
         />
       </div>
       <input type="hidden" name={name} value={joinPhone(prefix, number)} />
-    </div>
+    </FieldShell>
   );
 }

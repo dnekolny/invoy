@@ -12,8 +12,7 @@ import { advance, todayIso } from "@/lib/dates";
 import { formatDate } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { TextareaField } from "@/components/form/textarea-field";
 import { Field } from "@/components/form/field";
 import { NativeSelect } from "@/components/form/native-select";
 import { CheckboxField } from "@/components/form/checkbox-field";
@@ -88,13 +87,13 @@ export function RecurringForm({ company, customers, items, template }: Props) {
           <CardContent className="space-y-4">
             <Field label={t("name")} name="name" value={name} onChange={(e) => setName(e.target.value)} placeholder={t("namePlaceholder")} required />
             <div className="space-y-1.5">
-              <Label htmlFor="customerId">{t("customer")}</Label>
-              <select id="customerId" className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm dark:bg-input/30" value={customerId} onChange={(e) => setCustomerId(e.target.value)}>
-                <option value="">{customers.length ? t("pickCustomer") : t("addCustomer")}</option>
-                {customers.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
+              <NativeSelect
+                label={t("customer")}
+                name="customerId"
+                value={customerId}
+                onChange={(e) => setCustomerId(e.target.value)}
+                options={[{ value: "", label: customers.length ? t("pickCustomer") : t("addCustomer") }, ...customers.map((c) => ({ value: c.id, label: c.name }))]}
+              />
               {customers.length === 0 && (
                 <p className="text-xs text-muted-foreground"><Link href="/customers/new" className="underline">{t("addCustomer")}</Link></p>
               )}
@@ -109,8 +108,7 @@ export function RecurringForm({ company, customers, items, template }: Props) {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader><CardTitle className="text-base">{t("note")}</CardTitle></CardHeader>
-          <CardContent><Textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} /></CardContent>
+          <CardContent><TextareaField label={t("note")} name="note" rows={3} value={note} onChange={(e) => setNote(e.target.value)} /></CardContent>
         </Card>
       </div>
       <div className="space-y-6">

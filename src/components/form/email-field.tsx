@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FieldShell, SHELL_INPUT } from "@/components/form/field-shell";
 import { cn } from "@/lib/utils";
 
 const DOMAINS = ["gmail.com", "seznam.cz", "email.cz", "centrum.cz", "outlook.com", "icloud.com", "post.cz", "volny.cz", "atlas.cz", "protonmail.com"];
@@ -59,9 +59,8 @@ export function EmailField({ label, name, value, defaultValue, onChange, require
 
   const partial = Boolean(local || domain);
   return (
-    <div className={cn("space-y-1.5", className)}>
-      <Label htmlFor={`${name}-local`}>{label}</Label>
-      <div className="flex items-center gap-1">
+    <FieldShell label={label} htmlFor={`${name}-local`} required={required} className={className}>
+      <div className="flex items-center">
         <Input
           ref={localRef}
           id={`${name}-local`}
@@ -73,7 +72,7 @@ export function EmailField({ label, name, value, defaultValue, onChange, require
           spellCheck={false}
           autoFocus={autoFocus}
           placeholder="jmeno"
-          className="min-w-0 flex-1"
+          className={cn(SHELL_INPUT, "min-w-0 flex-1 pr-1")}
           onKeyDown={(e) => {
             if (e.key === "@") {
               e.preventDefault();
@@ -81,7 +80,7 @@ export function EmailField({ label, name, value, defaultValue, onChange, require
             }
           }}
         />
-        <span className="text-sm text-muted-foreground select-none">@</span>
+        <span className="pt-2 text-sm text-muted-foreground select-none">@</span>
         <Input
           ref={domainRef}
           id={`${name}-domain`}
@@ -94,7 +93,7 @@ export function EmailField({ label, name, value, defaultValue, onChange, require
           list={listId}
           placeholder="domena.cz"
           pattern="[^@\s]+\.[^@\s]+"
-          className="min-w-0 flex-[1.2]"
+          className={cn(SHELL_INPUT, "min-w-0 flex-[1.2] pl-1")}
           onKeyDown={(e) => {
             if (e.key === "Backspace" && domain === "") {
               e.preventDefault();
@@ -109,6 +108,6 @@ export function EmailField({ label, name, value, defaultValue, onChange, require
         </datalist>
       </div>
       <input type="hidden" name={name} value={full} />
-    </div>
+    </FieldShell>
   );
 }

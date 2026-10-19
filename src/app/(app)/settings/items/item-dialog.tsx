@@ -11,8 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Field } from "@/components/form/field";
 import { NativeSelect } from "@/components/form/native-select";
 import { SubmitButton } from "@/components/form/submit-button";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { TextareaField } from "@/components/form/textarea-field";
 import { UnitsDatalist, UNITS_LIST_ID } from "@/components/form/units-datalist";
 
 export function ItemDialog({ item, vatPayer }: { item?: Item; vatPayer: boolean }) {
@@ -41,10 +40,7 @@ export function ItemDialog({ item, vatPayer }: { item?: Item; vatPayer: boolean 
         </DialogHeader>
         <form action={submit} className="space-y-4">
           <Field label={t("name")} name="name" required defaultValue={item?.name ?? ""} autoFocus placeholder={t("namePlaceholder")} />
-          <div className="space-y-1.5">
-            <Label htmlFor="description">{t("description")}</Label>
-            <Textarea id="description" name="description" rows={2} defaultValue={item?.description ?? ""} />
-          </div>
+          <TextareaField label={t("description")} name="description" rows={2} defaultValue={item?.description ?? ""} />
           <div className="grid grid-cols-3 gap-4">
             <Field label={vatPayer ? t("unitPriceNet") : t("unitPrice")} name="unitPrice" type="number" step="0.01" min={0} required defaultValue={item?.unitPrice ?? ""} />
             <Field label={t("unit")} name="unit" defaultValue={item?.unit ?? "ks"} list={UNITS_LIST_ID} autoComplete="off" />
