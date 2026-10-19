@@ -134,7 +134,7 @@ function Stat({ icon, title, value, hint, href, danger }: { icon: React.ReactNod
           <span className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${danger ? "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-200" : "bg-primary/10 text-primary"}`}>{icon}</span>
           <div className="min-w-0">
             <div className="text-xs font-medium text-muted-foreground">{title}</div>
-            <div className={`truncate text-xl font-semibold tabular-nums ${danger ? "text-red-600 dark:text-red-300" : ""}`}>{value}</div>
+            <div className={`truncate font-heading text-xl font-bold tabular-nums ${danger ? "text-red-600 dark:text-red-300" : ""}`}>{value}</div>
             {hint && <div className="text-xs text-muted-foreground">{hint}</div>}
           </div>
         </CardContent>

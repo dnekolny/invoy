@@ -54,7 +54,7 @@ export function AppShell({ user, companyName, items, children }: Props) {
 
 function Logo() {
   return (
-    <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
+    <Link href="/dashboard" className="flex items-center gap-2 font-heading text-lg font-bold">
       <span className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
         <FileText className="size-4" />
       </span>

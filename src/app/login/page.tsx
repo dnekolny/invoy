@@ -22,7 +22,7 @@ export default async function LoginPage() {
           Invoy
         </div>
         <div className="relative max-w-md space-y-6">
-          <h2 className="text-3xl font-semibold leading-tight">{t("heroTitle")}</h2>
+          <h2 className="font-heading text-3xl font-bold leading-tight">{t("heroTitle")}</h2>
           <ul className="space-y-3 text-sm/6 text-primary-foreground/90">
             {points.map((p) => (
               <li key={p} className="flex items-start gap-2">
@@ -43,7 +43,7 @@ export default async function LoginPage() {
               </span>
               Invoy
             </div>
-            <h1 className="text-2xl font-semibold">{t("title")}</h1>
+            <h1 className="font-heading text-2xl font-bold">{t("title")}</h1>
             <p className="mt-1 text-sm text-muted-foreground">{t("subtitle")}</p>
           </div>
           <LoginForm />
