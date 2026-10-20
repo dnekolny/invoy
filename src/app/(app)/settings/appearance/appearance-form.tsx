@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { ImagePlus, X } from "lucide-react";
 import { toast } from "sonner";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { ScaledPage } from "@/components/scaled-page";
 
 const COLORS = ["#2563eb", "#0f766e", "#7c3aed", "#db2777", "#ea580c", "#16a34a", "#0891b2", "#1f2937"];
 
@@ -20,7 +21,18 @@ export function AppearanceForm(props: { template: string; accentColor: string; l
   const [accent, setAccent] = useState(props.accentColor);
   const [logo, setLogo] = useState<string | null>(props.logoUrl);
   const [pending, start] = useTransition();
-  const [previewKey, setPreviewKey] = useState(0);
+  const [html, setHtml] = useState<string | null>(null);
+  const previewKey = JSON.stringify({ template, accent, logo });
+  const latest = useRef(previewKey);
+
+  useEffect(() => {
+    latest.current = previewKey;
+    const timer = setTimeout(async () => {
+      const res = await fetch("/api/preview-sample", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ template, accent, logoUrl: logo }) });
+      if (res.ok && latest.current === previewKey) setHtml(await res.text());
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [previewKey, template, accent, logo]);
 
   async function onLogo(file: File | undefined) {
     if (!file) return;
@@ -40,7 +52,6 @@ export function AppearanceForm(props: { template: string; accentColor: string; l
         return;
       }
       toast.success(tc("saved"));
-      setPreviewKey((k) => k + 1);
     });
   }
 
@@ -108,7 +119,7 @@ export function AppearanceForm(props: { template: string; accentColor: string; l
       <section className="space-y-3">
         <h2 className="text-base font-medium">{t("preview")}</h2>
         <div className="overflow-hidden rounded-lg border bg-[#e9e9ec]">
-          <iframe key={previewKey} title="preview" src={`/api/preview-sample?template=${template}`} className="h-[900px] w-full" />
+          {html ? <ScaledPage html={html} title={t("preview")} /> : <div className="h-[900px]" />}
         </div>
       </section>
     </div>

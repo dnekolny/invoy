@@ -469,7 +469,7 @@
     "removeLogo": "Remove",
     "logoHint": "PNG, JPG, SVG or WebP. Resized to max. 600 px.",
     "logoError": "Could not load the image.",
-    "previewHint": "The preview below refreshes after saving.",
+    "previewHint": "The preview below updates with every change.",
     "preview": "Preview"
   },
   "recurring": {

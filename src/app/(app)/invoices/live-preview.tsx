@@ -1,9 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-
-const PAGE_W = 794;
-const PAGE_H = 1123;
+import { ScaledPage } from "@/components/scaled-page";
 import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 
@@ -13,16 +11,6 @@ export function LivePreview({ payload }: { payload: unknown }) {
   const [loading, setLoading] = useState(false);
   const key = JSON.stringify(payload);
   const latest = useRef(key);
-  const box = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
-
-  useEffect(() => {
-    const el = box.current;
-    if (!el) return;
-    const ro = new ResizeObserver(([entry]) => setScale(Math.min(1, entry.contentRect.width / PAGE_W)));
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
 
   useEffect(() => {
     latest.current = key;
@@ -39,7 +27,7 @@ export function LivePreview({ payload }: { payload: unknown }) {
   }, [key]);
 
   return (
-    <div ref={box} className="relative overflow-hidden rounded-xl border bg-[#e9e9ec] dark:bg-black/40">
+    <div className="relative overflow-hidden rounded-xl border bg-[#e9e9ec] dark:bg-black/40">
       {loading && (
         <div className="absolute top-2 right-2 z-10 flex items-center gap-1 rounded-md bg-card/90 px-2 py-1 text-xs text-muted-foreground shadow-sm">
           <Loader2 className="size-3 animate-spin" />
@@ -47,9 +35,7 @@ export function LivePreview({ payload }: { payload: unknown }) {
         </div>
       )}
       {html ? (
-        <div style={{ height: PAGE_H * scale }}>
-          <iframe title={t("preview")} srcDoc={html} style={{ width: PAGE_W, height: PAGE_H, transform: `scale(${scale})`, transformOrigin: "top left" }} className="block" />
-        </div>
+        <ScaledPage html={html} title={t("preview")} />
       ) : (
         <div className="flex h-96 items-center justify-center text-sm text-muted-foreground">{t("previewLoading")}</div>
       )}

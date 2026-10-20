@@ -5,10 +5,19 @@ import type { TemplateId } from "@/templates/labels";
 import type { Invoice, InvoiceLine } from "@/db/schema";
 
 export async function GET(req: Request) {
-  const active = await requireCompany();
   const url = new URL(req.url);
-  const template = (url.searchParams.get("template") ?? active.template) as TemplateId;
-  const accent = url.searchParams.get("accent");
+  return render({ template: url.searchParams.get("template"), accent: url.searchParams.get("accent"), logoUrl: undefined });
+}
+
+export async function POST(req: Request) {
+  const body = (await req.json().catch(() => ({}))) as { template?: string; accent?: string; logoUrl?: string | null };
+  return render({ template: body.template ?? null, accent: body.accent ?? null, logoUrl: body.logoUrl });
+}
+
+async function render(opts: { template: string | null; accent: string | null; logoUrl: string | null | undefined }) {
+  const active = await requireCompany();
+  const template = (opts.template ?? active.template) as TemplateId;
+  const accent = opts.accent && /^#[0-9a-f]{6}$/i.test(opts.accent) ? opts.accent : null;
   const [bank] = await companyBankAccounts(active.id);
   const today = new Date().toISOString().slice(0, 10);
   const vat = active.vatPayer;
@@ -26,7 +35,7 @@ export async function GET(req: Request) {
     subtotal: subtotal.toFixed(2), vatTotal: vatTotal.toFixed(2), total: (subtotal + vatTotal).toFixed(2), paidAmount: "0", paidAt: null,
     intro: active.defaultCurrency === "EUR" ? "We invoice you for services provided in October." : "Fakturujeme vám za služby poskytnuté v říjnu.", note: "Ukázková faktura pro náhled šablony.", reminderCount: 0, lastReminderAt: null, publicToken: "sample", proformaId: null, recurringId: null, sentAt: null, viewedAt: null, createdAt: new Date(), updatedAt: new Date(),
   };
-  const company = accent ? { ...active, accentColor: accent } : active;
+  const company = { ...active, accentColor: accent ?? active.accentColor, logoUrl: opts.logoUrl === undefined ? active.logoUrl : opts.logoUrl };
   const html = await renderInvoiceHtml({ company, invoice: inv, lines, bank: bank ?? null }, template);
   return new Response(html, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
 }

@@ -469,7 +469,7 @@
     "removeLogo": "Odebrat",
     "logoHint": "PNG, JPG, SVG nebo WebP. Zmenší se na max. 600 px.",
     "logoError": "Obrázek se nepodařilo načíst.",
-    "previewHint": "Náhled níže se obnoví po uložení.",
+    "previewHint": "Náhled níže se aktualizuje při každé změně.",
     "preview": "Náhled"
   },
   "recurring": {
