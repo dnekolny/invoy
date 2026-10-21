@@ -40,7 +40,7 @@ export async function generateInvoiceTemplate(input: { image?: { data: string; m
     content.push({ type: "text", text: `Create the template from this picture.${input.instructions ? `\n\nAdditional instructions from the user: ${input.instructions}` : ""}` });
   }
   const res = await client.messages.create({
-    model: process.env.AI_MODEL || "claude-opus-5-5",
+    model: process.env.AI_TEMPLATE_MODEL || "claude-opus-5-5",
     max_tokens: 12000,
     system: SYSTEM,
     messages: [{ role: "user", content }],
