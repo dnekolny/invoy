@@ -25,6 +25,7 @@ export function AiTemplateDialog({ premium, aiReady, editing, onClose }: Props) 
   const [html, setHtml] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [name, setName] = useState(editing?.name ?? "");
+  const [dragging, setDragging] = useState(false);
   const [generating, startGenerate] = useTransition();
   const [saving, startSave] = useTransition();
 
@@ -45,6 +46,20 @@ export function AiTemplateDialog({ premium, aiReady, editing, onClose }: Props) 
       cancelled = true;
     };
   }, [editing]);
+
+  const canUpload = open && premium && aiReady;
+  useEffect(() => {
+    if (!canUpload) return;
+    function onPaste(e: ClipboardEvent) {
+      const item = Array.from(e.clipboardData?.items ?? []).find((i) => i.type.startsWith("image/"));
+      const file = item?.getAsFile();
+      if (!file) return;
+      e.preventDefault();
+      pick(file);
+    }
+    window.addEventListener("paste", onPaste);
+    return () => window.removeEventListener("paste", onPaste);
+  });
 
   async function renderPreview(src: string) {
     setPreview(await fetchPreview(src));
@@ -124,7 +139,17 @@ export function AiTemplateDialog({ premium, aiReady, editing, onClose }: Props) 
         ) : (
           <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
             <div className="space-y-4">
-              <label className={cn("flex aspect-[3/4] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-dashed bg-muted/30 text-sm text-muted-foreground hover:border-primary/50", image && "border-solid")}>
+              <label className={cn("flex aspect-[3/4] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-dashed bg-muted/30 text-sm text-muted-foreground hover:border-primary/50", image && "border-solid", dragging && "border-primary bg-primary/5")}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragging(true);
+                }}
+                onDragLeave={() => setDragging(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDragging(false);
+                  pick(Array.from(e.dataTransfer.files).find((f) => f.type.startsWith("image/")));
+                }}>
                 <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => pick(e.target.files?.[0])} />
                 {image ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -133,6 +158,7 @@ export function AiTemplateDialog({ premium, aiReady, editing, onClose }: Props) 
                   <>
                     <ImagePlus className="mb-2 size-6" />
                     <span className="px-4 text-center">{editing ? t("dropHintOptional") : t("dropHint")}</span>
+                    <span className="mt-2 px-4 text-center text-xs">{t("pasteHint")}</span>
                   </>
                 )}
               </label>
