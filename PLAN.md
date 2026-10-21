@@ -108,7 +108,7 @@ Jednoduchý nástroj na vystavování a odesílání faktur. Multi-tenant (každ
 
 ## Později (mimo v1)
 - Gmail OAuth (gmail.send) místo app password
-- WYSIWYG editor šablon (layout jako JSON → React render)
+- WYSIWYG editor šablon (layout jako JSON → React render); mezikrok hotov 2026-10-21: vlastní šablony s placeholdery generované AI z obrázku (Premium, `ANTHROPIC_API_KEY`, `company.premium`)
 - Dobropisy / opravné doklady
 - Párování plateb z banky (Fio API, ČSOB)
 - Resend na vlastní doméně pro systémové e-maily

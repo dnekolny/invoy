@@ -76,6 +76,18 @@ export const company = pgTable("company", {
   template: text("template").notNull().default("classic"),
   accentColor: text("accent_color").notNull().default("#2563eb"),
   footerText: text("footer_text"),
+  premium: boolean("premium").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const customTemplate = pgTable("custom_template", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  companyId: uuid("company_id")
+    .notNull()
+    .references(() => company.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  html: text("html").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -131,6 +143,7 @@ export const item = pgTable("item", {
 });
 
 export type Company = typeof company.$inferSelect;
+export type CustomTemplate = typeof customTemplate.$inferSelect;
 export type BankAccount = typeof bankAccount.$inferSelect;
 export type Customer = typeof customer.$inferSelect;
 export type Item = typeof item.$inferSelect;

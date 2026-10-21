@@ -2,9 +2,11 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { ImagePlus, X } from "lucide-react";
+import { ImagePlus, Pencil, Sparkles, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { saveAppearanceAction } from "@/actions/appearance";
+import { deleteCustomTemplateAction } from "@/actions/templates";
+import { AiTemplateDialog } from "./ai-template-dialog";
 import { TEMPLATES } from "@/templates/labels";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -14,10 +16,22 @@ import { ScaledPage } from "@/components/scaled-page";
 
 const COLORS = ["#2563eb", "#0f766e", "#7c3aed", "#db2777", "#ea580c", "#16a34a", "#0891b2", "#1f2937"];
 
-export function AppearanceForm(props: { template: string; accentColor: string; logoUrl: string | null }) {
+type CustomTemplateRow = { id: string; name: string };
+
+export function AppearanceForm(props: { template: string; accentColor: string; logoUrl: string | null; customTemplates: CustomTemplateRow[]; premium: boolean; aiReady: boolean }) {
   const t = useTranslations("appearance");
   const tc = useTranslations("common");
   const [template, setTemplate] = useState(props.template);
+  const [editing, setEditing] = useState<CustomTemplateRow | null>(null);
+  const [removing, startRemove] = useTransition();
+
+  function remove(row: CustomTemplateRow) {
+    if (!confirm(t("ai.deleteConfirm"))) return;
+    startRemove(async () => {
+      await deleteCustomTemplateAction(row.id);
+      if (template === row.id) setTemplate("classic");
+    });
+  }
   const [accent, setAccent] = useState(props.accentColor);
   const [logo, setLogo] = useState<string | null>(props.logoUrl);
   const [pending, start] = useTransition();
@@ -59,7 +73,7 @@ export function AppearanceForm(props: { template: string; accentColor: string; l
     <div className="space-y-8">
       <section className="space-y-3">
         <h2 className="text-base font-medium">{t("template")}</h2>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
           {TEMPLATES.map((tpl) => (
             <button
               key={tpl.id}
@@ -72,6 +86,25 @@ export function AppearanceForm(props: { template: string; accentColor: string; l
               <div className="text-xs text-muted-foreground">{t(`desc.${tpl.id}`)}</div>
             </button>
           ))}
+          {props.customTemplates.map((row) => (
+            <div key={row.id} className={cn("relative rounded-lg border-2 p-3 text-left transition-colors", template === row.id ? "border-primary" : "border-border hover:border-muted-foreground/40")}>
+              <button type="button" onClick={() => setTemplate(row.id)} className="block w-full text-left">
+                <div className="flex aspect-[1/1.3] w-full items-center justify-center rounded bg-white text-muted-foreground shadow-sm ring-1 ring-black/5 dark:bg-neutral-100">
+                  <Sparkles className="size-8" style={{ color: accent }} />
+                </div>
+                <div className="mt-2 text-sm font-medium">{row.name}</div>
+                <div className="text-xs text-muted-foreground">{t("ai.customDesc")}</div>
+              </button>
+              <div className="absolute top-2 right-2 flex gap-1">
+                <Button type="button" variant="outline" size="icon-sm" aria-label={tc("edit")} onClick={() => setEditing(row)}><Pencil /></Button>
+                <Button type="button" variant="outline" size="icon-sm" aria-label={t("ai.delete")} disabled={removing} onClick={() => remove(row)}><Trash2 /></Button>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <AiTemplateDialog premium={props.premium} aiReady={props.aiReady} />
+          {editing && <AiTemplateDialog key={editing.id} premium={props.premium} aiReady={props.aiReady} editing={editing} onClose={() => setEditing(null)} />}
         </div>
       </section>
 
