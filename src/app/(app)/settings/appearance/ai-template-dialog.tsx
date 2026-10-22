@@ -178,14 +178,16 @@ export function AiTemplateDialog({ premium, aiReady, editing, onClose }: Props) 
                 </div>
               )}
             </div>
-            <div className="relative h-[70vh] overflow-hidden rounded-lg border bg-[#e9e9ec] p-3 lg:h-[min(760px,calc(94vh-9rem))] dark:bg-black/40">
-              {preview ? (
-                <ScaledPage html={preview} title={t("preview")} fit="contain" />
-              ) : generating ? (
-                <PageSkeleton />
-              ) : (
-                <div className="flex h-full items-center justify-center px-6 text-center text-sm text-muted-foreground">{t("emptyPreview")}</div>
-              )}
+            <div className="relative h-[70vh] overflow-hidden rounded-lg border bg-[#e9e9ec] lg:h-[min(760px,calc(94vh-9rem))] dark:bg-black/40">
+              <div className={cn("h-full p-3", editing ? "overflow-y-auto" : "overflow-hidden")}>
+                {preview ? (
+                  <ScaledPage html={preview} title={t("preview")} fit={editing ? "width" : "contain"} />
+                ) : generating ? (
+                  <PageSkeleton />
+                ) : (
+                  <div className="flex h-full items-center justify-center px-6 text-center text-sm text-muted-foreground">{t("emptyPreview")}</div>
+                )}
+              </div>
               {generating && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-background/60 px-6 text-center text-sm backdrop-blur-[2px]">
                   <Loader2 className="size-6 animate-spin text-primary" />
