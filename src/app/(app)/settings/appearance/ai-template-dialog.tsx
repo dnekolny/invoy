@@ -120,7 +120,7 @@ export function AiTemplateDialog({ premium, aiReady, editing, onClose }: Props) 
           <span className="ml-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-primary uppercase">Premium</span>
         </DialogTrigger>
       )}
-      <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-5xl">
+      <DialogContent className="max-h-[94vh] overflow-y-auto sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="size-4 text-primary" />
@@ -139,7 +139,7 @@ export function AiTemplateDialog({ premium, aiReady, editing, onClose }: Props) 
         ) : (
           <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
             <div className="space-y-4">
-              <label className={cn("flex aspect-[3/4] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-dashed bg-muted/30 text-sm text-muted-foreground hover:border-primary/50", image && "border-solid", dragging && "border-primary bg-primary/5")}
+              <label className={cn("flex aspect-[4/3] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-dashed bg-muted/30 text-sm text-muted-foreground hover:border-primary/50", image && "border-solid", dragging && "border-primary bg-primary/5")}
                 onDragOver={(e) => {
                   e.preventDefault();
                   setDragging(true);
@@ -178,17 +178,38 @@ export function AiTemplateDialog({ premium, aiReady, editing, onClose }: Props) 
                 </div>
               )}
             </div>
-            <div className="overflow-hidden rounded-lg border bg-[#e9e9ec] dark:bg-black/40">
+            <div className="relative h-[70vh] overflow-hidden rounded-lg border bg-[#e9e9ec] p-3 lg:h-[min(760px,calc(94vh-9rem))] dark:bg-black/40">
               {preview ? (
-                <ScaledPage html={preview} title={t("preview")} />
+                <ScaledPage html={preview} title={t("preview")} fit="contain" />
+              ) : generating ? (
+                <PageSkeleton />
               ) : (
-                <div className="flex h-96 items-center justify-center px-6 text-center text-sm text-muted-foreground">{generating ? t("generatingHint") : t("emptyPreview")}</div>
+                <div className="flex h-full items-center justify-center px-6 text-center text-sm text-muted-foreground">{t("emptyPreview")}</div>
+              )}
+              {generating && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-background/60 px-6 text-center text-sm backdrop-blur-[2px]">
+                  <Loader2 className="size-6 animate-spin text-primary" />
+                  <span>{t("generatingHint")}</span>
+                </div>
               )}
             </div>
           </div>
         )}
       </DialogContent>
     </Dialog>
+  );
+}
+
+function PageSkeleton() {
+  return (
+    <div className="mx-auto flex h-full max-w-[520px] animate-pulse flex-col gap-4 rounded bg-white p-8 shadow-sm">
+      <div className="flex justify-between"><div className="h-6 w-32 rounded bg-neutral-200" /><div className="size-10 rounded bg-neutral-200" /></div>
+      <div className="grid grid-cols-2 gap-4"><div className="h-16 rounded bg-neutral-100" /><div className="h-16 rounded bg-neutral-100" /></div>
+      <div className="mt-4 h-3 rounded bg-neutral-200" />
+      <div className="h-3 rounded bg-neutral-100" />
+      <div className="h-3 rounded bg-neutral-100" />
+      <div className="mt-auto ml-auto h-8 w-40 rounded bg-neutral-200" />
+    </div>
   );
 }
 

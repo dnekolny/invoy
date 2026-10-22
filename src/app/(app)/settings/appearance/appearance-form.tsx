@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { ImagePlus, Pencil, Sparkles, Trash2, X } from "lucide-react";
+import { ImagePlus, Pencil, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { saveAppearanceAction } from "@/actions/appearance";
 import { deleteCustomTemplateAction } from "@/actions/templates";
@@ -89,8 +89,8 @@ export function AppearanceForm(props: { template: string; accentColor: string; l
           {props.customTemplates.map((row) => (
             <div key={row.id} className={cn("relative rounded-lg border-2 p-3 text-left transition-colors", template === row.id ? "border-primary" : "border-border hover:border-muted-foreground/40")}>
               <button type="button" onClick={() => setTemplate(row.id)} className="block w-full text-left">
-                <div className="flex aspect-[1/1.3] w-full items-center justify-center rounded bg-white text-muted-foreground shadow-sm ring-1 ring-black/5 dark:bg-neutral-100">
-                  <Sparkles className="size-8" style={{ color: accent }} />
+                <div className="pointer-events-none aspect-[1/1.3] w-full overflow-hidden rounded bg-white shadow-sm ring-1 ring-black/5">
+                  <ScaledPage src={`/api/preview-sample?template=${row.id}&accent=${encodeURIComponent(accent)}`} title={row.name} />
                 </div>
                 <div className="mt-2 text-sm font-medium">{row.name}</div>
                 <div className="text-xs text-muted-foreground">{t("ai.customDesc")}</div>
