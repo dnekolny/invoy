@@ -24,3 +24,16 @@ export async function htmlToPdf(html: string): Promise<Uint8Array> {
     await browser.close();
   }
 }
+
+export async function htmlToJpeg(html: string, width: number): Promise<Uint8Array> {
+  const browser = await launch();
+  try {
+    const page = await browser.newPage();
+    await page.setViewport({ width: 794, height: 1123, deviceScaleFactor: width / 794 });
+    await page.setContent(html, { waitUntil: "load", timeout: 20000 });
+    await page.evaluate(() => (document as unknown as { fonts: { ready: Promise<unknown> } }).fonts.ready);
+    return await page.screenshot({ type: "jpeg", quality: 80, clip: { x: 0, y: 0, width: 794, height: 1123 } });
+  } finally {
+    await browser.close();
+  }
+}

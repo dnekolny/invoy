@@ -7,6 +7,7 @@ import { db } from "@/db";
 import { company, customTemplate } from "@/db/schema";
 import { AI_IMAGE_TYPES, aiConfigured, generateInvoiceTemplate, type AiImageType } from "@/lib/ai-template";
 import { requireCompany } from "@/lib/company";
+import { refreshTemplateThumbnail } from "@/lib/template-thumbnail";
 import { validateCustomTemplate } from "@/templates/custom";
 
 const MAX_IMAGE = 5 * 1024 * 1024;
@@ -61,6 +62,7 @@ export async function saveCustomTemplateAction(raw: unknown): Promise<{ ok: true
     id = row.id;
   }
   await db.update(company).set({ template: id, updatedAt: new Date() }).where(eq(company.id, active.id));
+  await refreshTemplateThumbnail(active, id, parsed.data.html);
   revalidatePath("/settings/appearance");
   return { ok: true, id };
 }

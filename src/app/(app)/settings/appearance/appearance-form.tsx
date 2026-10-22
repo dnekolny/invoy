@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { ImagePlus, Pencil, Trash2, X } from "lucide-react";
+import { ImagePlus, Pencil, Sparkles, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { saveAppearanceAction } from "@/actions/appearance";
 import { deleteCustomTemplateAction } from "@/actions/templates";
@@ -16,7 +16,7 @@ import { ScaledPage } from "@/components/scaled-page";
 
 const COLORS = ["#2563eb", "#0f766e", "#7c3aed", "#db2777", "#ea580c", "#16a34a", "#0891b2", "#1f2937"];
 
-type CustomTemplateRow = { id: string; name: string };
+type CustomTemplateRow = { id: string; name: string; thumbnailUrl: string | null };
 
 export function AppearanceForm(props: { template: string; accentColor: string; logoUrl: string | null; customTemplates: CustomTemplateRow[]; premium: boolean; aiReady: boolean }) {
   const t = useTranslations("appearance");
@@ -89,8 +89,13 @@ export function AppearanceForm(props: { template: string; accentColor: string; l
           {props.customTemplates.map((row) => (
             <div key={row.id} className={cn("relative rounded-lg border-2 p-3 text-left transition-colors", template === row.id ? "border-primary" : "border-border hover:border-muted-foreground/40")}>
               <button type="button" onClick={() => setTemplate(row.id)} className="block w-full text-left">
-                <div className="pointer-events-none aspect-[1/1.3] w-full overflow-hidden rounded bg-white shadow-sm ring-1 ring-black/5">
-                  <ScaledPage src={`/api/preview-sample?template=${row.id}&accent=${encodeURIComponent(accent)}`} title={row.name} />
+                <div className="flex aspect-[1/1.3] w-full items-center justify-center overflow-hidden rounded bg-white shadow-sm ring-1 ring-black/5">
+                  {row.thumbnailUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={row.thumbnailUrl} alt="" className="h-full w-full object-cover object-top" />
+                  ) : (
+                    <Sparkles className="size-8" style={{ color: accent }} />
+                  )}
                 </div>
                 <div className="mt-2 text-sm font-medium">{row.name}</div>
                 <div className="text-xs text-muted-foreground">{t("ai.customDesc")}</div>

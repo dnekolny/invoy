@@ -3,6 +3,8 @@ import { aiConfigured } from "@/lib/ai-template";
 import { listCustomTemplates } from "@/lib/custom-templates";
 import { AppearanceForm } from "./appearance-form";
 
+export const maxDuration = 120;
+
 export default async function AppearancePage() {
   const active = await requireCompany();
   const customTemplates = await listCustomTemplates(active.id);

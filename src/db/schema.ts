@@ -88,6 +88,7 @@ export const customTemplate = pgTable("custom_template", {
     .references(() => company.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   html: text("html").notNull(),
+  thumbnail: text("thumbnail"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
