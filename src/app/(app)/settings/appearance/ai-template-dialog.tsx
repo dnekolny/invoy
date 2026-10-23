@@ -13,9 +13,9 @@ import { TextareaField } from "@/components/form/textarea-field";
 import { ScaledPage } from "@/components/scaled-page";
 import { cn } from "@/lib/utils";
 
-type Props = { premium: boolean; aiReady: boolean; editing?: { id: string; name: string } | null; onClose?: () => void };
+type Props = { premium: boolean; aiReady: boolean; editing?: { id: string; name: string } | null; onClose?: () => void; onSaved?: (r: { id: string; accent: string | null }) => void };
 
-export function AiTemplateDialog({ premium, aiReady, editing, onClose }: Props) {
+export function AiTemplateDialog({ premium, aiReady, editing, onClose, onSaved }: Props) {
   const t = useTranslations("appearance.ai");
   const tc = useTranslations("common");
   const router = useRouter();
@@ -24,6 +24,7 @@ export function AiTemplateDialog({ premium, aiReady, editing, onClose }: Props) 
   const [instructions, setInstructions] = useState("");
   const [html, setHtml] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [accent, setAccent] = useState<string | null>(null);
   const [name, setName] = useState(editing?.name ?? "");
   const [dragging, setDragging] = useState(false);
   const [generating, startGenerate] = useTransition();
@@ -61,10 +62,6 @@ export function AiTemplateDialog({ premium, aiReady, editing, onClose }: Props) 
     return () => window.removeEventListener("paste", onPaste);
   });
 
-  async function renderPreview(src: string) {
-    setPreview(await fetchPreview(src));
-  }
-
   function pick(file: File | undefined) {
     if (!file) return;
     resize(file, 1600).then((blob) => {
@@ -90,20 +87,22 @@ export function AiTemplateDialog({ premium, aiReady, editing, onClose }: Props) 
         return;
       }
       setHtml(r.html);
+      setAccent(r.accent);
       setInstructions("");
-      await renderPreview(r.html);
+      setPreview(await fetchPreview(r.html, r.accent));
     });
   }
 
   function save() {
     if (!html) return;
     startSave(async () => {
-      const r = await saveCustomTemplateAction({ id: editing?.id, name: name || t("defaultName"), html });
+      const r = await saveCustomTemplateAction({ id: editing?.id, name: name || t("defaultName"), html, accent: accent ?? undefined });
       if (!r.ok) {
         toast.error(tc("error"));
         return;
       }
       toast.success(t("saved"));
+      onSaved?.({ id: r.id, accent });
       change(false);
       router.refresh();
     });
@@ -215,8 +214,8 @@ function PageSkeleton() {
   );
 }
 
-async function fetchPreview(src: string) {
-  const res = await fetch("/api/preview-sample", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ customHtml: src }) });
+async function fetchPreview(src: string, accent?: string | null) {
+  const res = await fetch("/api/preview-sample", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ customHtml: src, accent: accent ?? undefined }) });
   return res.ok ? res.text() : null;
 }
 

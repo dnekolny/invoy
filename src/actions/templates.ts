@@ -5,14 +5,14 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
 import { company, customTemplate } from "@/db/schema";
-import { AI_IMAGE_TYPES, aiConfigured, generateInvoiceTemplate, type AiImageType } from "@/lib/ai-template";
+import { AI_IMAGE_TYPES, aiConfigured, generateInvoiceTemplate, templateAccent, type AiImageType } from "@/lib/ai-template";
 import { requireCompany } from "@/lib/company";
 import { refreshTemplateThumbnail } from "@/lib/template-thumbnail";
 import { validateCustomTemplate } from "@/templates/custom";
 
 const MAX_IMAGE = 5 * 1024 * 1024;
 
-export async function generateTemplateAction(fd: FormData): Promise<{ ok: true; html: string } | { ok: false; error: string }> {
+export async function generateTemplateAction(fd: FormData): Promise<{ ok: true; html: string; accent: string | null } | { ok: false; error: string }> {
   const active = await requireCompany();
   if (!active.premium) return { ok: false, error: "premium" };
   if (!aiConfigured()) return { ok: false, error: "notConfigured" };
@@ -30,7 +30,7 @@ export async function generateTemplateAction(fd: FormData): Promise<{ ok: true; 
     });
     const problem = validateCustomTemplate(html);
     if (problem) return { ok: false, error: "incomplete" };
-    return { ok: true, html };
+    return { ok: true, html, accent: templateAccent(html) };
   } catch (e) {
     console.error("ai template generation failed", e);
     return { ok: false, error: "ai" };
@@ -41,6 +41,7 @@ const saveSchema = z.object({
   id: z.string().uuid().optional(),
   name: z.string().trim().min(1).max(60),
   html: z.string().min(50).max(200_000),
+  accent: z.string().regex(/^#[0-9a-f]{6}$/i).optional(),
 });
 
 export async function saveCustomTemplateAction(raw: unknown): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
@@ -61,8 +62,9 @@ export async function saveCustomTemplateAction(raw: unknown): Promise<{ ok: true
     const [row] = await db.insert(customTemplate).values({ companyId: active.id, name: parsed.data.name, html: parsed.data.html }).returning({ id: customTemplate.id });
     id = row.id;
   }
-  await db.update(company).set({ template: id, updatedAt: new Date() }).where(eq(company.id, active.id));
-  await refreshTemplateThumbnail(active, id, parsed.data.html);
+  const accentColor = parsed.data.accent?.toLowerCase() ?? active.accentColor;
+  await db.update(company).set({ template: id, accentColor, updatedAt: new Date() }).where(eq(company.id, active.id));
+  await refreshTemplateThumbnail({ ...active, accentColor }, id, parsed.data.html);
   revalidatePath("/settings/appearance");
   return { ok: true, id };
 }

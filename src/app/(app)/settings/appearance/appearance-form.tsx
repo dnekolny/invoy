@@ -58,6 +58,11 @@ export function AppearanceForm(props: { template: string; accentColor: string; l
     setLogo(data);
   }
 
+  function onSaved(r: { id: string; accent: string | null }) {
+    setTemplate(r.id);
+    if (r.accent) setAccent(r.accent);
+  }
+
   function save() {
     start(async () => {
       const r = await saveAppearanceAction({ template, accentColor: accent, logoUrl: logo });
@@ -108,8 +113,8 @@ export function AppearanceForm(props: { template: string; accentColor: string; l
           ))}
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <AiTemplateDialog premium={props.premium} aiReady={props.aiReady} />
-          {editing && <AiTemplateDialog key={editing.id} premium={props.premium} aiReady={props.aiReady} editing={editing} onClose={() => setEditing(null)} />}
+          <AiTemplateDialog premium={props.premium} aiReady={props.aiReady} onSaved={onSaved} />
+          {editing && <AiTemplateDialog key={editing.id} premium={props.premium} aiReady={props.aiReady} editing={editing} onClose={() => setEditing(null)} onSaved={onSaved} />}
         </div>
       </section>
 

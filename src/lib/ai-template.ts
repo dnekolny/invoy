@@ -26,7 +26,11 @@ Rules:
 - Always use labels.* for captions so the template works in both languages. Never hardcode Czech or English captions, company data, numbers or dates: everything comes from placeholders.
 - Must include a lines table ({{{blocks.lines}}}, {{{blocks.linesAccent}}} or your own {{#each lines}} table) and totals ({{{blocks.totals}}} or your own using totals.* and byRate; if you build your own totals, show VAT rows only inside {{#if isVatPayer}}).
 - Include {{{blocks.watermark}}} right inside .page, {{{blocks.qr}}} near the payment details, {{{blocks.intro}}}, {{{blocks.note}}} and {{{blocks.footer}}} (or your own equivalents), and {{#if logo}}<img src="{{{logo}}}">{{/if}}.
-- Use {{accent}} for the main color wherever the reference uses a brand color. Reproduce the layout, proportions, typography feel and color scheme of the picture as faithfully as practical; map the picture's content onto the placeholders instead of copying its text.`;
+- Use {{accent}} for the main color wherever the reference uses a brand color, and put <meta name="accent" content="#rrggbb"> in <head> with the dominant brand color you see in the picture (6-digit lowercase hex). Reproduce the layout, proportions, typography feel and color scheme of the picture as faithfully as practical; map the picture's content onto the placeholders instead of copying its text.`;
+
+export function templateAccent(html: string) {
+  return html.match(/<meta\s+name="accent"\s+content="(#[0-9a-f]{6})"/i)?.[1]?.toLowerCase() ?? null;
+}
 
 export async function generateInvoiceTemplate(input: { image?: { data: string; mediaType: AiImageType }; instructions?: string; previousHtml?: string }) {
   const client = new Anthropic();
