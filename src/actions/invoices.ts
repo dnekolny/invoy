@@ -11,7 +11,7 @@ import { cnbRate } from "@/lib/cnb";
 import { requireCompany } from "@/lib/company";
 import { todayIso } from "@/lib/dates";
 import { nextInvoiceNumber } from "@/lib/invoice-number";
-import { invoiceInputSchema, paymentInputSchema, type InvoiceInput, type PaymentInput } from "@/lib/invoice-schema";
+import { draftInputSchema, invoiceInputSchema, paymentInputSchema, type DraftInput, type InvoiceInput, type PaymentInput } from "@/lib/invoice-schema";
 import { getInvoiceWithLines } from "@/lib/invoices";
 import { computeLine, computeTotals, toDb } from "@/lib/money";
 import type { ActionResult } from "@/lib/validation";
@@ -37,6 +37,7 @@ async function customerSnapshot(companyId: string, customerId: string | null) {
 
 async function writeLines(invoiceId: string, lines: InvoiceInput["lines"], vatPayer: boolean) {
   await db.delete(invoiceLine).where(eq(invoiceLine.invoiceId, invoiceId));
+  if (lines.length === 0) return;
   await db.insert(invoiceLine).values(
     lines.map((l, i) => {
       const rate = vatPayer ? l.vatRate : 0;
@@ -58,10 +59,19 @@ async function writeLines(invoiceId: string, lines: InvoiceInput["lines"], vatPa
 }
 
 export async function saveInvoiceAction(id: string | null, raw: unknown): Promise<SaveResult> {
-  const active = await requireCompany();
   const parsed = invoiceInputSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, error: "invalid" };
-  const input = parsed.data;
+  return persistInvoice(id, parsed.data, false);
+}
+
+export async function autosaveDraftAction(id: string | null, raw: unknown): Promise<SaveResult> {
+  const parsed = draftInputSchema.safeParse(raw);
+  if (!parsed.success) return { ok: false, error: "invalid" };
+  return persistInvoice(id, parsed.data, true);
+}
+
+async function persistInvoice(id: string | null, input: DraftInput, draftOnly: boolean): Promise<SaveResult> {
+  const active = await requireCompany();
   const snap = await customerSnapshot(active.id, input.customerId);
   const totals = computeTotals(input.lines, active.vatPayer);
   const base = {
@@ -87,6 +97,7 @@ export async function saveInvoiceAction(id: string | null, raw: unknown): Promis
     const existing = await getInvoiceWithLines(active.id, id);
     if (!existing) return { ok: false, error: "notfound" };
     if (existing.status === "paid" || existing.status === "cancelled") return { ok: false, error: "locked" };
+    if (draftOnly && existing.status !== "draft") return { ok: false, error: "state" };
     const { type: _type, ...rest } = base;
     void _type;
     await db.update(invoice).set(existing.status === "draft" ? base : rest).where(eq(invoice.id, id));

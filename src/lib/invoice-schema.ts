@@ -25,7 +25,10 @@ export const invoiceInputSchema = z.object({
   lines: z.array(lineInputSchema).min(1),
 });
 
+export const draftInputSchema = invoiceInputSchema.extend({ lines: z.array(lineInputSchema) });
+
 export type InvoiceInput = z.infer<typeof invoiceInputSchema>;
+export type DraftInput = z.infer<typeof draftInputSchema>;
 export type LineInput = z.infer<typeof lineInputSchema>;
 
 export const paymentInputSchema = z.object({

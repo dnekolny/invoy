@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { issueInvoiceAction, saveInvoiceAction } from "@/actions/invoices";
+import { autosaveDraftAction, issueInvoiceAction, saveInvoiceAction } from "@/actions/invoices";
 import type { BankAccount, Company, Customer, Item, InvoiceType } from "@/db/schema";
 import type { InvoiceWithLines } from "@/lib/invoices";
 import { addDays, todayIso } from "@/lib/dates";
@@ -80,6 +80,9 @@ export function InvoiceEditor({ company, customers: initialCustomers, bankAccoun
   );
   const dirty = useRef(false);
   const saved = useRef(false);
+  const draftId = useRef<string | null>(invoice?.id ?? null);
+  const queue = useRef<Promise<void>>(Promise.resolve());
+  const [autosave, setAutosave] = useState<{ state: "idle" | "saving" | "saved" | "error"; at?: Date }>({ state: "idle" });
   const showPreview = useSyncExternalStore(subscribePreview, readPreview, () => false);
 
   function togglePreview(v: boolean) {
@@ -91,7 +94,7 @@ export function InvoiceEditor({ company, customers: initialCustomers, bankAccoun
 
   useEffect(() => {
     function warn(e: BeforeUnloadEvent) {
-      if (dirty.current && !saved.current) e.preventDefault();
+      if (dirty.current && !saved.current && lastSaved.current !== serializedRef.current) e.preventDefault();
     }
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
@@ -170,7 +173,8 @@ export function InvoiceEditor({ company, customers: initialCustomers, bankAccoun
       return;
     }
     start(async () => {
-      const r = await saveInvoiceAction(invoice?.id ?? null, p);
+      await queue.current;
+      const r = await saveInvoiceAction(draftId.current, p);
       if (!r.ok) {
         toast.error(r.error === "invalid" ? tc("invalid") : tc("error"));
         return;
@@ -195,6 +199,38 @@ export function InvoiceEditor({ company, customers: initialCustomers, bankAccoun
   const selectClass = "h-9 w-full rounded-lg border border-input bg-card px-2.5 text-sm outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20";
 
   const previewPayload = { ...payload(), number: invoice?.number ?? null };
+  const payloadRef = useRef(payload);
+  payloadRef.current = payload;
+  const serialized = JSON.stringify(previewPayload);
+  const serializedRef = useRef(serialized);
+  serializedRef.current = serialized;
+  const lastSaved = useRef<string | null>(invoice ? serialized : null);
+  const meaningful = Boolean(customerId) || previewPayload.lines.length > 0 || Boolean(previewPayload.intro) || Boolean(previewPayload.note);
+
+  const runAutosave = useCallback((p: ReturnType<typeof payload>, snapshot: string) => {
+    queue.current = queue.current.then(async () => {
+      if (lastSaved.current === snapshot || saved.current) return;
+      setAutosave({ state: "saving" });
+      const r = await autosaveDraftAction(draftId.current, p);
+      if (!r.ok) {
+        setAutosave({ state: "error" });
+        return;
+      }
+      lastSaved.current = snapshot;
+      setAutosave({ state: "saved", at: new Date() });
+      if (!draftId.current) {
+        draftId.current = r.id;
+        window.history.replaceState(null, "", `/invoices/${r.id}/edit`);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!isDraft || !dirty.current || !meaningful) return;
+    if (lastSaved.current === serialized) return;
+    const timer = setTimeout(() => runAutosave(payloadRef.current(), serialized), 1500);
+    return () => clearTimeout(timer);
+  }, [serialized, isDraft, meaningful, runAutosave]);
   const title = invoice ? (invoice.number ?? t("draft")) : t(type === "proforma" ? "newProforma" : "newInvoice");
 
   return (
@@ -205,11 +241,16 @@ export function InvoiceEditor({ company, customers: initialCustomers, bankAccoun
         description={invoice ? undefined : t("subtitle")}
         actions={
           <>
+            {isDraft && autosave.state !== "idle" && (
+              <span className="mr-2 text-xs text-muted-foreground" data-autosave={autosave.state}>
+                {autosave.state === "saving" ? t("autosave.saving") : autosave.state === "error" ? t("autosave.error") : t("autosave.saved", { time: autosave.at!.toLocaleTimeString(locale === "cs" ? "cs-CZ" : "en-GB", { hour: "2-digit", minute: "2-digit" }) })}
+              </span>
+            )}
             <label className="mr-2 hidden cursor-pointer items-center gap-2 text-sm text-muted-foreground xl:flex">
               {t("showPreview")}
               <Switch checked={showPreview} onCheckedChange={togglePreview} />
             </label>
-            <Button variant="ghost" nativeButton={false} render={<Link href={invoice ? `/invoices/${invoice.id}` : "/invoices"} />}>{tc("cancel")}</Button>
+            <Button variant="ghost" nativeButton={false} render={<Link href={invoice ? `/invoices/${invoice.id}` : "/invoices"} onClick={() => { saved.current = true; }} />}>{tc("cancel")}</Button>
             <Button variant="outline" disabled={pending} onClick={() => save(false)}>
               {isDraft ? t("saveDraft") : tc("save")}
             </Button>

@@ -339,7 +339,12 @@
       "apply": "Vložit do položky"
     },
     "hideQuantity": "Skrýt množství a jednotku na faktuře",
-    "showQuantity": "Zobrazit množství a jednotku na faktuře"
+    "showQuantity": "Zobrazit množství a jednotku na faktuře",
+    "autosave": {
+      "saving": "Ukládám koncept…",
+      "saved": "Koncept uložen {time}",
+      "error": "Koncept se nepodařilo uložit"
+    }
   },
   "invoiceDetail": {
     "invoice": "Faktura",
