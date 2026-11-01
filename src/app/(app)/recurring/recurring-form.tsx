@@ -104,7 +104,7 @@ export function RecurringForm({ company, customers, items, template }: Props) {
           <CardHeader><CardTitle className="text-base">{t("lines")}</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <IntroField value={intro} onChange={setIntro} />
-            <LinesEditor lines={lines} onChange={setLines} items={items} vatPayer={company.vatPayer} currency={currency} locale={locale} />
+            <LinesEditor lines={lines} onChange={setLines} items={items} vatPayer={company.vatPayer} currency={currency} locale={locale} mdRate={company.mdRate} hoursPerDay={company.hoursPerDay} />
           </CardContent>
         </Card>
         <Card>

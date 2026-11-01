@@ -8,6 +8,7 @@ import { formatMoney } from "@/lib/format";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ConfirmDelete } from "@/components/form/confirm-delete";
 import { ItemDialog } from "./item-dialog";
+import { RateForm } from "./rate-form";
 
 export default async function ItemsPage() {
   const active = await requireCompany();
@@ -16,6 +17,7 @@ export default async function ItemsPage() {
   const rows = await db.select().from(item).where(eq(item.companyId, active.id)).orderBy(asc(item.name));
   return (
     <div className="space-y-4">
+      <RateForm mdRate={active.mdRate} hoursPerDay={active.hoursPerDay} currency={active.defaultCurrency} />
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">{t("intro")}</p>
         <ItemDialog vatPayer={active.vatPayer} />

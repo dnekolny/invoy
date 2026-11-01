@@ -365,7 +365,7 @@ export function InvoiceEditor({ company, customers: initialCustomers, bankAccoun
             </CardHeader>
             <CardContent className="space-y-4">
               <IntroField value={intro} onChange={(v) => { mark(); setIntro(v); }} />
-              <LinesEditor lines={lines} onChange={(l) => { mark(); setLines(l); }} items={items} vatPayer={company.vatPayer} currency={currency} locale={locale} />
+              <LinesEditor lines={lines} onChange={(l) => { mark(); setLines(l); }} items={items} vatPayer={company.vatPayer} currency={currency} locale={locale} mdRate={company.mdRate} hoursPerDay={company.hoursPerDay} />
               {items.length === 0 && (
                 <p className="mt-3 text-xs text-muted-foreground">
                   <Link href="/settings/items" className="underline">{t("priceListHint")}</Link>

@@ -9,6 +9,7 @@ import { computeTotals } from "@/lib/money";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { UnitsDatalist, UNITS_LIST_ID } from "@/components/form/units-datalist";
+import { HoursCalculator } from "@/components/hours-calculator";
 
 export type EditorLine = { key: string; name: string; quantity: string; unit: string; unitPrice: string; vatRate: number };
 
@@ -23,9 +24,11 @@ type Props = {
   vatPayer: boolean;
   currency: string;
   locale: string;
+  mdRate: string | null;
+  hoursPerDay: number;
 };
 
-export function LinesEditor({ lines, onChange, items, vatPayer, currency, locale }: Props) {
+export function LinesEditor({ lines, onChange, items, vatPayer, currency, locale, mdRate, hoursPerDay }: Props) {
   const t = useTranslations("invoiceEditor");
   const [suggestFor, setSuggestFor] = useState<string | null>(null);
   const [highlight, setHighlight] = useState(0);
@@ -67,7 +70,7 @@ export function LinesEditor({ lines, onChange, items, vatPayer, currency, locale
     vatPayer
   );
 
-  const wide = "@3xl:grid-cols-[16px_minmax(0,1fr)_64px_64px_96px_68px_96px_28px]";
+  const wide = "@3xl:grid-cols-[16px_minmax(0,1fr)_64px_64px_96px_68px_96px_56px]";
   return (
     <div className="@container space-y-3" ref={container}>
       <UnitsDatalist />
@@ -145,7 +148,7 @@ export function LinesEditor({ lines, onChange, items, vatPayer, currency, locale
                 </ul>
               )}
             </div>
-            <div className="mt-2 grid grid-cols-[1fr_1fr_1.3fr_1fr_1.3fr_28px] items-center gap-1.5 @3xl:contents">
+            <div className="mt-2 grid grid-cols-[1fr_1fr_1.3fr_1fr_1.3fr_56px] items-center gap-1.5 @3xl:contents">
               <Input data-line={idx} data-field="qty" className="bg-card text-right" inputMode="decimal" value={l.quantity} onChange={(e) => update(l.key, { quantity: e.target.value })} onFocus={(e) => e.target.select()} aria-label={t("qty")} />
               <Input className="bg-card" value={l.unit} list={UNITS_LIST_ID} autoComplete="off" onChange={(e) => update(l.key, { unit: e.target.value })} aria-label={t("unit")} />
               <Input
@@ -184,9 +187,12 @@ export function LinesEditor({ lines, onChange, items, vatPayer, currency, locale
                 <span />
               )}
               <div className="text-right text-sm tabular-nums">{fmt.format(net.toNumber())}</div>
-              <Button type="button" variant="ghost" size="icon-sm" onClick={() => remove(l.key)} aria-label={t("removeLine")} disabled={lines.length === 1}>
-                <Trash2 />
-              </Button>
+              <div className="flex items-center justify-end">
+                <HoursCalculator mdRate={mdRate} hoursPerDay={hoursPerDay} fmt={fmt} onApply={(r) => update(l.key, r)} />
+                <Button type="button" variant="ghost" size="icon-sm" onClick={() => remove(l.key)} aria-label={t("removeLine")} disabled={lines.length === 1}>
+                  <Trash2 />
+                </Button>
+              </div>
             </div>
           </div>
         );

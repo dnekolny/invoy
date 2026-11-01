@@ -77,6 +77,8 @@ export const company = pgTable("company", {
   accentColor: text("accent_color").notNull().default("#2563eb"),
   footerText: text("footer_text"),
   premium: boolean("premium").notNull().default(false),
+  mdRate: numeric("md_rate", { precision: 14, scale: 2 }),
+  hoursPerDay: integer("hours_per_day").notNull().default(8),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

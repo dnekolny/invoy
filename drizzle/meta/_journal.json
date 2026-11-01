@@ -43,6 +43,13 @@
       "when": 1792660852325,
       "tag": "0005_template_thumbnail",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793565381017,
+      "tag": "0006_md_rate",
+      "breakpoints": true
     }
   ]
 }

@@ -155,7 +155,13 @@
     "vatRate": "VAT",
     "deleteTitle": "Delete item from price list?",
     "unitPriceNet": "Unit price excl. VAT",
-    "namePlaceholder": "E.g. Consulting"
+    "namePlaceholder": "E.g. Consulting",
+    "rate": {
+      "title": "Man-day (MD) rate",
+      "intro": "Used in the invoice editor to quickly price a line from hours worked.",
+      "mdRate": "MD rate",
+      "hoursPerDay": "Hours per MD"
+    }
   },
   "numbering": {
     "intro": "The number is assigned when the invoice is issued. Drafts have no number.",
@@ -320,7 +326,18 @@
     "preview": "Invoice preview",
     "previewHint": "Updates as you type",
     "previewUpdating": "Updating…",
-    "previewLoading": "Loading preview…"
+    "previewLoading": "Loading preview…",
+    "hours": {
+      "open": "Calculate from hours",
+      "title": "Price from hours worked",
+      "hours": "Hours worked",
+      "rate": "MD rate",
+      "perDay": "Hours per MD",
+      "modeMd": "Bill in MD",
+      "modeHours": "Bill in hours",
+      "empty": "Enter hours and a rate.",
+      "apply": "Insert into line"
+    }
   },
   "invoiceDetail": {
     "invoice": "Invoice",

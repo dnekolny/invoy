@@ -155,7 +155,13 @@
     "vatRate": "DPH",
     "deleteTitle": "Smazat položku z ceníku?",
     "unitPriceNet": "Cena / j. bez DPH",
-    "namePlaceholder": "Např. Konzultace"
+    "namePlaceholder": "Např. Konzultace",
+    "rate": {
+      "title": "Sazba za člověkoden (MD)",
+      "intro": "Použije se v editoru faktury pro rychlý výpočet ceny položky z odpracovaných hodin.",
+      "mdRate": "Sazba za MD",
+      "hoursPerDay": "Hodin v MD"
+    }
   },
   "numbering": {
     "intro": "Číslo se přidělí při vystavení faktury. Koncepty číslo nemají.",
@@ -320,7 +326,18 @@
     "preview": "Náhled faktury",
     "previewHint": "Aktualizuje se při psaní",
     "previewUpdating": "Aktualizuji…",
-    "previewLoading": "Náhled se načítá…"
+    "previewLoading": "Náhled se načítá…",
+    "hours": {
+      "open": "Spočítat z hodin",
+      "title": "Cena z odpracovaných hodin",
+      "hours": "Odpracované hodiny",
+      "rate": "Sazba za MD",
+      "perDay": "Hodin v MD",
+      "modeMd": "Fakturovat v MD",
+      "modeHours": "Fakturovat v hodinách",
+      "empty": "Zadejte hodiny a sazbu.",
+      "apply": "Vložit do položky"
+    }
   },
   "invoiceDetail": {
     "invoice": "Faktura",
