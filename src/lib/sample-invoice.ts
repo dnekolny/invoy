@@ -12,8 +12,8 @@ export async function renderSampleInvoice(active: Company, opts: SampleOptions =
   const today = new Date().toISOString().slice(0, 10);
   const vat = active.vatPayer;
   const lines: InvoiceLine[] = [
-    { id: "1", invoiceId: "x", position: 0, name: active.defaultCurrency === "EUR" ? "Consulting services" : "Konzultační služby", quantity: "8.000", unit: "hod", unitPrice: "1500.00", vatRate: vat ? 21 : 0, net: "12000.00", vat: vat ? "2520.00" : "0.00" },
-    { id: "2", invoiceId: "x", position: 1, name: active.defaultCurrency === "EUR" ? "Web hosting" : "Webhosting", quantity: "1.000", unit: "ks", unitPrice: "490.00", vatRate: vat ? 21 : 0, net: "490.00", vat: vat ? "102.90" : "0.00" },
+    { id: "1", invoiceId: "x", position: 0, name: active.defaultCurrency === "EUR" ? "Consulting services" : "Konzultační služby", quantity: "8.000", unit: "hod", unitPrice: "1500.00", vatRate: vat ? 21 : 0, net: "12000.00", vat: vat ? "2520.00" : "0.00", hideQuantity: false },
+    { id: "2", invoiceId: "x", position: 1, name: active.defaultCurrency === "EUR" ? "Web hosting" : "Webhosting", quantity: "1.000", unit: "ks", unitPrice: "490.00", vatRate: vat ? 21 : 0, net: "490.00", vat: vat ? "102.90" : "0.00", hideQuantity: false },
   ];
   const subtotal = 12490;
   const vatTotal = vat ? 2622.9 : 0;

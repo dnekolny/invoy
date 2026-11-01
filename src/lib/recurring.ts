@@ -78,7 +78,7 @@ export async function generateFromTemplate(tpl: RecurringTemplate, issueDate: st
     tpl.lines.map((l, i) => {
       const rateV = comp.vatPayer ? l.vatRate : 0;
       const { net, vat } = computeLine({ ...l, vatRate: rateV });
-      return { invoiceId: row.id, position: i, name: l.name, quantity: new Decimal(l.quantity).toFixed(3), unit: l.unit, unitPrice: toDb(l.unitPrice), vatRate: rateV, net: toDb(net), vat: toDb(vat) };
+      return { invoiceId: row.id, position: i, name: l.name, quantity: new Decimal(l.quantity).toFixed(3), unit: l.unit, unitPrice: toDb(l.unitPrice), vatRate: rateV, net: toDb(net), vat: toDb(vat), hideQuantity: l.hideQuantity ?? false };
     })
   );
   await db

@@ -1,0 +1,1 @@
+ALTER TABLE "invoice_line" ADD COLUMN "hide_quantity" boolean DEFAULT false NOT NULL;

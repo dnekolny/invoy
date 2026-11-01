@@ -337,7 +337,9 @@
       "modeHours": "Bill in hours",
       "empty": "Enter hours and a rate.",
       "apply": "Insert into line"
-    }
+    },
+    "hideQuantity": "Hide quantity and unit on the invoice",
+    "showQuantity": "Show quantity and unit on the invoice"
   },
   "invoiceDetail": {
     "invoice": "Invoice",

@@ -70,8 +70,8 @@ export function linesTable(d: TemplateData, opts: { headerBg: string; headerColo
         .map(
           (l) => `<tr>
         ${td(esc(l.name))}
-        ${td(`${num(l.quantity)} ${esc(l.unit)}`, "num")}
-        ${td(money(l.unitPrice), "num")}
+        ${td(l.hideQuantity ? "" : `${num(l.quantity)} ${esc(l.unit)}`, "num")}
+        ${td(l.hideQuantity ? "" : money(l.unitPrice), "num")}
         ${vat ? td(`${l.vatRate} %`, "num") : ""}
         ${td(money(l.net), "num")}
       </tr>`

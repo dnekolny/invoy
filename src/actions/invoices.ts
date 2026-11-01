@@ -51,6 +51,7 @@ async function writeLines(invoiceId: string, lines: InvoiceInput["lines"], vatPa
         vatRate: rate,
         net: toDb(net),
         vat: toDb(vat),
+        hideQuantity: l.hideQuantity ?? false,
       };
     })
   );

@@ -47,9 +47,10 @@ export function customContext(d: TemplateData): Ctx {
     lines: doc.lines.map((l, idx) => ({
       index: idx + 1,
       name: l.name,
-      quantity: num(l.quantity),
-      unit: l.unit,
-      unitPrice: money(l.unitPrice),
+      showQuantity: !l.hideQuantity,
+      quantity: l.hideQuantity ? "" : num(l.quantity),
+      unit: l.hideQuantity ? "" : l.unit,
+      unitPrice: l.hideQuantity ? "" : money(l.unitPrice),
       vatRate: l.vatRate,
       net: money(l.net),
       vat: money(l.vat),

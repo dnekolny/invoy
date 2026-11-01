@@ -39,12 +39,12 @@ export function RecurringForm({ company, customers, items, template }: Props) {
   const [autoIssue, setAutoIssue] = useState(template?.autoIssue ?? true);
   const [autoSend, setAutoSend] = useState(template?.autoSend ?? false);
   const [active, setActive] = useState(template?.active ?? true);
-  const [lines, setLines] = useState<EditorLine[]>(template?.lines.length ? template.lines.map((l) => newLine({ ...l })) : [newLine()]);
+  const [lines, setLines] = useState<EditorLine[]>(template?.lines.length ? template.lines.map((l) => newLine({ ...l, hideQuantity: l.hideQuantity ?? false })) : [newLine()]);
 
   function save() {
     const payload = {
       name, customerId, type, interval, nextDate, dueDays, currency, intro: intro.trim() || null, note: note.trim() || null, autoIssue, autoSend, active,
-      lines: lines.filter((l) => l.name.trim()).map((l) => ({ name: l.name, quantity: l.quantity || "1", unit: l.unit || "ks", unitPrice: l.unitPrice || "0", vatRate: l.vatRate })),
+      lines: lines.filter((l) => l.name.trim()).map((l) => ({ name: l.name, quantity: l.quantity || "1", unit: l.unit || "ks", unitPrice: l.unitPrice || "0", vatRate: l.vatRate, hideQuantity: l.hideQuantity })),
     };
     if (!payload.customerId) {
       toast.error(t("needCustomer"));

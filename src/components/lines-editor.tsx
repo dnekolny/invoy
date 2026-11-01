@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Plus, Trash2 } from "lucide-react";
+import { Eye, EyeOff, Plus, Trash2 } from "lucide-react";
 import Decimal from "decimal.js";
 import type { Item } from "@/db/schema";
 import { computeTotals } from "@/lib/money";
@@ -11,10 +11,10 @@ import { Input } from "@/components/ui/input";
 import { UnitsDatalist, UNITS_LIST_ID } from "@/components/form/units-datalist";
 import { HoursCalculator } from "@/components/hours-calculator";
 
-export type EditorLine = { key: string; name: string; quantity: string; unit: string; unitPrice: string; vatRate: number };
+export type EditorLine = { key: string; name: string; quantity: string; unit: string; unitPrice: string; vatRate: number; hideQuantity: boolean };
 
 export function newLine(partial?: Partial<EditorLine>): EditorLine {
-  return { key: Math.random().toString(36).slice(2), name: "", quantity: "1", unit: "ks", unitPrice: "", vatRate: 21, ...partial };
+  return { key: Math.random().toString(36).slice(2), name: "", quantity: "1", unit: "ks", unitPrice: "", vatRate: 21, hideQuantity: false, ...partial };
 }
 
 type Props = {
@@ -70,7 +70,7 @@ export function LinesEditor({ lines, onChange, items, vatPayer, currency, locale
     vatPayer
   );
 
-  const wide = "@3xl:grid-cols-[16px_minmax(0,1fr)_64px_64px_96px_68px_96px_56px]";
+  const wide = "@3xl:grid-cols-[16px_minmax(0,1fr)_64px_64px_96px_68px_96px_84px]";
   return (
     <div className="@container space-y-3" ref={container}>
       <UnitsDatalist />
@@ -148,11 +148,11 @@ export function LinesEditor({ lines, onChange, items, vatPayer, currency, locale
                 </ul>
               )}
             </div>
-            <div className="mt-2 grid grid-cols-[1fr_1fr_1.3fr_1fr_1.3fr_56px] items-center gap-1.5 @3xl:contents">
-              <Input data-line={idx} data-field="qty" className="bg-card text-right" inputMode="decimal" value={l.quantity} onChange={(e) => update(l.key, { quantity: e.target.value })} onFocus={(e) => e.target.select()} aria-label={t("qty")} />
-              <Input className="bg-card" value={l.unit} list={UNITS_LIST_ID} autoComplete="off" onChange={(e) => update(l.key, { unit: e.target.value })} aria-label={t("unit")} />
+            <div className="mt-2 grid grid-cols-[1fr_1fr_1.3fr_1fr_1.3fr_84px] items-center gap-1.5 @3xl:contents">
+              <Input data-line={idx} data-field="qty" className={`bg-card text-right ${l.hideQuantity ? "opacity-50" : ""}`} inputMode="decimal" value={l.quantity} onChange={(e) => update(l.key, { quantity: e.target.value })} onFocus={(e) => e.target.select()} aria-label={t("qty")} />
+              <Input className={`bg-card ${l.hideQuantity ? "opacity-50" : ""}`} value={l.unit} list={UNITS_LIST_ID} autoComplete="off" onChange={(e) => update(l.key, { unit: e.target.value })} aria-label={t("unit")} />
               <Input
-                className="bg-card text-right"
+                className={`bg-card text-right ${l.hideQuantity ? "opacity-50" : ""}`}
                 inputMode="decimal"
                 value={l.unitPrice}
                 placeholder="0"
@@ -188,6 +188,18 @@ export function LinesEditor({ lines, onChange, items, vatPayer, currency, locale
               )}
               <div className="text-right text-sm tabular-nums">{fmt.format(net.toNumber())}</div>
               <div className="flex items-center justify-end">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  className={l.hideQuantity ? "text-primary" : ""}
+                  onClick={() => update(l.key, { hideQuantity: !l.hideQuantity })}
+                  aria-label={l.hideQuantity ? t("showQuantity") : t("hideQuantity")}
+                  title={l.hideQuantity ? t("showQuantity") : t("hideQuantity")}
+                  aria-pressed={l.hideQuantity}
+                >
+                  {l.hideQuantity ? <EyeOff /> : <Eye />}
+                </Button>
                 <HoursCalculator mdRate={mdRate} hoursPerDay={hoursPerDay} fmt={fmt} onApply={(r) => update(l.key, r)} />
                 <Button type="button" variant="ghost" size="icon-sm" onClick={() => remove(l.key)} aria-label={t("removeLine")} disabled={lines.length === 1}>
                   <Trash2 />

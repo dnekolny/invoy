@@ -69,7 +69,7 @@ export async function POST(req: Request) {
   const docLines: InvoiceLine[] = lines.map((l, i) => {
     const rate = active.vatPayer ? l.vatRate : 0;
     const { net, vat } = computeLine({ ...l, vatRate: rate });
-    return { id: String(i), invoiceId: "preview", position: i, name: l.name, quantity: Number(l.quantity).toFixed(3), unit: l.unit, unitPrice: toDb(l.unitPrice), vatRate: rate, net: toDb(net), vat: toDb(vat) };
+    return { id: String(i), invoiceId: "preview", position: i, name: l.name, quantity: Number(l.quantity).toFixed(3), unit: l.unit, unitPrice: toDb(l.unitPrice), vatRate: rate, net: toDb(net), vat: toDb(vat), hideQuantity: l.hideQuantity ?? false };
   });
   const html = await renderInvoiceHtml({ company: active, invoice: inv, lines: docLines, bank });
   return new Response(html, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });

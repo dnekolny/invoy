@@ -8,6 +8,7 @@ export const lineInputSchema = z.object({
   unit: z.string().trim().max(20).default("ks"),
   unitPrice: z.string().trim().regex(/^-?\d+([.,]\d{1,2})?$/).transform((v) => v.replace(",", ".")),
   vatRate: vatRateSchema,
+  hideQuantity: z.boolean().optional().default(false),
 });
 
 export const invoiceInputSchema = z.object({

@@ -50,6 +50,13 @@
       "when": 1793565381017,
       "tag": "0006_md_rate",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793566950874,
+      "tag": "0007_hide_quantity",
+      "breakpoints": true
     }
   ]
 }

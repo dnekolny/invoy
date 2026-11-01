@@ -217,6 +217,7 @@ export const invoiceLine = pgTable("invoice_line", {
   vatRate: integer("vat_rate").notNull().default(0),
   net: numeric("net", { precision: 14, scale: 2 }).notNull().default("0"),
   vat: numeric("vat", { precision: 14, scale: 2 }).notNull().default("0"),
+  hideQuantity: boolean("hide_quantity").notNull().default(false),
 });
 
 export const payment = pgTable("payment", {
@@ -283,7 +284,7 @@ export const emailLog = pgTable("email_log", {
   sentAt: timestamp("sent_at").notNull().defaultNow(),
 });
 
-export type RecurringLine = { name: string; quantity: string; unit: string; unitPrice: string; vatRate: number };
+export type RecurringLine = { name: string; quantity: string; unit: string; unitPrice: string; vatRate: number; hideQuantity?: boolean };
 
 export const recurringTemplate = pgTable("recurring_template", {
   id: uuid("id").primaryKey().defaultRandom(),

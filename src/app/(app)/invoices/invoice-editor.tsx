@@ -75,7 +75,7 @@ export function InvoiceEditor({ company, customers: initialCustomers, bankAccoun
   const [note, setNote] = useState(invoice?.note ?? "");
   const [lines, setLines] = useState<EditorLine[]>(
     invoice?.lines.length
-      ? invoice.lines.map((l) => newLine({ name: l.name, quantity: trimNum(l.quantity), unit: l.unit, unitPrice: trimNum(l.unitPrice), vatRate: l.vatRate }))
+      ? invoice.lines.map((l) => newLine({ name: l.name, quantity: trimNum(l.quantity), unit: l.unit, unitPrice: trimNum(l.unitPrice), vatRate: l.vatRate, hideQuantity: l.hideQuantity }))
       : [newLine()]
   );
   const dirty = useRef(false);
@@ -150,7 +150,7 @@ export function InvoiceEditor({ company, customers: initialCustomers, bankAccoun
       note: note.trim() || null,
       lines: lines
         .filter((l) => l.name.trim())
-        .map((l) => ({ name: l.name, quantity: l.quantity || "1", unit: l.unit || "ks", unitPrice: l.unitPrice || "0", vatRate: l.vatRate })),
+        .map((l) => ({ name: l.name, quantity: l.quantity || "1", unit: l.unit || "ks", unitPrice: l.unitPrice || "0", vatRate: l.vatRate, hideQuantity: l.hideQuantity })),
     };
   }
 

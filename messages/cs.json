@@ -337,7 +337,9 @@
       "modeHours": "Fakturovat v hodinách",
       "empty": "Zadejte hodiny a sazbu.",
       "apply": "Vložit do položky"
-    }
+    },
+    "hideQuantity": "Skrýt množství a jednotku na faktuře",
+    "showQuantity": "Zobrazit množství a jednotku na faktuře"
   },
   "invoiceDetail": {
     "invoice": "Faktura",
