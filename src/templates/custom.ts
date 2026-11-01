@@ -44,6 +44,7 @@ export function customContext(d: TemplateData): Ctx {
       iban: d.iban ? d.iban.replace(/(.{4})/g, "$1 ").trim() : "",
       swift: doc.bank?.swift ?? "",
     },
+    showQuantityColumns: doc.lines.some((l) => !l.hideQuantity),
     lines: doc.lines.map((l, idx) => ({
       index: idx + 1,
       name: l.name,

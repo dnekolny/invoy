@@ -59,19 +59,19 @@ export function countryName(code: string, lang: "cs" | "en") {
 export function linesTable(d: TemplateData, opts: { headerBg: string; headerColor: string; border: string }) {
   const { t, doc, money, num } = d;
   const vat = doc.invoice.vatPayer;
+  const qty = doc.lines.some((l) => !l.hideQuantity);
   const th = (s: string, cls = "") => `<th class="${cls}" style="padding:7px 8px;font-size:8.5pt;text-transform:uppercase;letter-spacing:.05em;font-weight:600;background:${opts.headerBg};color:${opts.headerColor};text-align:${cls.includes("num") ? "right" : "left"}">${s}</th>`;
   const td = (s: string, cls = "") => `<td class="${cls}" style="padding:7px 8px;border-bottom:1px solid ${opts.border};vertical-align:top">${s}</td>`;
   return `<table>
     <thead><tr>
-      ${th(t.item)}${th(t.qty, "num")}${th(t.unitPrice, "num")}${vat ? th(t.vat, "num") : ""}${th(vat ? t.net : t.total, "num")}
+      ${th(t.item)}${qty ? th(t.qty, "num") + th(t.unitPrice, "num") : ""}${vat ? th(t.vat, "num") : ""}${th(vat ? t.net : t.total, "num")}
     </tr></thead>
     <tbody>
       ${doc.lines
         .map(
           (l) => `<tr>
         ${td(esc(l.name))}
-        ${td(l.hideQuantity ? "" : `${num(l.quantity)} ${esc(l.unit)}`, "num")}
-        ${td(l.hideQuantity ? "" : money(l.unitPrice), "num")}
+        ${qty ? td(l.hideQuantity ? "" : `${num(l.quantity)} ${esc(l.unit)}`, "num") + td(l.hideQuantity ? "" : money(l.unitPrice), "num") : ""}
         ${vat ? td(`${l.vatRate} %`, "num") : ""}
         ${td(money(l.net), "num")}
       </tr>`

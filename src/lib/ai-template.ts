@@ -11,7 +11,7 @@ const SYSTEM = `You convert a picture of an invoice into an HTML invoice templat
 
 Template language (Mustache-like):
 - {{path}} inserts an HTML-escaped value, {{{path}}} inserts raw HTML (use for blocks.*, *Html and logo/qr data URLs).
-- {{#if path}}...{{else}}...{{/if}} and {{#each lines}}...{{/each}} (inside each: {{index}}, {{name}}, {{quantity}}, {{unit}}, {{unitPrice}}, {{vatRate}}, {{net}}, {{vat}}, {{total}}, showQuantity; when showQuantity is false the line hides its quantity, unit and unit price and these values are empty strings, so render those cells empty rather than inventing content).
+- {{#if path}}...{{else}}...{{/if}} and {{#each lines}}...{{/each}} (inside each: {{index}}, {{name}}, {{quantity}}, {{unit}}, {{unitPrice}}, {{vatRate}}, {{net}}, {{vat}}, {{total}}, showQuantity; when showQuantity is false the line hides its quantity, unit and unit price and these values are empty strings, so render those cells empty rather than inventing content). Top-level showQuantityColumns is false when every line hides them: wrap the quantity and unit price column headers and cells in {{#if showQuantityColumns}}...{{/if}} so the columns disappear entirely.
 
 Available values (already formatted and localized, cs or en):
 title (Faktura / Zálohová faktura), lang, isProforma, isVatPayer, isTaxDoc, number, variableSymbol, currency, issueDate, taxDate, dueDate,
