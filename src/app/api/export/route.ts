@@ -7,21 +7,23 @@ const HEADERS = ["Číslo", "Typ", "Stav", "Odběratel", "IČO", "DIČ", "Vystav
 export async function GET(req: Request) {
   const active = await requireCompany();
   const url = new URL(req.url);
-  const year = Number(url.searchParams.get("year")) || new Date().getFullYear();
+  const yearParam = url.searchParams.get("year");
+  const year = yearParam && yearParam !== "all" ? Number(yearParam) || undefined : undefined;
+  const ids = url.searchParams.get("ids")?.split(",").filter(Boolean);
   const format = url.searchParams.get("format") === "csv" ? "csv" : "xlsx";
-  const rows = (await listInvoices(active.id, { year })).filter((r) => r.status !== "draft");
+  const rows = (await listInvoices(active.id, ids ? {} : { year })).filter((r) => r.status !== "draft" && (!ids || ids.includes(r.id)));
   const data = rows.map((r) => [
     r.number ?? "", r.type === "proforma" ? "Zálohová" : "Faktura", effectiveStatus(r), r.customerName, r.customerIco ?? "", r.customerDic ?? "",
     r.issueDate, r.taxDate ?? "", r.dueDate, r.currency, Number(r.subtotal), Number(r.vatTotal), Number(r.total), Number(r.paidAmount), r.paidAt ?? "",
     r.exchangeRate ? Number(r.exchangeRate) : "", r.variableSymbol ?? "",
   ]);
-  const name = `faktury-${year}`;
+  const name = ids ? "faktury-vyber" : year ? `faktury-${year}` : "faktury-vse";
   if (format === "csv") {
     const csv = [HEADERS, ...data].map((row) => row.map((v) => (typeof v === "number" ? String(v).replace(".", ",") : `"${String(v).replace(/"/g, '""')}"`)).join(";")).join("\r\n");
     return new Response("﻿" + csv, { headers: { "content-type": "text/csv; charset=utf-8", "content-disposition": `attachment; filename="${name}.csv"` } });
   }
   const wb = new ExcelJS.Workbook();
-  const ws = wb.addWorksheet(String(year));
+  const ws = wb.addWorksheet(year ? String(year) : "Faktury");
   ws.addRow(HEADERS).font = { bold: true };
   for (const row of data) ws.addRow(row);
   ws.columns.forEach((c, i) => { c.width = i === 3 ? 32 : 14; });

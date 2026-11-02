@@ -1,10 +1,11 @@
 "use server";
 
 import { randomBytes } from "node:crypto";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import Decimal from "decimal.js";
+import { z } from "zod";
 import { db } from "@/db";
 import { customer, invoice, invoiceLine, payment, type InvoiceStatus } from "@/db/schema";
 import { cnbRate } from "@/lib/cnb";
@@ -252,4 +253,36 @@ async function recomputePaid(invoiceId: string) {
     .update(invoice)
     .set({ paidAmount: toDb(paid), paidAt: fullyPaid ? agg.last : null, status, updatedAt: new Date() })
     .where(eq(invoice.id, invoiceId));
+}
+
+const bulkIdsSchema = z.array(z.string().uuid()).min(1).max(200);
+type BulkResult = { ok: true; done: number; skipped: number } | { ok: false; error: string };
+
+export async function bulkMarkPaidAction(rawIds: unknown, date: string): Promise<BulkResult> {
+  const active = await requireCompany();
+  const ids = bulkIdsSchema.safeParse(rawIds);
+  if (!ids.success || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return { ok: false, error: "invalid" };
+  const rows = await db.select().from(invoice).where(and(eq(invoice.companyId, active.id), inArray(invoice.id, ids.data)));
+  let done = 0;
+  for (const inv of rows) {
+    const remaining = new Decimal(inv.total).minus(inv.paidAmount);
+    if ((inv.status !== "issued" && inv.status !== "sent") || remaining.lte(0)) continue;
+    await db.insert(payment).values({ invoiceId: inv.id, date, amount: toDb(remaining), note: null });
+    await recomputePaid(inv.id);
+    done++;
+  }
+  revalidatePath("/invoices");
+  return { ok: true, done, skipped: ids.data.length - done };
+}
+
+export async function bulkDeleteDraftsAction(rawIds: unknown): Promise<BulkResult> {
+  const active = await requireCompany();
+  const ids = bulkIdsSchema.safeParse(rawIds);
+  if (!ids.success) return { ok: false, error: "invalid" };
+  const deleted = await db
+    .delete(invoice)
+    .where(and(eq(invoice.companyId, active.id), eq(invoice.status, "draft"), inArray(invoice.id, ids.data)))
+    .returning({ id: invoice.id });
+  revalidatePath("/invoices");
+  return { ok: true, done: deleted.length, skipped: ids.data.length - deleted.length };
 }

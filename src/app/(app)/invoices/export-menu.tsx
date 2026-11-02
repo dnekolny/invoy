@@ -17,6 +17,8 @@ export function ExportMenu({ year }: { year?: number }) {
       <DropdownMenuContent align="end">
         <DropdownMenuItem render={<a href={`/api/export?year=${y}&format=xlsx`} />}>{t("exportXlsx", { year: y })}</DropdownMenuItem>
         <DropdownMenuItem render={<a href={`/api/export?year=${y}&format=csv`} />}>{t("exportCsv", { year: y })}</DropdownMenuItem>
+        <DropdownMenuItem render={<a href="/api/export?year=all&format=xlsx" />}>{t("exportXlsxAll")}</DropdownMenuItem>
+        <DropdownMenuItem render={<a href="/api/export?year=all&format=csv" />}>{t("exportCsvAll")}</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

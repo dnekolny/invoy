@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
@@ -9,8 +9,9 @@ import { requireCompany } from "@/lib/company";
 import { encrypt } from "@/lib/crypto";
 import { sendWithChannel, transportFor } from "@/lib/invoice-mail";
 import { getInvoiceDocument, getInvoiceWithLines } from "@/lib/invoices";
-import { parseReminderDays } from "@/lib/mail-templates";
-import { htmlToPdf } from "@/lib/pdf";
+import { mailContext } from "@/lib/mail-context";
+import { fillTemplate, parseReminderDays } from "@/lib/mail-templates";
+import { htmlsToPdf, htmlToPdf } from "@/lib/pdf";
 import { sendReminder } from "@/lib/reminders";
 import { invoiceFileName, renderInvoiceHtml } from "@/templates";
 import { formToObject, type ActionResult } from "@/lib/validation";
@@ -130,4 +131,55 @@ export async function sendReminderAction(id: string, raw: unknown): Promise<Acti
   }
   revalidatePath(`/invoices/${id}`);
   return { ok: true };
+}
+
+const bulkSendSchema = z.object({
+  ids: z.array(z.string().uuid()).min(1).max(100),
+  subject: z.string().trim().min(1),
+  body: z.string().trim().min(1),
+  copyToMe: z.boolean().optional(),
+});
+
+export type BulkSendResult = { ok: true; sent: number; skipped: number; failed: { number: string; error: string }[] } | { ok: false; error: string };
+
+export async function bulkSendInvoicesAction(raw: unknown): Promise<BulkSendResult> {
+  const active = await requireCompany();
+  const parsed = bulkSendSchema.safeParse(raw);
+  if (!parsed.success) return { ok: false, error: "invalid" };
+  const [ch] = await db.select().from(emailChannel).where(eq(emailChannel.companyId, active.id)).limit(1);
+  if (!ch) return { ok: false, error: "nochannel" };
+  const rows = await db
+    .select()
+    .from(invoice)
+    .where(and(eq(invoice.companyId, active.id), inArray(invoice.id, parsed.data.ids)))
+    .orderBy(asc(invoice.issueDate));
+  const targets = rows.filter((inv) => inv.status !== "draft" && inv.status !== "cancelled" && inv.customerEmail);
+  const docs = await Promise.all(targets.map((inv) => getInvoiceDocument(inv)));
+  const pdfs = await htmlsToPdf(await Promise.all(docs.map((doc) => renderInvoiceHtml(doc))));
+  const failed: { number: string; error: string }[] = [];
+  for (const [i, inv] of targets.entries()) {
+    const ctx = mailContext(inv, active.name);
+    const subject = fillTemplate(parsed.data.subject, ctx);
+    const to = inv.customerEmail!;
+    try {
+      await sendWithChannel(ch, {
+        to,
+        subject,
+        text: fillTemplate(parsed.data.body, ctx),
+        bcc: parsed.data.copyToMe ? ch.fromEmail : undefined,
+        attachments: [{ filename: invoiceFileName(docs[i]), content: Buffer.from(pdfs[i]), contentType: "application/pdf" }],
+      });
+      await db.insert(emailLog).values({ invoiceId: inv.id, to, subject, status: "sent" });
+      await db
+        .update(invoice)
+        .set({ sentAt: new Date(), status: inv.status === "issued" ? "sent" : inv.status, updatedAt: new Date() })
+        .where(eq(invoice.id, inv.id));
+    } catch (e) {
+      const msg = (e as Error).message.slice(0, 300);
+      await db.insert(emailLog).values({ invoiceId: inv.id, to, subject, status: "error", error: msg });
+      failed.push({ number: inv.number ?? "", error: msg });
+    }
+  }
+  revalidatePath("/invoices");
+  return { ok: true, sent: targets.length - failed.length, skipped: rows.length - targets.length, failed };
 }

@@ -13,16 +13,25 @@ async function launch(): Promise<Browser> {
   });
 }
 
-export async function htmlToPdf(html: string): Promise<Uint8Array> {
+export async function htmlsToPdf(htmls: string[]): Promise<Uint8Array[]> {
   const browser = await launch();
   try {
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: "load", timeout: 20000 });
-    await page.evaluate(() => (document as unknown as { fonts: { ready: Promise<unknown> } }).fonts.ready);
-    return await page.pdf({ format: "A4", printBackground: true, preferCSSPageSize: true });
+    const out: Uint8Array[] = [];
+    for (const html of htmls) {
+      const page = await browser.newPage();
+      await page.setContent(html, { waitUntil: "load", timeout: 20000 });
+      await page.evaluate(() => (document as unknown as { fonts: { ready: Promise<unknown> } }).fonts.ready);
+      out.push(await page.pdf({ format: "A4", printBackground: true, preferCSSPageSize: true }));
+      await page.close();
+    }
+    return out;
   } finally {
     await browser.close();
   }
+}
+
+export async function htmlToPdf(html: string): Promise<Uint8Array> {
+  return (await htmlsToPdf([html]))[0];
 }
 
 export async function htmlToJpeg(html: string, width: number): Promise<Uint8Array> {

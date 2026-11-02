@@ -11,8 +11,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { StatusBadge } from "@/components/status-badge";
 import { LinkRow } from "@/components/link-row";
 import { PageHeader, Panel } from "@/components/page-header";
+import { db } from "@/db";
+import { emailChannel } from "@/db/schema";
+import { eq } from "drizzle-orm";
 import { InvoiceFilters } from "./invoice-filters";
 import { ExportMenu } from "./export-menu";
+import { HeaderCheckbox, RowCheckbox, SelectionProvider, type SelectableRow } from "./selection";
+import { BulkBar } from "./bulk-bar";
+
+export const maxDuration = 120;
 
 type Search = { filter?: string; type?: string; q?: string; year?: string };
 const FILTERS: InvoiceFilter[] = ["all", "unpaid", "overdue", "paid", "draft"];
@@ -25,7 +32,13 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
   const filter = (FILTERS.includes(sp.filter as InvoiceFilter) ? sp.filter : "all") as InvoiceFilter;
   const type = (["invoice", "proforma"].includes(sp.type ?? "") ? sp.type : "all") as InvoiceType | "all";
   const year = sp.year ? Number(sp.year) : undefined;
-  const rows = await listInvoices(active.id, { filter, type, q: sp.q, year });
+  const [rows, [channel]] = await Promise.all([listInvoices(active.id, { filter, type, q: sp.q, year }), db.select().from(emailChannel).where(eq(emailChannel.companyId, active.id)).limit(1)]);
+  const selectable: SelectableRow[] = rows.map((r) => ({
+    id: r.id,
+    status: r.status,
+    hasEmail: Boolean(r.customerEmail),
+    payable: (r.status === "issued" || r.status === "sent") && Number(r.total) - Number(r.paidAmount) > 0,
+  }));
   const totals = rows.reduce(
     (acc, r) => {
       if (r.status !== "cancelled" && r.status !== "draft") acc[r.currency] = (acc[r.currency] ?? 0) + Number(r.total);
@@ -70,10 +83,13 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
           )}
         </div>
       ) : (
+        <SelectionProvider rows={selectable}>
         <Panel className="overflow-hidden">
+          <BulkBar hasChannel={Boolean(channel)} templates={{ subject: channel?.subjectTemplate ?? null, body: channel?.bodyTemplate ?? null }} />
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-8 pr-0"><HeaderCheckbox /></TableHead>
                 <TableHead>{t("number")}</TableHead>
                 <TableHead>{t("customer")}</TableHead>
                 <TableHead>{t("issueDate")}</TableHead>
@@ -89,6 +105,7 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
                 const remaining = Number(r.total) - Number(r.paidAmount);
                 return (
                   <LinkRow key={r.id} href={`/invoices/${r.id}`}>
+                    <TableCell className="w-8 pr-0"><RowCheckbox id={r.id} /></TableCell>
                     <TableCell>
                       <Link href={`/invoices/${r.id}`} className="font-medium hover:underline">
                         {r.number ?? <span className="text-muted-foreground">{t("draftNo")}</span>}
@@ -118,6 +135,7 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
             {t("countRows", { n: rows.length })} · {t("sum")}: {Object.entries(totals).map(([c, v]) => formatMoney(v, c, locale)).join(" + ") || "—"}
           </p>
         </Panel>
+        </SelectionProvider>
       )}
     </div>
   );
