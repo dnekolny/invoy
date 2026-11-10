@@ -176,6 +176,7 @@ export function EmailChannelForm({ channel, defaults }: { channel: EmailChannel 
         <CheckboxField name="remindersEnabled" label={t("remindersEnabled")} checked={remindersEnabled} onChange={setRemindersEnabled} />
         <div className="space-y-1.5">
           <Field label={t("reminderDays")} name="reminderDays" value={reminderDays} onChange={(e) => setReminderDays(e.target.value)} placeholder="3,10,20" disabled={!remindersEnabled} className="sm:max-w-xs" />
+          {!remindersEnabled && <input type="hidden" name="reminderDays" value={reminderDays} />}
           <div className="flex flex-wrap gap-1">
             {["3,10,20", "7,14", "1,7,14,30"].map((p) => (
               <button key={p} type="button" disabled={!remindersEnabled} onClick={() => setReminderDays(p)} className="rounded-md border bg-muted/60 px-2 py-0.5 font-mono text-xs hover:bg-muted disabled:opacity-50">

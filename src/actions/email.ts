@@ -40,7 +40,8 @@ export async function saveEmailChannelAction(fd: FormData): Promise<ActionResult
   const active = await requireCompany();
   const parsed = channelSchema.safeParse(formToObject(fd));
   if (!parsed.success) return { ok: false, error: "invalid" };
-  const { password, ...data } = parsed.data;
+  const { password: rawPassword, ...data } = parsed.data;
+  const password = data.preset === "gmail" ? rawPassword?.replace(/\s+/g, "") : rawPassword;
   const [existing] = await db.select().from(emailChannel).where(eq(emailChannel.companyId, active.id)).limit(1);
   if (!existing && !password) return { ok: false, error: "password" };
   const passwordEnc = password ? encrypt(password) : existing!.passwordEnc;
