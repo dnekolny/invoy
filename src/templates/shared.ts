@@ -141,7 +141,8 @@ export function noteBlock(d: TemplateData) {
 
 export function qrBlock(d: TemplateData) {
   if (!d.qr) return "";
-  return `<div style="text-align:center"><img src="${d.qr}" alt="QR" style="width:30mm;height:30mm;display:block;margin:0 auto 3px"><div class="small muted">${d.t.qr}</div></div>`;
+  const size = d.qrF ? "42mm" : "30mm";
+  return `<div style="text-align:center;margin-top:4mm"><img src="${d.qr}" alt="QR" style="width:${size};height:${size};display:block;margin:0 auto 3px"><div class="small muted">${d.t.qr}</div></div>`;
 }
 
 export function watermark(d: TemplateData) {

@@ -15,6 +15,7 @@ export type TemplateData = {
   date: (iso: string | null | undefined) => string;
   iban: string | null;
   qr: string | null;
+  qrF: boolean;
   byRate: { rate: number; base: Decimal; vat: Decimal }[];
   remaining: Decimal;
   accent: string;
@@ -42,10 +43,12 @@ export async function buildTemplateData(doc: InvoiceDocument, opts?: { template?
   const iban = doc.bank ? resolveIban(doc.bank) : null;
   const remaining = new Decimal(doc.invoice.total).minus(doc.invoice.paidAmount);
   let qr: string | null = null;
+  let qrF = false;
   const { byRate } = computeTotals(doc.lines, doc.invoice.vatPayer);
   if (iban && remaining.gt(0) && doc.invoice.status !== "cancelled") {
     const inv = doc.invoice;
     const withInvoice = doc.company.qrType === "spayd_f" && Boolean(inv.number);
+    qrF = withInvoice;
     const payload = spayd({
       iban,
       bic: doc.bank?.swift,
@@ -73,10 +76,10 @@ export async function buildTemplateData(doc: InvoiceDocument, opts?: { template?
           })
         : null,
     });
-    qr = await QRCode.toDataURL(payload, { margin: 0, width: 220, errorCorrectionLevel: "M" });
+    qr = await QRCode.toDataURL(payload, { margin: 0, width: withInvoice ? 400 : 220, errorCorrectionLevel: "M" });
   }
   const title = doc.invoice.type === "proforma" ? t.proforma : t.invoice;
   const watermark = doc.invoice.status === "cancelled" ? t.cancelled : doc.invoice.status === "draft" ? t.draft : null;
   void opts;
-  return { t, lang, doc, title, money, num, date, iban, qr, byRate, remaining, accent: doc.company.accentColor, logo: doc.company.logoUrl, watermark };
+  return { t: qrF ? { ...t, qr: t.qrF } : t, qrF, lang, doc, title, money, num, date, iban, qr, byRate, remaining, accent: doc.company.accentColor, logo: doc.company.logoUrl, watermark };
 }
