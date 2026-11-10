@@ -14,15 +14,17 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { ScaledPage } from "@/components/scaled-page";
 import { LoadingBar } from "@/components/loading-bar";
+import type { QrType } from "@/db/schema";
 
 const COLORS = ["#2563eb", "#0f766e", "#7c3aed", "#db2777", "#ea580c", "#16a34a", "#0891b2", "#1f2937"];
 
 type CustomTemplateRow = { id: string; name: string; thumbnailUrl: string | null };
 
-export function AppearanceForm(props: { template: string; accentColor: string; logoUrl: string | null; customTemplates: CustomTemplateRow[]; premium: boolean; aiReady: boolean }) {
+export function AppearanceForm(props: { template: string; accentColor: string; logoUrl: string | null; qrType: QrType; customTemplates: CustomTemplateRow[]; premium: boolean; aiReady: boolean }) {
   const t = useTranslations("appearance");
   const tc = useTranslations("common");
   const [template, setTemplate] = useState(props.template);
+  const [qrType, setQrType] = useState<QrType>(props.qrType);
   const [editing, setEditing] = useState<CustomTemplateRow | null>(null);
   const [removing, startRemove] = useTransition();
 
@@ -38,7 +40,7 @@ export function AppearanceForm(props: { template: string; accentColor: string; l
   const [pending, start] = useTransition();
   const [html, setHtml] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(true);
-  const previewKey = JSON.stringify({ template, accent, logo });
+  const previewKey = JSON.stringify({ template, accent, logo, qrType });
   const latest = useRef(previewKey);
 
   useEffect(() => {
@@ -46,14 +48,14 @@ export function AppearanceForm(props: { template: string; accentColor: string; l
     const timer = setTimeout(async () => {
       setPreviewLoading(true);
       try {
-        const res = await fetch("/api/preview-sample", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ template, accent, logoUrl: logo }) });
+        const res = await fetch("/api/preview-sample", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ template, accent, logoUrl: logo, qrType }) });
         if (res.ok && latest.current === previewKey) setHtml(await res.text());
       } finally {
         if (latest.current === previewKey) setPreviewLoading(false);
       }
     }, 300);
     return () => clearTimeout(timer);
-  }, [previewKey, template, accent, logo]);
+  }, [previewKey, template, accent, logo, qrType]);
 
   async function onLogo(file: File | undefined) {
     if (!file) return;
@@ -72,7 +74,7 @@ export function AppearanceForm(props: { template: string; accentColor: string; l
 
   function save() {
     start(async () => {
-      const r = await saveAppearanceAction({ template, accentColor: accent, logoUrl: logo });
+      const r = await saveAppearanceAction({ template, accentColor: accent, logoUrl: logo, qrType });
       if (!r.ok) {
         toast.error(tc("error"));
         return;
@@ -159,6 +161,21 @@ export function AppearanceForm(props: { template: string; accentColor: string; l
           </div>
         </div>
         <p className="text-xs text-muted-foreground">{t("logoHint")}</p>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-base font-medium">{t("qr.title")}</h2>
+        <div className="grid gap-2 sm:grid-cols-2" role="radiogroup">
+          {(["spayd", "spayd_f"] as const).map((q) => (
+            <label key={q} className={cn("flex cursor-pointer gap-3 rounded-lg border-2 p-3 text-sm transition-colors", qrType === q ? "border-primary" : "border-border hover:border-muted-foreground/40")}>
+              <input type="radio" name="qrType" value={q} checked={qrType === q} onChange={() => setQrType(q)} className="mt-0.5 size-4 accent-primary" />
+              <span>
+                <span className="block font-medium">{t(`qr.${q}`)}</span>
+                <span className="block text-xs text-muted-foreground">{t(`qr.${q}Desc`)}</span>
+              </span>
+            </label>
+          ))}
+        </div>
       </section>
 
       <div className="flex items-center gap-3">

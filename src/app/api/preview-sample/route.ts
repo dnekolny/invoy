@@ -7,8 +7,8 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const body = (await req.json().catch(() => ({}))) as { template?: string; accent?: string; logoUrl?: string | null; customHtml?: string };
-  return render({ template: body.template ?? null, accent: body.accent ?? null, logoUrl: body.logoUrl, customHtml: body.customHtml });
+  const body = (await req.json().catch(() => ({}))) as { template?: string; accent?: string; logoUrl?: string | null; customHtml?: string; qrType?: string };
+  return render({ template: body.template ?? null, accent: body.accent ?? null, logoUrl: body.logoUrl, customHtml: body.customHtml, qrType: body.qrType });
 }
 
 async function render(opts: Parameters<typeof renderSampleInvoice>[1]) {

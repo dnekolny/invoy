@@ -578,6 +578,13 @@
         "ai": "Generování se nezdařilo. Zkuste to prosím znovu."
       },
       "dropHintOptional": "Volitelně nahrajte nový obrázek jako předlohu (PNG, JPG, WebP)"
+    },
+    "qr": {
+      "title": "QR kód na faktuře",
+      "spayd": "QR Platba",
+      "spaydDesc": "Jen platební údaje. Načte ho každá bankovní aplikace.",
+      "spayd_f": "QR Platba+F",
+      "spayd_fDesc": "Platba i údaje faktury (číslo, data, IČO, DPH) pro automatické zpracování v účetnictví. Banky ho načtou stejně jako QR Platbu."
     }
   },
   "recurring": {

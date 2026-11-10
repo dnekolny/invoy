@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { z } from "zod";
 import { db } from "@/db";
-import { company, customTemplate } from "@/db/schema";
+import { company, customTemplate, QR_TYPES } from "@/db/schema";
 import { requireCompany } from "@/lib/company";
 import { refreshAllTemplateThumbnails } from "@/lib/template-thumbnail";
 import type { ActionResult } from "@/lib/validation";
@@ -13,6 +13,7 @@ import type { ActionResult } from "@/lib/validation";
 const schema = z.object({
   template: z.string().min(1).max(40),
   accentColor: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+  qrType: z.enum(QR_TYPES),
   logoUrl: z.string().max(400_000).regex(/^data:image\/(png|jpeg|webp|svg\+xml);base64,/).nullable(),
 });
 

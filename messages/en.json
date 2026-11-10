@@ -578,6 +578,13 @@
         "ai": "Generation failed. Please try again."
       },
       "dropHintOptional": "Optionally upload a new reference image (PNG, JPG, WebP)"
+    },
+    "qr": {
+      "title": "QR code on the invoice",
+      "spayd": "QR Platba",
+      "spaydDesc": "Payment details only. Every Czech banking app reads it.",
+      "spayd_f": "QR Platba+F",
+      "spayd_fDesc": "Payment plus invoice data (number, dates, IDs, VAT) for automatic processing in accounting. Banks read it just like QR Platba."
     }
   },
   "recurring": {

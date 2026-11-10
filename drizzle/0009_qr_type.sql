@@ -1,0 +1,1 @@
+ALTER TABLE "company" ADD COLUMN "qr_type" text DEFAULT 'spayd' NOT NULL;

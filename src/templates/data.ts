@@ -1,7 +1,7 @@
 import Decimal from "decimal.js";
 import QRCode from "qrcode";
 import type { InvoiceDocument } from "@/lib/invoices";
-import { resolveIban, spayd } from "@/lib/bank";
+import { qrInvoice, resolveIban, spayd } from "@/lib/bank";
 import { computeTotals } from "@/lib/money";
 import { labels, type Labels, type TemplateId } from "./labels";
 
@@ -42,7 +42,10 @@ export async function buildTemplateData(doc: InvoiceDocument, opts?: { template?
   const iban = doc.bank ? resolveIban(doc.bank) : null;
   const remaining = new Decimal(doc.invoice.total).minus(doc.invoice.paidAmount);
   let qr: string | null = null;
+  const { byRate } = computeTotals(doc.lines, doc.invoice.vatPayer);
   if (iban && remaining.gt(0) && doc.invoice.status !== "cancelled") {
+    const inv = doc.invoice;
+    const withInvoice = doc.company.qrType === "spayd_f" && Boolean(inv.number);
     const payload = spayd({
       iban,
       bic: doc.bank?.swift,
@@ -51,10 +54,27 @@ export async function buildTemplateData(doc: InvoiceDocument, opts?: { template?
       vs: doc.invoice.variableSymbol,
       message: `${doc.invoice.type === "proforma" ? t.proforma : t.invoice} ${doc.invoice.number ?? ""}`.trim(),
       dueDate: doc.invoice.dueDate,
+      invoice: withInvoice
+        ? qrInvoice({
+            number: inv.number!,
+            issueDate: inv.issueDate,
+            taxDate: inv.taxDate,
+            dueDate: inv.dueDate,
+            total: new Decimal(inv.total).toFixed(2),
+            currency: cur,
+            exchangeRate: inv.exchangeRate,
+            taxDocument: inv.vatPayer && inv.type === "invoice",
+            vs: inv.variableSymbol,
+            supplierDic: doc.company.dic,
+            supplierIco: doc.company.ico,
+            customerDic: inv.customerDic,
+            customerIco: inv.customerIco,
+            vatByRate: byRate.map((r) => ({ rate: r.rate, base: r.base.toFixed(2), vat: r.vat.toFixed(2) })),
+          })
+        : null,
     });
     qr = await QRCode.toDataURL(payload, { margin: 0, width: 220, errorCorrectionLevel: "M" });
   }
-  const { byRate } = computeTotals(doc.lines, doc.invoice.vatPayer);
   const title = doc.invoice.type === "proforma" ? t.proforma : t.invoice;
   const watermark = doc.invoice.status === "cancelled" ? t.cancelled : doc.invoice.status === "draft" ? t.draft : null;
   void opts;

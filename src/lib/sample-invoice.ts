@@ -1,8 +1,8 @@
 import { companyBankAccounts } from "@/lib/invoices";
 import { renderInvoiceHtml } from "@/templates";
-import type { Company, Invoice, InvoiceLine } from "@/db/schema";
+import { QR_TYPES, type Company, type Invoice, type InvoiceLine, type QrType } from "@/db/schema";
 
-export type SampleOptions = { template?: string | null; accent?: string | null; logoUrl?: string | null | undefined; customHtml?: string };
+export type SampleOptions = { template?: string | null; accent?: string | null; logoUrl?: string | null | undefined; customHtml?: string; qrType?: string | null };
 
 export async function renderSampleInvoice(active: Company, opts: SampleOptions = {}) {
   const template = opts.template ?? active.template;
@@ -25,6 +25,6 @@ export async function renderSampleInvoice(active: Company, opts: SampleOptions =
     subtotal: subtotal.toFixed(2), vatTotal: vatTotal.toFixed(2), total: (subtotal + vatTotal).toFixed(2), paidAmount: "0", paidAt: null,
     intro: active.defaultCurrency === "EUR" ? "We invoice you for services provided in October." : "Fakturujeme vám za služby poskytnuté v říjnu.", note: "Ukázková faktura pro náhled šablony.", reminderCount: 0, lastReminderAt: null, publicToken: "sample", proformaId: null, recurringId: null, sentAt: null, viewedAt: null, createdAt: new Date(), updatedAt: new Date(),
   };
-  const company = { ...active, accentColor: accent ?? active.accentColor, logoUrl: opts.logoUrl === undefined ? active.logoUrl : opts.logoUrl };
+  const company = { ...active, accentColor: accent ?? active.accentColor, logoUrl: opts.logoUrl === undefined ? active.logoUrl : opts.logoUrl, qrType: QR_TYPES.includes(opts.qrType as QrType) ? (opts.qrType as QrType) : active.qrType };
   return renderInvoiceHtml({ company, invoice: inv, lines, bank: bank ?? null }, template, customHtml);
 }

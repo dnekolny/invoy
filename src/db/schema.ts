@@ -51,6 +51,9 @@ export const verification = pgTable("verification", {
 });
 
 
+export const QR_TYPES = ["spayd", "spayd_f"] as const;
+export type QrType = (typeof QR_TYPES)[number];
+
 export const company = pgTable("company", {
   id: uuid("id").primaryKey().defaultRandom(),
   ownerId: text("owner_id")
@@ -75,6 +78,7 @@ export const company = pgTable("company", {
   proformaPattern: text("proforma_pattern").notNull().default("Z{YYYY}{NNN}"),
   template: text("template").notNull().default("classic"),
   accentColor: text("accent_color").notNull().default("#2563eb"),
+  qrType: text("qr_type").$type<QrType>().notNull().default("spayd"),
   footerText: text("footer_text"),
   premium: boolean("premium").notNull().default(false),
   mdRate: numeric("md_rate", { precision: 14, scale: 2 }),

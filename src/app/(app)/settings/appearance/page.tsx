@@ -13,6 +13,7 @@ export default async function AppearancePage() {
       template={active.template}
       accentColor={active.accentColor}
       logoUrl={active.logoUrl}
+      qrType={active.qrType}
       customTemplates={customTemplates}
       premium={active.premium}
       aiReady={aiConfigured()}
