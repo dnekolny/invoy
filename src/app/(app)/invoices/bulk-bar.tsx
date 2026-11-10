@@ -10,6 +10,8 @@ import { bulkSendInvoicesAction } from "@/actions/email";
 import { bulkDeleteDraftsAction, bulkMarkPaidAction } from "@/actions/invoices";
 import { todayIso } from "@/lib/dates";
 import { defaultTemplates, MAIL_TOKENS } from "@/lib/mail-templates";
+import type { MailTemplateOption } from "@/lib/mail-resolve";
+import { NativeSelect } from "@/components/form/native-select";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -20,9 +22,9 @@ import { TextareaField } from "@/components/form/textarea-field";
 import { CheckboxField } from "@/components/form/checkbox-field";
 import { useSelection } from "./selection";
 
-type Props = { hasChannel: boolean; templates: { subject: string | null; body: string | null } };
+type Props = { hasChannel: boolean; templates: { subject: string | null; body: string | null }; namedTemplates: MailTemplateOption[] };
 
-export function BulkBar({ hasChannel, templates }: Props) {
+export function BulkBar({ hasChannel, templates, namedTemplates }: Props) {
   const t = useTranslations("invoices.bulk");
   const ts = useTranslations("send");
   const tc = useTranslations("common");
@@ -34,9 +36,18 @@ export function BulkBar({ hasChannel, templates }: Props) {
   const [paidDate, setPaidDate] = useState(todayIso());
   const [sendOpen, setSendOpen] = useState(false);
   const defaults = defaultTemplates[locale === "en" ? "en" : "cs"];
-  const [subject, setSubject] = useState(templates.subject ?? defaults.subject);
-  const [body, setBody] = useState(templates.body ?? defaults.body);
+  const main = { subject: templates.subject ?? defaults.subject, body: templates.body ?? defaults.body };
+  const [templateId, setTemplateId] = useState("auto");
+  const [subject, setSubject] = useState(main.subject);
+  const [body, setBody] = useState(main.body);
   const [copyToMe, setCopyToMe] = useState(false);
+
+  function chooseTemplate(id: string) {
+    setTemplateId(id);
+    const tpl = namedTemplates.find((n) => n.id === id) ?? main;
+    setSubject(tpl.subject);
+    setBody(tpl.body);
+  }
 
   if (selected.size === 0) return null;
   const ids = [...selected];
@@ -67,7 +78,7 @@ export function BulkBar({ hasChannel, templates }: Props) {
 
   function send() {
     start(async () => {
-      const r = await bulkSendInvoicesAction({ ids, subject, body, copyToMe });
+      const r = await bulkSendInvoicesAction(templateId === "auto" ? { ids, copyToMe } : { ids, subject, body, copyToMe });
       if (!r.ok) {
         toast.error(r.error === "nochannel" ? ts("noChannel") : tc("error"));
         return;
@@ -139,9 +150,22 @@ export function BulkBar({ hasChannel, templates }: Props) {
                 {t("sendCount", { n: sendable })}
                 {picked.length - sendable > 0 && <span className="text-muted-foreground"> · {t("sendSkipped", { n: picked.length - sendable })}</span>}
               </p>
-              <Field label={ts("subject")} name="subject" value={subject} onChange={(e) => setSubject(e.target.value)} />
-              <TextareaField label={ts("body")} name="body" rows={9} value={body} onChange={(e) => setBody(e.target.value)} />
-              <p className="text-xs text-muted-foreground">{t("tokensHint", { list: MAIL_TOKENS.map((k) => `{${k}}`).join(" ") })}</p>
+              <NativeSelect
+                label={ts("template")}
+                name="template"
+                value={templateId}
+                onChange={(e) => chooseTemplate(e.target.value)}
+                options={[{ value: "auto", label: t("templateAuto") }, { value: "", label: ts("templateMain") }, ...namedTemplates.map((n) => ({ value: n.id, label: n.name }))]}
+              />
+              {templateId === "auto" ? (
+                <p className="text-xs text-muted-foreground">{t("templateAutoHint")}</p>
+              ) : (
+                <>
+                  <Field label={ts("subject")} name="subject" value={subject} onChange={(e) => setSubject(e.target.value)} />
+                  <TextareaField label={ts("body")} name="body" rows={9} value={body} onChange={(e) => setBody(e.target.value)} />
+                  <p className="text-xs text-muted-foreground">{t("tokensHint", { list: MAIL_TOKENS.map((k) => `{${k}}`).join(" ") })}</p>
+                </>
+              )}
               <CheckboxField name="copyToMe" label={ts("copyToMe")} checked={copyToMe} onChange={setCopyToMe} />
               <div className="flex justify-end">
                 <Button onClick={send} disabled={pending || sendable === 0}>

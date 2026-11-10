@@ -215,7 +215,10 @@
     "noInvoicesYet": "No invoices yet.",
     "draft": "Draft",
     "newSubtitle": "Enter an IČO or company name and we fill in the details from ARES.",
-    "subtitle": "Who you invoice. Create an invoice from the detail with one click."
+    "subtitle": "Who you invoice. Create an invoice from the detail with one click.",
+    "mailTemplate": "Invoice e-mail template",
+    "mailTemplateMain": "Main template",
+    "mailTemplateHint": "Used when sending invoices to this customer, including automatic and bulk sending."
   },
   "status": {
     "draft": "Draft",
@@ -293,7 +296,9 @@
       "deleteDrafts": "Delete drafts ({n})",
       "deleteTitle": "Delete selected drafts?",
       "deleteDescription": "{n, plural, one {# draft} other {# drafts}} will be deleted. Issued invoices stay untouched.",
-      "deleted": "Deleted: {n}."
+      "deleted": "Deleted: {n}.",
+      "templateAuto": "Per customer",
+      "templateAutoHint": "Each customer gets their assigned template, everyone else the main template from e-mail settings."
     }
   },
   "invoiceEditor": {
@@ -451,7 +456,9 @@
     "noChannel": "Set up your sending email first.",
     "setupChannel": "Set up email",
     "copyToMe": "Send me a copy",
-    "buttonAgain": "Send again"
+    "buttonAgain": "Send again",
+    "template": "Template",
+    "templateMain": "Main template"
   },
   "emailSettings": {
     "intro": "Invoices are sent from your own mailbox, so replies come straight to you.",
@@ -508,7 +515,15 @@
     "reminderDays": "Days after due date",
     "reminderDaysHint": "A reminder goes out on day {days} after the due date, at most {count} in total.",
     "reminderDaysInvalid": "Enter days separated by commas, e.g. 3,10,20.",
-    "reminderTemplate": "Reminder text (optional, default otherwise)"
+    "reminderTemplate": "Reminder text (optional, default otherwise)",
+    "namedTemplates": "More e-mail templates",
+    "namedTemplatesHint": "Named templates for different customers, e.g. an English or a more formal one. Pick one on the customer; otherwise the main template above applies. The template can always be changed before sending.",
+    "addTemplate": "Add template",
+    "editTemplate": "Edit template",
+    "templateName": "Template name",
+    "templateNamePlaceholder": "e.g. English, Formal",
+    "deleteTemplateTitle": "Delete template “{name}”?",
+    "deleteTemplateDescription": "Customers using it fall back to the main template."
   },
   "appearance": {
     "template": "Template",

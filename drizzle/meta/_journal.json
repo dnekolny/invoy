@@ -57,6 +57,13 @@
       "when": 1793566950874,
       "tag": "0007_hide_quantity",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794318645409,
+      "tag": "0008_mail_templates",
+      "breakpoints": true
     }
   ]
 }

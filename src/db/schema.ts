@@ -110,6 +110,18 @@ export const bankAccount = pgTable("bank_account", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const mailTemplate = pgTable("mail_template", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  companyId: uuid("company_id")
+    .notNull()
+    .references(() => company.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  subject: text("subject").notNull(),
+  body: text("body").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 export const customer = pgTable("customer", {
   id: uuid("id").primaryKey().defaultRandom(),
   companyId: uuid("company_id")
@@ -128,6 +140,7 @@ export const customer = pgTable("customer", {
   currency: text("currency").notNull().default("CZK"),
   dueDays: integer("due_days"),
   note: text("note"),
+  mailTemplateId: uuid("mail_template_id").references(() => mailTemplate.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -314,5 +327,6 @@ export type Invoice = typeof invoice.$inferSelect;
 export type InvoiceLine = typeof invoiceLine.$inferSelect;
 export type Payment = typeof payment.$inferSelect;
 export type EmailChannel = typeof emailChannel.$inferSelect;
+export type MailTemplate = typeof mailTemplate.$inferSelect;
 export type EmailLog = typeof emailLog.$inferSelect;
 export type RecurringTemplate = typeof recurringTemplate.$inferSelect;

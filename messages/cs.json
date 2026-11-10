@@ -215,7 +215,10 @@
     "noInvoicesYet": "Zatím žádná faktura.",
     "draft": "Koncept",
     "newSubtitle": "Zadejte IČO nebo název firmy a údaje se doplní z ARES.",
-    "subtitle": "Komu fakturujete. Z detailu vystavíte fakturu jedním klikem."
+    "subtitle": "Komu fakturujete. Z detailu vystavíte fakturu jedním klikem.",
+    "mailTemplate": "Šablona e-mailu s fakturou",
+    "mailTemplateMain": "Hlavní šablona",
+    "mailTemplateHint": "Použije se při odesílání faktur tomuto zákazníkovi, včetně automatických a hromadných."
   },
   "status": {
     "draft": "Koncept",
@@ -293,7 +296,9 @@
       "deleteDrafts": "Smazat koncepty ({n})",
       "deleteTitle": "Smazat vybrané koncepty?",
       "deleteDescription": "{n, plural, one {Smaže se # koncept} few {Smažou se # koncepty} other {Smaže se # konceptů}}. Vystavené faktury zůstanou beze změny.",
-      "deleted": "Smazáno: {n}."
+      "deleted": "Smazáno: {n}.",
+      "templateAuto": "Podle zákazníka",
+      "templateAutoHint": "Každému zákazníkovi se pošle jeho přiřazená šablona, ostatním hlavní šablona z nastavení e-mailu."
     }
   },
   "invoiceEditor": {
@@ -451,7 +456,9 @@
     "noChannel": "Nejdřív nastavte odesílací e-mail.",
     "setupChannel": "Nastavit e-mail",
     "copyToMe": "Poslat kopii i mně",
-    "buttonAgain": "Odeslat znovu"
+    "buttonAgain": "Odeslat znovu",
+    "template": "Šablona",
+    "templateMain": "Hlavní šablona"
   },
   "emailSettings": {
     "intro": "Faktury se odesílají z vaší vlastní schránky, takže odpovědi chodí k vám.",
@@ -508,7 +515,15 @@
     "reminderDays": "Dny po splatnosti",
     "reminderDaysHint": "Upomínka se pošle {days}. den po splatnosti, celkem nejvýše {count}.",
     "reminderDaysInvalid": "Zadejte dny oddělené čárkou, např. 3,10,20.",
-    "reminderTemplate": "Text upomínky (volitelné, jinak výchozí)"
+    "reminderTemplate": "Text upomínky (volitelné, jinak výchozí)",
+    "namedTemplates": "Další šablony e-mailu",
+    "namedTemplatesHint": "Pojmenované šablony pro různé zákazníky, třeba anglickou nebo formálnější. U zákazníka pak vyberete, která se má použít; jinak platí hlavní šablona výše. Před odesláním jde šablona vždy změnit.",
+    "addTemplate": "Přidat šablonu",
+    "editTemplate": "Upravit šablonu",
+    "templateName": "Název šablony",
+    "templateNamePlaceholder": "např. Anglicky, Formální",
+    "deleteTemplateTitle": "Smazat šablonu „{name}“?",
+    "deleteTemplateDescription": "Zákazníci, kteří ji mají nastavenou, přejdou na hlavní šablonu."
   },
   "appearance": {
     "template": "Šablona",

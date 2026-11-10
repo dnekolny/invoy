@@ -18,6 +18,7 @@ import { InvoiceFilters } from "./invoice-filters";
 import { ExportMenu } from "./export-menu";
 import { HeaderCheckbox, RowCheckbox, SelectionProvider, type SelectableRow } from "./selection";
 import { BulkBar } from "./bulk-bar";
+import { listMailTemplates } from "@/lib/mail-resolve";
 
 export const maxDuration = 120;
 
@@ -32,7 +33,7 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
   const filter = (FILTERS.includes(sp.filter as InvoiceFilter) ? sp.filter : "all") as InvoiceFilter;
   const type = (["invoice", "proforma"].includes(sp.type ?? "") ? sp.type : "all") as InvoiceType | "all";
   const year = sp.year ? Number(sp.year) : undefined;
-  const [rows, [channel]] = await Promise.all([listInvoices(active.id, { filter, type, q: sp.q, year }), db.select().from(emailChannel).where(eq(emailChannel.companyId, active.id)).limit(1)]);
+  const [rows, [channel], namedTemplates] = await Promise.all([listInvoices(active.id, { filter, type, q: sp.q, year }), db.select().from(emailChannel).where(eq(emailChannel.companyId, active.id)).limit(1), listMailTemplates(active.id)]);
   const selectable: SelectableRow[] = rows.map((r) => ({
     id: r.id,
     status: r.status,
@@ -85,7 +86,7 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
       ) : (
         <SelectionProvider rows={selectable}>
         <Panel className="overflow-hidden">
-          <BulkBar hasChannel={Boolean(channel)} templates={{ subject: channel?.subjectTemplate ?? null, body: channel?.bodyTemplate ?? null }} />
+          <BulkBar hasChannel={Boolean(channel)} templates={{ subject: channel?.subjectTemplate ?? null, body: channel?.bodyTemplate ?? null }} namedTemplates={namedTemplates} />
           <Table>
             <TableHeader>
               <TableRow>

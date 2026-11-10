@@ -9,6 +9,7 @@ import { deleteCustomerAction, saveCustomerAction } from "@/actions/customers";
 import { requireCompany } from "@/lib/company";
 import { formatDate, formatMoney } from "@/lib/format";
 import { effectiveStatus } from "@/lib/invoices";
+import { listMailTemplates } from "@/lib/mail-resolve";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ConfirmDelete } from "@/components/form/confirm-delete";
@@ -23,6 +24,7 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
   const locale = await getLocale();
   const [row] = await db.select().from(customer).where(and(eq(customer.id, id), eq(customer.companyId, active.id))).limit(1);
   if (!row) notFound();
+  const mailTemplates = await listMailTemplates(active.id);
   const invoices = await db.select().from(invoice).where(and(eq(invoice.companyId, active.id), eq(invoice.customerId, id))).orderBy(desc(invoice.issueDate), desc(invoice.createdAt)).limit(20);
   return (
     <div className="mx-auto max-w-4xl">
@@ -42,7 +44,7 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
       />
       <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
         <Panel className="p-6">
-          <CustomerForm customer={row} action={saveCustomerAction.bind(null, row.id)} defaultCurrency={active.defaultCurrency} />
+          <CustomerForm customer={row} action={saveCustomerAction.bind(null, row.id)} defaultCurrency={active.defaultCurrency} mailTemplates={mailTemplates} />
         </Panel>
         <Card className="h-fit">
           <CardHeader>

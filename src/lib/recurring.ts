@@ -6,7 +6,8 @@ import { company, customer, emailChannel, emailLog, invoice, invoiceLine, recurr
 import { cnbRate } from "@/lib/cnb";
 import { addDays, advance, todayIso } from "@/lib/dates";
 import { nextInvoiceNumber } from "@/lib/invoice-number";
-import { defaultTemplates, fillTemplate, sendWithChannel } from "@/lib/invoice-mail";
+import { fillTemplate, sendWithChannel } from "@/lib/invoice-mail";
+import { mailTemplateForInvoice } from "@/lib/mail-resolve";
 import { companyBankAccounts, getInvoiceDocument } from "@/lib/invoices";
 import { mailContext } from "@/lib/mail-context";
 import { computeLine, computeTotals, toDb } from "@/lib/money";
@@ -92,9 +93,9 @@ export async function generateFromTemplate(tpl: RecurringTemplate, issueDate: st
       const [inv] = await db.select().from(invoice).where(eq(invoice.id, row.id)).limit(1);
       const doc = await getInvoiceDocument(inv);
       const ctx = mailContext(inv, comp.name);
-      const lang = ctx.lang === "en" ? "en" : "cs";
-      const subject = fillTemplate(ch.subjectTemplate ?? defaultTemplates[lang].subject, ctx);
-      const body = fillTemplate(ch.bodyTemplate ?? defaultTemplates[lang].body, ctx);
+      const tpl = await mailTemplateForInvoice(ch, inv);
+      const subject = fillTemplate(tpl.subject, ctx);
+      const body = fillTemplate(tpl.body, ctx);
       const pdf = await htmlToPdf(await renderInvoiceHtml(doc));
       await sendWithChannel(ch, { to: cust.email, subject, text: body, attachments: [{ filename: invoiceFileName(doc), content: Buffer.from(pdf), contentType: "application/pdf" }] });
       await db.insert(emailLog).values({ invoiceId: inv.id, to: cust.email, subject, status: "sent" });

@@ -11,6 +11,7 @@ import { daysOverdue } from "@/lib/dates";
 import { formatDate, formatMoney } from "@/lib/format";
 import { companyCounters } from "@/lib/invoice-number";
 import { mailContext } from "@/lib/mail-context";
+import { customerMailTemplateId, listMailTemplates } from "@/lib/mail-resolve";
 import { peekNumber } from "@/lib/invoice-number-peek";
 import { effectiveStatus, getInvoiceActivity, getInvoiceWithLines } from "@/lib/invoices";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
   const active = await requireCompany();
   const inv = await getInvoiceWithLines(active.id, id);
   if (!inv) notFound();
-  const [t, locale, activity, [channel], counters] = await Promise.all([
+  const [t, locale, activity, [channel], counters, namedTemplates, customerTemplateId] = await Promise.all([
     getTranslations("invoiceDetail"),
     getLocale(),
     getInvoiceActivity(id),
@@ -37,6 +38,8 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
       .where(eq(emailChannel.companyId, active.id))
       .limit(1),
     inv.status === "draft" ? companyCounters(active.id) : Promise.resolve({}),
+    listMailTemplates(active.id),
+    customerMailTemplateId(inv.customerId),
   ]);
   const status = effectiveStatus(inv);
   const editable = inv.status !== "paid" && inv.status !== "cancelled";
@@ -100,6 +103,8 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
               alreadySent={Boolean(inv.sentAt)}
               context={ctx}
               templates={{ subject: channel?.subjectTemplate ?? null, body: channel?.bodyTemplate ?? null }}
+              namedTemplates={namedTemplates}
+              customerTemplateId={customerTemplateId}
             />
           )}
           {status === "overdue" && (

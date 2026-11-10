@@ -8,6 +8,8 @@ import { BellRing, Send } from "lucide-react";
 import { toast } from "sonner";
 import { sendInvoiceAction, sendReminderAction } from "@/actions/email";
 import { defaultReminderTemplates, defaultTemplates, fillTemplate, type MailContext } from "@/lib/mail-templates";
+import type { MailTemplateOption } from "@/lib/mail-resolve";
+import { NativeSelect } from "@/components/form/native-select";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { TextareaField } from "@/components/form/textarea-field";
@@ -15,9 +17,9 @@ import { Field } from "@/components/form/field";
 import { EmailField } from "@/components/form/email-field";
 import { CheckboxField } from "@/components/form/checkbox-field";
 
-type Props = { invoiceId: string; defaultTo: string; hasChannel: boolean; alreadySent?: boolean; mode?: "invoice" | "reminder"; context: MailContext; templates: { subject: string | null; body: string | null } };
+type Props = { invoiceId: string; defaultTo: string; hasChannel: boolean; alreadySent?: boolean; mode?: "invoice" | "reminder"; context: MailContext; templates: { subject: string | null; body: string | null }; namedTemplates?: MailTemplateOption[]; customerTemplateId?: string | null };
 
-export function SendDialog({ invoiceId, defaultTo, hasChannel, alreadySent, mode = "invoice", context, templates }: Props) {
+export function SendDialog({ invoiceId, defaultTo, hasChannel, alreadySent, mode = "invoice", context, templates, namedTemplates = [], customerTemplateId }: Props) {
   const t = useTranslations(mode === "reminder" ? "reminder" : "send");
   const ts = useTranslations("send");
   const router = useRouter();
@@ -25,8 +27,18 @@ export function SendDialog({ invoiceId, defaultTo, hasChannel, alreadySent, mode
   const [pending, start] = useTransition();
   const defaults = (mode === "reminder" ? defaultReminderTemplates : defaultTemplates)[context.lang === "en" ? "en" : "cs"];
   const [to, setTo] = useState(defaultTo);
-  const [subject, setSubject] = useState(fillTemplate(templates.subject ?? defaults.subject, context));
-  const [body, setBody] = useState(fillTemplate(templates.body ?? defaults.body, context));
+  const main = { subject: templates.subject ?? defaults.subject, body: templates.body ?? defaults.body };
+  const initial = namedTemplates.find((n) => n.id === customerTemplateId);
+  const [templateId, setTemplateId] = useState(initial?.id ?? "");
+  const [subject, setSubject] = useState(fillTemplate((initial ?? main).subject, context));
+  const [body, setBody] = useState(fillTemplate((initial ?? main).body, context));
+
+  function chooseTemplate(id: string) {
+    setTemplateId(id);
+    const tpl = namedTemplates.find((n) => n.id === id) ?? main;
+    setSubject(fillTemplate(tpl.subject, context));
+    setBody(fillTemplate(tpl.body, context));
+  }
   const [copyToMe, setCopyToMe] = useState(false);
 
   function send() {
@@ -61,6 +73,15 @@ export function SendDialog({ invoiceId, defaultTo, hasChannel, alreadySent, mode
         ) : (
           <div className="space-y-4">
             <EmailField label={ts("to")} name="to" value={to} onChange={setTo} required autoFocus={!to} />
+            {mode === "invoice" && namedTemplates.length > 0 && (
+              <NativeSelect
+                label={ts("template")}
+                name="template"
+                value={templateId}
+                onChange={(e) => chooseTemplate(e.target.value)}
+                options={[{ value: "", label: ts("templateMain") }, ...namedTemplates.map((n) => ({ value: n.id, label: n.name }))]}
+              />
+            )}
             <Field label={ts("subject")} name="subject" value={subject} onChange={(e) => setSubject(e.target.value)} />
             <TextareaField label={ts("body")} name="body" rows={9} value={body} onChange={(e) => setBody(e.target.value)} />
             <CheckboxField name="copyToMe" label={ts("copyToMe")} checked={copyToMe} onChange={setCopyToMe} />

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import type { Customer } from "@/db/schema";
+import type { MailTemplateOption } from "@/lib/mail-resolve";
 import type { ActionResult } from "@/lib/validation";
 import { COUNTRIES, countryByCode, splitPhone } from "@/lib/countries";
 import { AresLookup } from "@/components/ares-lookup";
@@ -22,9 +23,10 @@ type Props = {
   defaultCurrency: string;
   onCancel?: () => void;
   compact?: boolean;
+  mailTemplates?: MailTemplateOption[];
 };
 
-export function CustomerForm({ customer, action, defaultCurrency, onCancel, compact }: Props) {
+export function CustomerForm({ customer, action, defaultCurrency, onCancel, compact, mailTemplates }: Props) {
   const t = useTranslations("customers");
   const tc = useTranslations("common");
   const [ico, setIco] = useState(customer?.ico ?? "");
@@ -113,6 +115,17 @@ export function CustomerForm({ customer, action, defaultCurrency, onCancel, comp
         </div>
         {!compact && (
           <TextareaField label={t("note")} name="note" rows={2} defaultValue={customer?.note ?? ""} placeholder={t("notePlaceholder")} />
+        )}
+        {!compact && mailTemplates && mailTemplates.length > 0 && (
+          <div className="space-y-1">
+            <NativeSelect
+              label={t("mailTemplate")}
+              name="mailTemplateId"
+              defaultValue={customer?.mailTemplateId ?? ""}
+              options={[{ value: "", label: t("mailTemplateMain") }, ...mailTemplates.map((m) => ({ value: m.id, label: m.name }))]}
+            />
+            <p className="text-xs text-muted-foreground">{t("mailTemplateHint")}</p>
+          </div>
         )}
       </section>
       <div className="flex items-center gap-2">

@@ -4,12 +4,13 @@ import { and, asc, eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
-import { emailChannel, emailLog, invoice } from "@/db/schema";
+import { emailChannel, emailLog, invoice, mailTemplate } from "@/db/schema";
 import { requireCompany } from "@/lib/company";
 import { encrypt } from "@/lib/crypto";
 import { sendWithChannel, transportFor } from "@/lib/invoice-mail";
 import { getInvoiceDocument, getInvoiceWithLines } from "@/lib/invoices";
 import { mailContext } from "@/lib/mail-context";
+import { mailTemplateForInvoice } from "@/lib/mail-resolve";
 import { fillTemplate, parseReminderDays } from "@/lib/mail-templates";
 import { htmlsToPdf, htmlToPdf } from "@/lib/pdf";
 import { sendReminder } from "@/lib/reminders";
@@ -135,8 +136,8 @@ export async function sendReminderAction(id: string, raw: unknown): Promise<Acti
 
 const bulkSendSchema = z.object({
   ids: z.array(z.string().uuid()).min(1).max(100),
-  subject: z.string().trim().min(1),
-  body: z.string().trim().min(1),
+  subject: z.string().trim().min(1).optional(),
+  body: z.string().trim().min(1).optional(),
   copyToMe: z.boolean().optional(),
 });
 
@@ -159,13 +160,14 @@ export async function bulkSendInvoicesAction(raw: unknown): Promise<BulkSendResu
   const failed: { number: string; error: string }[] = [];
   for (const [i, inv] of targets.entries()) {
     const ctx = mailContext(inv, active.name);
-    const subject = fillTemplate(parsed.data.subject, ctx);
+    const tpl = parsed.data.subject && parsed.data.body ? { subject: parsed.data.subject, body: parsed.data.body } : await mailTemplateForInvoice(ch, inv);
+    const subject = fillTemplate(tpl.subject, ctx);
     const to = inv.customerEmail!;
     try {
       await sendWithChannel(ch, {
         to,
         subject,
-        text: fillTemplate(parsed.data.body, ctx),
+        text: fillTemplate(tpl.body, ctx),
         bcc: parsed.data.copyToMe ? ch.fromEmail : undefined,
         attachments: [{ filename: invoiceFileName(docs[i]), content: Buffer.from(pdfs[i]), contentType: "application/pdf" }],
       });
@@ -182,4 +184,30 @@ export async function bulkSendInvoicesAction(raw: unknown): Promise<BulkSendResu
   }
   revalidatePath("/invoices");
   return { ok: true, sent: targets.length - failed.length, skipped: rows.length - targets.length, failed };
+}
+
+const mailTemplateSchema = z.object({
+  name: z.string().trim().min(1).max(80),
+  subject: z.string().trim().min(1),
+  body: z.string().trim().min(1),
+});
+
+export async function saveMailTemplateAction(id: string | null, raw: unknown): Promise<ActionResult> {
+  const active = await requireCompany();
+  const parsed = mailTemplateSchema.safeParse(raw);
+  if (!parsed.success) return { ok: false, error: "invalid" };
+  if (id) {
+    await db.update(mailTemplate).set({ ...parsed.data, updatedAt: new Date() }).where(and(eq(mailTemplate.id, id), eq(mailTemplate.companyId, active.id)));
+  } else {
+    await db.insert(mailTemplate).values({ ...parsed.data, companyId: active.id });
+  }
+  revalidatePath("/settings/email");
+  return { ok: true };
+}
+
+export async function deleteMailTemplateAction(id: string): Promise<ActionResult> {
+  const active = await requireCompany();
+  await db.delete(mailTemplate).where(and(eq(mailTemplate.id, id), eq(mailTemplate.companyId, active.id)));
+  revalidatePath("/settings/email");
+  return { ok: true };
 }

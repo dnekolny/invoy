@@ -60,6 +60,7 @@ export const customerSchema = z.object({
   currency: currencySchema,
   dueDays: z.union([z.literal(""), z.coerce.number().int().min(0).max(365)]).transform((v) => (v === "" ? null : v)),
   note: optionalText,
+  mailTemplateId: z.string().uuid().or(z.literal("")).optional().transform((v) => v || null),
 });
 
 export const itemSchema = z.object({
