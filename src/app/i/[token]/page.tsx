@@ -6,6 +6,7 @@ import { invoice } from "@/db/schema";
 import { getInvoiceByToken, getInvoiceDocument } from "@/lib/invoices";
 import { labels } from "@/templates/labels";
 import { Button } from "@/components/ui/button";
+import { PreviewFrame } from "@/components/loading-bar";
 
 export default async function PublicInvoicePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
@@ -43,7 +44,7 @@ export default async function PublicInvoicePage({ params }: { params: Promise<{ 
         </div>
       </header>
       <main className="mx-auto max-w-5xl px-2 py-4">
-        <iframe title={title} src={`/i/${token}/preview`} className="h-[1150px] w-full" />
+        <PreviewFrame title={title} src={`/i/${token}/preview`} className="h-[1150px] w-full" />
       </main>
     </div>
   );

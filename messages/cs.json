@@ -427,7 +427,8 @@
     "enableReminders": "Zapnout automatické upomínky",
     "noEmailForReminder": "Zákazník nemá e-mail, upomínka se nepošle automaticky.",
     "reminderTag": "upomínka",
-    "errorTag": "chyba"
+    "errorTag": "chyba",
+    "previewLoading": "Načítám náhled faktury…"
   },
   "payments": {
     "title": "Úhrady",

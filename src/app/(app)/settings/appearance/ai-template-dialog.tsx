@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Field } from "@/components/form/field";
 import { TextareaField } from "@/components/form/textarea-field";
 import { ScaledPage } from "@/components/scaled-page";
+import { LoadingBar } from "@/components/loading-bar";
 import { cn } from "@/lib/utils";
 
 type Props = { premium: boolean; aiReady: boolean; editing?: { id: string; name: string } | null; onClose?: () => void; onSaved?: (r: { id: string; accent: string | null }) => void };
@@ -27,6 +28,7 @@ export function AiTemplateDialog({ premium, aiReady, editing, onClose, onSaved }
   const [accent, setAccent] = useState<string | null>(null);
   const [name, setName] = useState(editing?.name ?? "");
   const [dragging, setDragging] = useState(false);
+  const [loadingExisting, setLoadingExisting] = useState(Boolean(editing));
   const [generating, startGenerate] = useTransition();
   const [saving, startSave] = useTransition();
 
@@ -42,6 +44,7 @@ export function AiTemplateDialog({ premium, aiReady, editing, onClose, onSaved }
       if (cancelled || !existing) return;
       setHtml(existing);
       setPreview(await fetchPreview(existing));
+      setLoadingExisting(false);
     });
     return () => {
       cancelled = true;
@@ -178,6 +181,7 @@ export function AiTemplateDialog({ premium, aiReady, editing, onClose, onSaved }
               )}
             </div>
             <div className="relative h-[70vh] overflow-hidden rounded-lg border bg-[#e9e9ec] lg:h-[min(760px,calc(94vh-9rem))] dark:bg-black/40">
+              <LoadingBar active={generating || (loadingExisting && !preview)} />
               <div className={cn("h-full p-3", editing ? "overflow-y-auto" : "overflow-hidden")}>
                 {preview ? (
                   <ScaledPage html={preview} title={t("preview")} fit={editing ? "width" : "contain"} />

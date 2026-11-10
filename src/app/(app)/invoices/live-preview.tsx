@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ScaledPage } from "@/components/scaled-page";
 import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
+import { LoadingBar } from "@/components/loading-bar";
 
 export function LivePreview({ payload }: { payload: unknown }) {
   const t = useTranslations("invoiceEditor");
@@ -28,6 +29,7 @@ export function LivePreview({ payload }: { payload: unknown }) {
 
   return (
     <div className="relative overflow-hidden rounded-xl border bg-[#e9e9ec] dark:bg-black/40">
+      <LoadingBar active={loading || !html} />
       {loading && (
         <div className="absolute top-2 right-2 z-10 flex items-center gap-1 rounded-md bg-card/90 px-2 py-1 text-xs text-muted-foreground shadow-sm">
           <Loader2 className="size-3 animate-spin" />

@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { ScaledPage } from "@/components/scaled-page";
+import { LoadingBar } from "@/components/loading-bar";
 
 const COLORS = ["#2563eb", "#0f766e", "#7c3aed", "#db2777", "#ea580c", "#16a34a", "#0891b2", "#1f2937"];
 
@@ -36,14 +37,20 @@ export function AppearanceForm(props: { template: string; accentColor: string; l
   const [logo, setLogo] = useState<string | null>(props.logoUrl);
   const [pending, start] = useTransition();
   const [html, setHtml] = useState<string | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(true);
   const previewKey = JSON.stringify({ template, accent, logo });
   const latest = useRef(previewKey);
 
   useEffect(() => {
     latest.current = previewKey;
     const timer = setTimeout(async () => {
-      const res = await fetch("/api/preview-sample", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ template, accent, logoUrl: logo }) });
-      if (res.ok && latest.current === previewKey) setHtml(await res.text());
+      setPreviewLoading(true);
+      try {
+        const res = await fetch("/api/preview-sample", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ template, accent, logoUrl: logo }) });
+        if (res.ok && latest.current === previewKey) setHtml(await res.text());
+      } finally {
+        if (latest.current === previewKey) setPreviewLoading(false);
+      }
     }, 300);
     return () => clearTimeout(timer);
   }, [previewKey, template, accent, logo]);
@@ -161,7 +168,8 @@ export function AppearanceForm(props: { template: string; accentColor: string; l
 
       <section className="space-y-3">
         <h2 className="text-base font-medium">{t("preview")}</h2>
-        <div className="overflow-hidden rounded-lg border bg-[#e9e9ec]">
+        <div className="relative overflow-hidden rounded-lg border bg-[#e9e9ec]">
+          <LoadingBar active={previewLoading} />
           {html ? <ScaledPage html={html} title={t("preview")} /> : <div className="h-[900px]" />}
         </div>
       </section>

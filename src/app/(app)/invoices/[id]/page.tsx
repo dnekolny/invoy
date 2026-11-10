@@ -22,6 +22,7 @@ import { CopyLink } from "./copy-link";
 import { InvoiceActions } from "./invoice-actions";
 import { PaymentsCard } from "./payments-card";
 import { SendDialog } from "./send-dialog";
+import { PreviewFrame } from "@/components/loading-bar";
 
 export default async function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -124,7 +125,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
 
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <div className="overflow-hidden rounded-xl border bg-[#e9e9ec] dark:bg-black/40">
-          <iframe title="preview" src={`/api/invoices/${inv.id}/preview`} className="h-[1120px] w-full" />
+          <PreviewFrame title="preview" src={`/api/invoices/${inv.id}/preview`} className="h-[1120px] w-full" label={t("previewLoading")} />
         </div>
         <div className="space-y-6">
           {inv.status !== "draft" && inv.status !== "cancelled" && (

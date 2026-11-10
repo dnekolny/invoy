@@ -427,7 +427,8 @@
     "enableReminders": "Turn on automatic reminders",
     "noEmailForReminder": "The customer has no email, reminders will not be sent automatically.",
     "reminderTag": "reminder",
-    "errorTag": "error"
+    "errorTag": "error",
+    "previewLoading": "Loading invoice preview…"
   },
   "payments": {
     "title": "Payments",
