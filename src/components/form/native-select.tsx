@@ -1,3 +1,6 @@
+"use client";
+
+import { useLayoutEffect, useRef } from "react";
 import { ChevronDown } from "lucide-react";
 import { FieldShell } from "@/components/form/field-shell";
 
@@ -5,11 +8,21 @@ type Props = React.ComponentProps<"select"> & { label: string; options: { value:
 
 export const SHELL_SELECT = "h-11 w-full appearance-none rounded-[inherit] bg-transparent pr-8 pl-3 pt-3 pb-1 text-sm outline-none";
 
+export function useKeepSelectOnReset(value: unknown) {
+  const ref = useRef<HTMLSelectElement>(null);
+  useLayoutEffect(() => {
+    if (value === undefined || !ref.current) return;
+    for (const o of ref.current.options) o.defaultSelected = o.value === String(value);
+  }, [value]);
+  return ref;
+}
+
 export function NativeSelect({ label, id, name, options, className, required, ...props }: Props) {
   const fieldId = id ?? name;
+  const ref = useKeepSelectOnReset(props.value);
   return (
     <FieldShell label={label} htmlFor={fieldId} required={required} className={className}>
-      <select id={fieldId} name={name} required={required} className={SHELL_SELECT} {...props}>
+      <select ref={ref} id={fieldId} name={name} required={required} className={SHELL_SELECT} {...props}>
         {options.map((o) => (
           <option key={o.value} value={o.value}>
             {o.label}

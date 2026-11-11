@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { FieldShell, SHELL_INPUT } from "@/components/form/field-shell";
+import { useKeepSelectOnReset } from "@/components/form/native-select";
 import { joinPhone, PHONE_PREFIXES, splitPhone } from "@/lib/countries";
 import { cn } from "@/lib/utils";
 
@@ -16,11 +17,12 @@ type Props = {
 };
 
 export function PhoneField({ label, name, defaultValue, prefix, onPrefixChange, className }: Props) {
+  const selectRef = useKeepSelectOnReset(prefix);
   const [number, setNumber] = useState(() => splitPhone(defaultValue, prefix).number);
   return (
     <FieldShell label={label} htmlFor={`${name}-number`} className={className}>
       <div className="flex">
-        <select aria-label="Předvolba" className="h-11 rounded-l-[inherit] border-r border-input bg-transparent pt-3 pb-1 pl-3 pr-1 text-sm outline-none" value={prefix} onChange={(e) => onPrefixChange(e.target.value)}>
+        <select ref={selectRef} aria-label="Předvolba" className="h-11 rounded-l-[inherit] border-r border-input bg-transparent pt-3 pb-1 pl-3 pr-1 text-sm outline-none" value={prefix} onChange={(e) => onPrefixChange(e.target.value)}>
           {(PHONE_PREFIXES.includes(prefix) ? PHONE_PREFIXES : [prefix, ...PHONE_PREFIXES]).map((p) => (
             <option key={p} value={p}>{p}</option>
           ))}
