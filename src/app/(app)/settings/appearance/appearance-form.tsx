@@ -115,8 +115,8 @@ export function AppearanceForm(props: { template: string; accentColor: string; l
                 <div className="text-xs text-muted-foreground">{t("ai.customDesc")}</div>
               </button>
               <div className="absolute top-2 right-2 flex gap-1">
-                <Button type="button" variant="outline" size="icon-sm" aria-label={tc("edit")} onClick={() => setEditing(row)}><Pencil /></Button>
-                <Button type="button" variant="outline" size="icon-sm" aria-label={t("ai.delete")} disabled={removing} onClick={() => remove(row)}><Trash2 /></Button>
+                <Button type="button" variant="outline" size="icon-sm" className="border-black/10 bg-white text-neutral-700 shadow-sm hover:bg-neutral-100 hover:text-neutral-900 dark:border-black/10 dark:bg-white dark:hover:bg-neutral-100" aria-label={tc("edit")} onClick={() => setEditing(row)}><Pencil /></Button>
+                <Button type="button" variant="outline" size="icon-sm" className="border-black/10 bg-white text-neutral-700 shadow-sm hover:bg-neutral-100 hover:text-neutral-900 dark:border-black/10 dark:bg-white dark:hover:bg-neutral-100 hover:text-red-600 dark:hover:text-red-600" aria-label={t("ai.delete")} disabled={removing} onClick={() => remove(row)}><Trash2 /></Button>
               </div>
             </div>
           ))}
